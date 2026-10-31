@@ -66,35 +66,57 @@ async function main() {
 
   /* ---------- terrain ---------- */
   const tl = new THREE.TextureLoader();
-  const tex = (f, nearest) => { const t = tl.load(D + f); t.flipY = false; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; if (nearest) { t.minFilter = t.magFilter = THREE.NearestFilter; } else { t.minFilter = THREE.LinearMipmapLinearFilter; t.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); } return t; };
+  const tex = (f, nearest) => { const t = tl.load(D + f); t.flipY = false; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; if (nearest) { t.minFilter = t.magFilter = THREE.NearestFilter; } else { t.minFilter = THREE.LinearMipmapLinearFilter; t.anisotropy = Math.min(+(new URLSearchParams(location.search).get('aniso') || 1), renderer.capabilities.getMaxAnisotropy()); } return t; };
   const baseTex = tex(man.base.file), clsTex = tex(man.classes.file), conTex = tex(man.contrast.file), corTex = tex(man.corridor.file, true);
   const atlasTex = tex(man.atlas.file); atlasTex.minFilter = THREE.LinearFilter; atlasTex.generateMipmaps = false;
-  const MAXS = 48;
+  const MAXS = Math.max(1, man.corridor.stops.length);
   const stops = new Array(MAXS).fill(0).map(() => new THREE.Vector4(1e6, 1e6, 0, 0));
   man.corridor.stops.slice(0, MAXS).forEach((s, i) => stops[i].set(s.x, s.z, s.ratio, s.tile));
-  const seg = Math.min(384, man.height.n - 1);
+  // corridor lookup without shader loops: 1 m index map (which rover stop covers this spot) + per-stop parameter texture
+  const NS = man.corridor.stops.length, IM = Math.ceil(SIZE), idxData = new Uint8Array(IM * IM * 4);
+  for (let gz = 0; gz < IM; gz++) for (let gx = 0; gx < IM; gx++) {
+    const x = gx + 0.5 - SIZE / 2, z = gz + 0.5 - SIZE / 2; let best = 0, bd = 1e9;
+    man.corridor.stops.forEach((st, i) => { const dx = x - st.x, dz = z - st.z, d = dx * dx + dz * dz;
+      if (Math.abs(dx) < man.corridor.half_m && Math.abs(dz) < man.corridor.half_m && d < bd) { bd = d; best = i + 1; } });
+    idxData[(gz * IM + gx) * 4] = best;
+  }
+  const corIdx = new THREE.DataTexture(idxData, IM, IM, THREE.RGBAFormat); corIdx.minFilter = corIdx.magFilter = THREE.NearestFilter; corIdx.needsUpdate = true;
+  const spData = new Uint8Array(Math.max(1, NS) * 2 * 4);
+  man.corridor.stops.forEach((st, i) => {
+    const ex = Math.round((st.x / SIZE + 0.5) * 65535), ez = Math.round((st.z / SIZE + 0.5) * 65535);
+    spData.set([ex >> 8, ex & 255, ez >> 8, ez & 255], i * 4);
+    spData.set([Math.round(Math.min(1, st.ratio / 4) * 255), st.tile, 0, 255], (NS + i) * 4);
+  });
+  const stopTex = new THREE.DataTexture(spData, Math.max(1, NS), 2, THREE.RGBAFormat); stopTex.minFilter = stopTex.magFilter = THREE.NearestFilter; stopTex.needsUpdate = true;
+  const hc = man.corridor.half_m, xs = man.corridor.stops.map((s) => s.x), zs = man.corridor.stops.map((s) => s.z);
+  const corBox = new THREE.Vector4(Math.min(...xs) - hc, Math.min(...zs) - hc, Math.max(...xs) + hc, Math.max(...zs) + hc);
+  const URLP = new URLSearchParams(location.search);
+  const seg = Math.min(+(URLP.get('seg') || 96), man.height.n - 1);       // far terrain: coarse; near patch below carries full DTM detail
   const geo = new THREE.PlaneGeometry(SIZE, SIZE, seg, seg); geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
   for (let i = 0; i < pos.count; i++) pos.setY(i, heightAt(pos.getX(i), pos.getZ(i)));
   geo.computeVertexNormals();
   const sun = new THREE.Vector3(-0.35, 0.72, 0.6).normalize();
   const terrainMat = new THREE.ShaderMaterial({
-    extensions: { derivatives: true },
+    extensions: { derivatives: true }, defines: { QUALITY: 2 },
     uniforms: {
       baseTex: { value: baseTex }, clsTex: { value: clsTex }, conTex: { value: conTex }, atlasTex: { value: atlasTex }, corTex: { value: corTex },
       ampRatio: { value: new THREE.Vector4(...man.amp_ratio) }, conScale: { value: man.contrast.scale }, size: { value: SIZE },
       tileM: { value: man.atlas.tile_m }, tilesPerClass: { value: man.atlas.tiles_per_class },
-      stops: { value: stops }, nStops: { value: Math.min(MAXS, man.corridor.stops.length) }, stopHalf: { value: man.corridor.half_m },
+      stops: { value: stops }, nStops: { value: new URLSearchParams(location.search).has('nocor') ? 0 : Math.min(MAXS, man.corridor.stops.length) }, stopHalf: { value: man.corridor.half_m },
+      corBox: { value: corBox }, corIdx: { value: corIdx }, stopTex: { value: stopTex }, nStopsF: { value: Math.max(1, NS) },
       corCols: { value: man.corridor.cols }, corTile: { value: man.corridor.tile_px / corW },
-      sunDir: { value: sun }, tau: { value: 0.6 }, showProv: { value: 0 }, camPos: { value: new THREE.Vector3() },
+      sunDir: { value: sun }, tau: { value: 0.6 }, showProv: { value: 0 }, camPos: { value: new THREE.Vector3() }, quality: { value: 2 },
+      cutBox: { value: new THREE.Vector4(1e6, 1e6, -1e6, -1e6) },
     },
     vertexShader: `varying vec3 vPos; varying vec3 vN;
       void main(){ vPos = position; vN = normal; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: `
       #define MAXS ${MAXS}
       uniform sampler2D baseTex, clsTex, conTex, atlasTex, corTex; uniform vec4 ampRatio; uniform float conScale, size, tileM, tilesPerClass;
-      uniform vec4 stops[MAXS]; uniform int nStops; uniform float stopHalf, corCols, corTile;
-      uniform vec3 sunDir, camPos; uniform float tau, showProv;
+      uniform vec4 stops[MAXS]; uniform int nStops; uniform float stopHalf, corCols, corTile; uniform vec4 corBox;
+      uniform sampler2D corIdx, stopTex; uniform float nStopsF;
+      uniform vec3 sunDir, camPos; uniform float tau, showProv, quality; uniform vec4 cutBox;
       varying vec3 vPos; varying vec3 vN;
       float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
       float tileSample(float cls, vec2 w){
@@ -106,34 +128,53 @@ async function main() {
         return (texture2D(atlasTex, auv).r - 0.5) * 6.0;
       }
       float bomb(float cls, vec2 w){            // two half-offset layers, Hann-weighted, variance preserving
+        #if QUALITY < 2
+        return tileSample(cls, w);                      // tier 1: single layer (half the taps)
+        #else
         vec2 fa = fract(w / tileM), fb = fract(w / tileM + 0.5);
         float wa = sin(3.14159 * fa.x) * sin(3.14159 * fa.y), wb = sin(3.14159 * fb.x) * sin(3.14159 * fb.y);
         return (wa * tileSample(cls, w) + wb * tileSample(cls + 0.0, w + 0.5 * tileM + 7.3)) / sqrt(wa * wa + wb * wb + 1e-4);
+        #endif
       }
       void main(){
         vec2 w = vPos.xz; vec2 uv = w / size + 0.5;
+        if (w.x > cutBox.x && w.x < cutBox.z && w.y > cutBox.y && w.y < cutBox.w) discard;   // far mesh yields to the near patch
         float g = texture2D(baseTex, uv).r;
         vec4 cls = texture2D(clsTex, uv); cls /= max(dot(cls, vec4(1.0)), 1e-3);
         float contrast = texture2D(conTex, uv).r * conScale;
         float mpp = max(fwidth(w.x), fwidth(w.y));          // metres per screen pixel
-        float fade = 1.0 - smoothstep(0.05, 0.22, mpp);      // fine detail only where it can be seen
+        #if QUALITY == 0
+        float fade = 0.0;                                   // tier 0: measured imagery only (no detail code compiled)
+        #else
+        float fade = 1.0 - smoothstep(0.05, 0.22, mpp);     // fine detail only where it can be seen
+        #endif
         float detail = 0.0, real = 0.0;
+        #if QUALITY > 0
         if (fade > 0.01) {
-          detail = cls.x * ampRatio.x * bomb(0.0, w) + cls.y * ampRatio.y * bomb(1.0, w) + cls.z * ampRatio.z * bomb(2.0, w) + cls.w * ampRatio.w * bomb(3.0, w);
+          if (cls.x > 0.03) detail += cls.x * ampRatio.x * bomb(0.0, w);   // skip near-zero classes (fewer texture taps)
+          if (cls.y > 0.03) detail += cls.y * ampRatio.y * bomb(1.0, w);
+          if (cls.z > 0.03) detail += cls.z * ampRatio.z * bomb(2.0, w);
+          if (cls.w > 0.03) detail += cls.w * ampRatio.w * bomb(3.0, w);
           vec4 a2 = ampRatio * ampRatio;                  // variance-preserving fuzzy blend (matches pipeline/detail.py)
           detail *= sqrt(dot(cls, a2) / max(dot(cls * cls, a2), 1e-6));
-          for (int i = 0; i < MAXS; i++) {
-            if (i >= nStops) break;
-            vec2 d = w - stops[i].xy;
-            if (abs(d.x) < stopHalf && abs(d.y) < stopHalf) {
-              vec2 t = (d + stopHalf) / (2.0 * stopHalf);
-              float tile = stops[i].w; vec2 tc = vec2(mod(tile, corCols), floor(tile / corCols));
-              vec4 c = texture2D(corTex, (tc + t) * corTile);
-              if (c.g > 0.5) { detail = (c.r - 0.5) * 6.0 * stops[i].z; real = 1.0; }
+          if (nStops > 0 && w.x > corBox.x && w.x < corBox.z && w.y > corBox.y && w.y < corBox.w) {
+            float id = floor(texture2D(corIdx, uv).r * 255.0 + 0.5);
+            if (id > 0.5) {
+              float u = (id - 0.5) / nStopsF;
+              vec4 a = texture2D(stopTex, vec2(u, 0.25)), b = texture2D(stopTex, vec2(u, 0.75));
+              vec2 ctr = (vec2(a.r * 65280.0 + a.g * 255.0, a.b * 65280.0 + a.a * 255.0) / 65535.0 - 0.5) * size;
+              vec2 d = w - ctr;
+              if (abs(d.x) < stopHalf && abs(d.y) < stopHalf) {
+                vec2 t = (d + stopHalf) / (2.0 * stopHalf);
+                float tile = floor(b.g * 255.0 + 0.5); vec2 tc = vec2(mod(tile, corCols), floor(tile / corCols));
+                vec4 c = texture2D(corTex, (tc + t) * corTile);
+                if (c.g > 0.5) { detail = (c.r - 0.5) * 6.0 * (b.r * 4.0); real = 1.0; }
+              }
             }
           }
           detail *= contrast * fade;
         }
+        #endif
         float v = clamp(g + detail, 0.0, 1.0);
         vec3 albedo = mix(vec3(0.30, 0.18, 0.11), vec3(0.88, 0.64, 0.46), v);
         vec3 n = normalize(vN);
@@ -147,6 +188,21 @@ async function main() {
       }`,
   });
   const terrain = new THREE.Mesh(geo, terrainMat); scene.add(terrain);
+  // near patch: full 1 m DTM detail around the rover, re-centred as it drives (cheap on phones)
+  const NEAR = 96, NSEG = 96, nearUniforms = Object.assign({}, terrainMat.uniforms, { cutBox: { value: new THREE.Vector4(1e6, 1e6, -1e6, -1e6) } });
+  const nearMat = new THREE.ShaderMaterial({ extensions: { derivatives: true }, defines: { QUALITY: 2 }, uniforms: nearUniforms, vertexShader: terrainMat.vertexShader, fragmentShader: terrainMat.fragmentShader });
+  const ngeo = new THREE.PlaneGeometry(NEAR, NEAR, NSEG, NSEG); ngeo.rotateX(-Math.PI / 2);
+  const nbase = ngeo.attributes.position.array.slice();
+  const near = new THREE.Mesh(ngeo, nearMat); near.frustumCulled = false; scene.add(near);
+  let nearC = [1e9, 1e9];
+  const updateNear = (x, z) => {
+    const cx = Math.round(x / 8) * 8, cz = Math.round(z / 8) * 8;
+    if (cx === nearC[0] && cz === nearC[1]) return; nearC = [cx, cz];
+    const a = ngeo.attributes.position;
+    for (let i = 0; i < a.count; i++) { const px = nbase[i * 3] + cx, pz = nbase[i * 3 + 2] + cz; a.setXYZ(i, px, heightAt(px, pz), pz); }
+    a.needsUpdate = true; ngeo.computeVertexNormals(); ngeo.computeBoundingSphere();
+    const m = NEAR / 2 - 2; terrainMat.uniforms.cutBox.value.set(cx - m, cz - m, cx + m, cz + m);
+  };
   const sky = () => { const t = +$('tau').value; const c = new THREE.Color().setRGB(0.72 - 0.05 * t, 0.56 - 0.04 * t, 0.42 - 0.03 * t); scene.background = c; terrainMat.uniforms.tau.value = t; };
   $('tau').addEventListener('input', sky); sky();
 
@@ -212,7 +268,7 @@ async function main() {
 
   /* ---------- tagging: raycast from the reticle ---------- */
   const ray = new THREE.Raycaster();
-  const reticleHit = () => { ray.setFromCamera(new THREE.Vector2(0, 0), camera); const h = ray.intersectObject(terrain); return h.length ? h[0] : null; };
+  const reticleHit = () => { ray.setFromCamera(new THREE.Vector2(0, 0), camera); const h = ray.intersectObjects([near, terrain]); return h.length ? h[0] : null; };
   const mppAt = (dist) => 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / (window.innerHeight * renderScale);
   function tag() {
     const h = reticleHit(); if (!h) { toast('Aim the reticle at the ground'); return; }
@@ -233,9 +289,16 @@ async function main() {
   }
 
   /* ---------- simulation loop ---------- */
+  const qp = new URLSearchParams(location.search).get('quality');
+  const MAXQ = qp != null ? +qp : 2, MINQ = qp != null ? +qp : 0;
+  const setTier = (t) => { terrainMat.uniforms.quality.value = t; for (const m of [terrainMat, nearMat]) { m.defines.QUALITY = t; m.needsUpdate = true; } };
+  setTier(MAXQ);
+  const DBG = { nopost: URLP.has('nopost'), noray: URLP.has('noray'), noterrain: URLP.has('noterrain') };
+  if (DBG.noterrain) { terrain.visible = false; near.visible = false; }
   const clock = new THREE.Clock(); let fpsAcc = 0, fpsN = 0, fps = 0, provTimer = 0;
   const camTarget = new THREE.Vector3(), camPosV = new THREE.Vector3();
   function step(dt) {
+    updateNear(R.x, R.z);
     const acc = (keys['w'] || keys['arrowup'] ? 1 : 0) - (keys['s'] || keys['arrowdown'] ? 1 : 0);
     const turn = (keys['a'] || keys['arrowleft'] ? 1 : 0) - (keys['d'] || keys['arrowright'] ? 1 : 0);
     R.v += (acc * 3.0 - R.v * 1.8) * dt; R.yaw += turn * 0.9 * dt * (Math.abs(R.v) > 0.05 ? 1 : 0.6);
@@ -270,22 +333,31 @@ async function main() {
   function frame() {
     const dt = Math.min(0.05, clock.getDelta());
     step(dt);
-    renderer.setRenderTarget(rt); renderer.render(scene, camera); renderer.setRenderTarget(null); renderer.render(postScene, postCam);
+    if (DBG.nopost) { renderer.setRenderTarget(null); renderer.render(scene, camera); }
+    else { renderer.setRenderTarget(rt); renderer.render(scene, camera); renderer.setRenderTarget(null); renderer.render(postScene, postCam); }
     fpsAcc += dt; fpsN++;
     if (fpsAcc > 1) {
       fps = fpsN / fpsAcc; fpsAcc = 0; fpsN = 0;
-      const ns = fps < 26 ? Math.max(0.5, renderScale - 0.1) : (fps > 50 ? Math.min(1, renderScale + 0.05) : renderScale);
+      // adaptive quality: first trade resolution, then detail tier (each tier is a separately compiled shader)
+      const q = terrainMat.uniforms.quality; let ns = renderScale;
+      if (fps < 27) {
+        if (renderScale > 0.55) ns = Math.max(0.5, renderScale - 0.1);
+        else if (q.value > MINQ) { setTier(q.value - 1); ns = 0.75; }
+      } else if (fps > 50) {
+        if (renderScale < 0.95) ns = Math.min(1, renderScale + 0.05);
+        else if (q.value < MAXQ) { setTier(q.value + 1); ns = 0.75; }
+      }
       if (ns !== renderScale) { renderScale = ns; resize(); }
-      window.__perf = { fps, renderScale };
+      window.__perf = { fps, renderScale, quality: q.value };
     }
     provTimer += dt;
-    if (provTimer > 0.25) {
+    if (provTimer > 0.25 && !DBG.noray) {
       provTimer = 0;
       const h = reticleHit(); const ll = toLatLon(R.x, R.z);
       const p = h ? provenanceAt(h.point, mppAt(h.distance)) : '—';
       const cls = p.startsWith('measured (rover') ? 'm' : p.startsWith('simulated') ? 's' : 'n';
       $('provtxt').innerHTML = `under reticle:<br><span class="${cls}">${p}</span>`;
-      $('hudtxt').innerHTML = `${ll[0].toFixed(5)}°N ${ll[1].toFixed(5)}°E · ${Math.abs(R.v).toFixed(1)} m/s<br>${fps.toFixed(0)} fps · render ${Math.round(renderScale * 100)}% · ${R.cam}<br><span class="n">WASD/▲▼◀▶ drive · C camera · P provenance · T tag</span>`;
+      $('hudtxt').innerHTML = `${ll[0].toFixed(5)}°N ${ll[1].toFixed(5)}°E · ${Math.abs(R.v).toFixed(1)} m/s<br>${fps.toFixed(0)} fps · render ${Math.round(renderScale * 100)}% · detail tier ${terrainMat.uniforms.quality.value} · ${R.cam}<br><span class="n">WASD/▲▼◀▶ drive · C camera · P provenance · T tag</span>`;
     }
     requestAnimationFrame(frame);
   }

@@ -14,18 +14,18 @@
   html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:12px}
   #view{position:fixed;inset:0;touch-action:none}
   .panel{position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;z-index:5}
-  #hud{top:8px;left:8px;max-width:min(360px,calc(100vw - 16px));line-height:1.45}
+  #hud{top:8px;left:8px;max-width:min(360px,calc(58vw - 12px));line-height:1.45}
   #hud b{color:var(--accent)}
-  #prov{top:8px;right:8px;text-align:right;line-height:1.45;max-width:46vw}
+  #prov{top:8px;right:8px;text-align:right;line-height:1.45;max-width:calc(42vw - 12px)}
   .m{color:var(--good)} .s{color:var(--warn)} .n{color:var(--muted)}
   #reticle{position:fixed;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border:1.5px solid rgba(255,255,255,0.75);border-radius:50%;z-index:4;pointer-events:none}
   #toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);z-index:9;display:none;max-width:86vw;text-align:center}
   #controls{bottom:8px;left:8px;right:8px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px}
   button{font-family:var(--mono);font-size:12px;color:var(--text);background:rgba(255,255,255,0.06);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:44px;min-height:40px}
   button.on{background:rgba(224,114,63,0.28);border-color:var(--accent)}
-  #pad{position:fixed;right:10px;bottom:70px;z-index:6;display:grid;grid-template-columns:repeat(3,48px);gap:4px}
+  #pad{position:fixed;right:10px;bottom:118px;z-index:6;display:grid;grid-template-columns:repeat(3,48px);gap:4px}
   #pad button{min-height:48px}
-  #scores{top:auto;bottom:70px;left:8px;max-width:min(380px,calc(100vw - 190px));display:none;line-height:1.5}
+  #scores{top:auto;bottom:118px;left:8px;max-width:min(380px,calc(100vw - 190px));display:none;line-height:1.5}
   #scores table{border-collapse:collapse} #scores td{padding:1px 6px 1px 0}
   #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:20;background:var(--bg);color:var(--accent);font-size:14px}
   label{display:flex;gap:6px;align-items:center}

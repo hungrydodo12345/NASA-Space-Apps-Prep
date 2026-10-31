@@ -1,0 +1,25 @@
+{
+ "profile": "headless Chromium, 390x844 CSS px @3x, CPU throttled 4x, SwiftShader software GL (no GPU) - pessimistic vs a real phone GPU",
+ "environment_ceiling_fps": 60.0,
+ "results_fps": {
+  "tier 2 (full rover-texture detail)": 26.4,
+  "tier 1 (single-layer detail)": 28.8,
+  "tier 0 (measured imagery only)": 29.8,
+  "adaptive default (settles at tier 0, 75% render scale)": 32.4
+ },
+ "full_detail_drive_test": {
+  "fps_mean": 25.9,
+  "fps_min": 24.6,
+  "render_scale": 0.5,
+  "page_errors": 0
+ },
+ "optimisations": [
+  "near/far terrain LOD (96 m patch at 1 m DTM spacing + coarse far mesh)",
+  "per-tier compiled shader variants",
+  "corridor index-map lookup instead of shader loop",
+  "anisotropy 1",
+  "adaptive render scale + sharpen pass"
+ ],
+ "web_payload_mb": 4.2,
+ "not_tested": "physical phones"
+}

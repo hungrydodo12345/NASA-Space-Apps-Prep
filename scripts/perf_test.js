@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   const page = await ctx.newPage();
   const errors = []; page.on('pageerror', (e) => errors.push(String(e))); page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-  const cdp = await ctx.newCDPSession(page); await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+  const cdp = await ctx.newCDPSession(page); await cdp.send('Emulation.setCPUThrottlingRate', { rate: +(process.argv[4] || 4) });
   await page.goto(url); await page.waitForFunction('window.__ready === true', null, { timeout: 120000 });
   await page.waitForTimeout(3000);
   await page.screenshot({ path: `${shots}/chase.png` });
