@@ -108,16 +108,53 @@ async function main() {
       corCols: { value: man.corridor.cols }, corTile: { value: man.corridor.tile_px / corW },
       sunDir: { value: sun }, tau: { value: 0.6 }, showProv: { value: 0 }, camPos: { value: new THREE.Vector3() }, quality: { value: 2 },
       cutBox: { value: new THREE.Vector4(1e6, 1e6, -1e6, -1e6) },
+      bakeTex: { value: null }, bakeOrigin: { value: new THREE.Vector2(1e6, 1e6) }, bakeSize: { value: 64 },
     },
     vertexShader: `varying vec3 vPos; varying vec3 vN;
       void main(){ vPos = position; vN = normal; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: `
-      #define MAXS ${MAXS}
-      uniform sampler2D baseTex, clsTex, conTex, atlasTex, corTex; uniform vec4 ampRatio; uniform float conScale, size, tileM, tilesPerClass;
-      uniform vec4 stops[MAXS]; uniform int nStops; uniform float stopHalf, corCols, corTile; uniform vec4 corBox;
-      uniform sampler2D corIdx, stopTex; uniform float nStopsF;
-      uniform vec3 sunDir, camPos; uniform float tau, showProv, quality; uniform vec4 cutBox;
+      uniform sampler2D baseTex, bakeTex; uniform float size; uniform vec2 bakeOrigin; uniform float bakeSize;
+      uniform vec3 sunDir, camPos; uniform float tau, showProv; uniform vec4 cutBox;
       varying vec3 vPos; varying vec3 vN;
+      void main(){
+        vec2 w = vPos.xz; vec2 uv = w / size + 0.5;
+        if (w.x > cutBox.x && w.x < cutBox.z && w.y > cutBox.y && w.y < cutBox.w) discard;   // far mesh yields to the near patch
+        float g = texture2D(baseTex, uv).r;
+        float mpp = max(fwidth(w.x), fwidth(w.y));          // metres per screen pixel
+        float detail = 0.0, real = 0.0, fade = 0.0;
+        #if QUALITY > 0
+        fade = 1.0 - smoothstep(0.05, 0.22, mpp);           // fine detail only where it can be seen
+        vec2 bt = (w - bakeOrigin) / bakeSize;              // detail is baked around the rover (one tap per pixel)
+        if (fade > 0.01 && bt.x > 0.0 && bt.x < 1.0 && bt.y > 0.0 && bt.y < 1.0) {
+          vec4 bk = texture2D(bakeTex, bt); detail = (bk.r - 0.5) / 1.5 * fade; real = bk.g;
+        }
+        #endif
+        float v = clamp(g + detail, 0.0, 1.0);
+        vec3 albedo = mix(vec3(0.30, 0.18, 0.11), vec3(0.88, 0.64, 0.46), v);
+        vec3 n = normalize(vN);
+        float light = 0.72 + 0.38 * max(dot(n, sunDir), 0.0) - 0.06 * (tau - 0.6);
+        vec3 col = albedo * light;
+        if (showProv > 0.5 && fade > 0.05) col = mix(col, real > 0.5 ? vec3(0.2, 0.9, 0.35) : vec3(0.95, 0.25, 0.2), 0.30 * fade);
+        float dist = length(vPos - camPos);
+        float fogK = 1.0 - exp(-dist * 0.0009 * tau * tau);
+        vec3 dust = mix(vec3(0.78, 0.6, 0.45), vec3(0.62, 0.44, 0.3), clamp(tau / 4.0, 0.0, 1.0));
+        gl_FragColor = vec4(mix(col, dust, clamp(fogK, 0.0, 0.92)), 1.0);
+      }`,
+  });
+  const terrain = new THREE.Mesh(geo, terrainMat); scene.add(terrain);
+
+  // ---- detail bake: the rover-texture detail field is rendered once per 8 m of driving into a 64 m texture
+  //      (6.25 cm texels), in 8 strips over 8 frames, so per-frame cost is one texture read per pixel.
+  const BAKE_M = 64, BAKE_PX = 1024, STRIPS = 8;
+  const bakeRT = [0, 1].map(() => new THREE.WebGLRenderTarget(BAKE_PX, BAKE_PX, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false }));
+  const bakeUniforms = Object.assign({}, terrainMat.uniforms, { bakeOrigin: { value: new THREE.Vector2(1e6, 1e6) } });
+  const bakeMat = new THREE.ShaderMaterial({
+    defines: { QUALITY: 2, MAXS: MAXS }, uniforms: bakeUniforms, depthTest: false, depthWrite: false,
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+    fragmentShader: `
+      uniform sampler2D clsTex, conTex, atlasTex, corTex, corIdx, stopTex; uniform vec4 ampRatio; uniform float conScale, size, tileM, tilesPerClass;
+      uniform int nStops; uniform float stopHalf, corCols, corTile, nStopsF, bakeSize; uniform vec4 corBox; uniform vec2 bakeOrigin;
+      varying vec2 vUv;
       float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
       float tileSample(float cls, vec2 w){
         vec2 q = w / tileM; vec2 cell = floor(q); vec2 f = fract(q);
@@ -136,21 +173,12 @@ async function main() {
         return (wa * tileSample(cls, w) + wb * tileSample(cls + 0.0, w + 0.5 * tileM + 7.3)) / sqrt(wa * wa + wb * wb + 1e-4);
         #endif
       }
+
       void main(){
-        vec2 w = vPos.xz; vec2 uv = w / size + 0.5;
-        if (w.x > cutBox.x && w.x < cutBox.z && w.y > cutBox.y && w.y < cutBox.w) discard;   // far mesh yields to the near patch
-        float g = texture2D(baseTex, uv).r;
+        vec2 w = bakeOrigin + vUv * bakeSize; vec2 uv = w / size + 0.5;
         vec4 cls = texture2D(clsTex, uv); cls /= max(dot(cls, vec4(1.0)), 1e-3);
         float contrast = texture2D(conTex, uv).r * conScale;
-        float mpp = max(fwidth(w.x), fwidth(w.y));          // metres per screen pixel
-        #if QUALITY == 0
-        float fade = 0.0;                                   // tier 0: measured imagery only (no detail code compiled)
-        #else
-        float fade = 1.0 - smoothstep(0.05, 0.22, mpp);     // fine detail only where it can be seen
-        #endif
         float detail = 0.0, real = 0.0;
-        #if QUALITY > 0
-        if (fade > 0.01) {
           if (cls.x > 0.03) detail += cls.x * ampRatio.x * bomb(0.0, w);   // skip near-zero classes (fewer texture taps)
           if (cls.y > 0.03) detail += cls.y * ampRatio.y * bomb(1.0, w);
           if (cls.z > 0.03) detail += cls.z * ampRatio.z * bomb(2.0, w);
@@ -172,22 +200,26 @@ async function main() {
               }
             }
           }
-          detail *= contrast * fade;
-        }
-        #endif
-        float v = clamp(g + detail, 0.0, 1.0);
-        vec3 albedo = mix(vec3(0.30, 0.18, 0.11), vec3(0.88, 0.64, 0.46), v);
-        vec3 n = normalize(vN);
-        float light = 0.72 + 0.38 * max(dot(n, sunDir), 0.0) - 0.06 * (tau - 0.6);
-        vec3 col = albedo * light;
-        if (showProv > 0.5 && fade > 0.05) col = mix(col, real > 0.5 ? vec3(0.2, 0.9, 0.35) : vec3(0.95, 0.25, 0.2), 0.30 * fade);
-        float dist = length(vPos - camPos);
-        float fogK = 1.0 - exp(-dist * 0.0009 * tau * tau);
-        vec3 dust = mix(vec3(0.78, 0.6, 0.45), vec3(0.62, 0.44, 0.3), clamp(tau / 4.0, 0.0, 1.0));
-        gl_FragColor = vec4(mix(col, dust, clamp(fogK, 0.0, 0.92)), 1.0);
+
+        gl_FragColor = vec4(clamp(detail * contrast * 1.5 + 0.5, 0.0, 1.0), real, 0.0, 1.0);
       }`,
   });
-  const terrain = new THREE.Mesh(geo, terrainMat); scene.add(terrain);
+  const bakeScene = new THREE.Scene(); bakeScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bakeMat));
+  let bakeFront = 0, bakeStrip = -1, bakePending = null;
+  const requestBake = (ox, oz) => { bakePending = [ox, oz]; bakeStrip = 0; };
+  const bakeStep = () => {
+    if (bakeStrip < 0 || terrainMat.defines.QUALITY === 0) return;
+    const back = bakeRT[1 - bakeFront], h = BAKE_PX / STRIPS;
+    bakeUniforms.bakeOrigin.value.set(bakePending[0], bakePending[1]);
+    back.scissor.set(0, bakeStrip * h, BAKE_PX, h); back.scissorTest = true;
+    renderer.setRenderTarget(back); renderer.render(bakeScene, postCam); renderer.setRenderTarget(null);
+    if (++bakeStrip >= STRIPS) {                        // swap: the new field becomes visible all at once
+      bakeFront = 1 - bakeFront; bakeStrip = -1;
+      terrainMat.uniforms.bakeTex.value = bakeRT[bakeFront].texture;
+      terrainMat.uniforms.bakeOrigin.value.set(bakePending[0], bakePending[1]);
+    }
+  };
+
   // near patch: full 1 m DTM detail around the rover, re-centred as it drives (cheap on phones)
   const NEAR = 96, NSEG = 96, nearUniforms = Object.assign({}, terrainMat.uniforms, { cutBox: { value: new THREE.Vector4(1e6, 1e6, -1e6, -1e6) } });
   const nearMat = new THREE.ShaderMaterial({ extensions: { derivatives: true }, defines: { QUALITY: 2 }, uniforms: nearUniforms, vertexShader: terrainMat.vertexShader, fragmentShader: terrainMat.fragmentShader });
@@ -202,6 +234,7 @@ async function main() {
     for (let i = 0; i < a.count; i++) { const px = nbase[i * 3] + cx, pz = nbase[i * 3 + 2] + cz; a.setXYZ(i, px, heightAt(px, pz), pz); }
     a.needsUpdate = true; ngeo.computeVertexNormals(); ngeo.computeBoundingSphere();
     const m = NEAR / 2 - 2; terrainMat.uniforms.cutBox.value.set(cx - m, cz - m, cx + m, cz + m);
+    requestBake(cx - BAKE_M / 2, cz - BAKE_M / 2);
   };
   const sky = () => { const t = +$('tau').value; const c = new THREE.Color().setRGB(0.72 - 0.05 * t, 0.56 - 0.04 * t, 0.42 - 0.03 * t); scene.background = c; terrainMat.uniforms.tau.value = t; };
   $('tau').addEventListener('input', sky); sky();
@@ -291,7 +324,7 @@ async function main() {
   /* ---------- simulation loop ---------- */
   const qp = new URLSearchParams(location.search).get('quality');
   const MAXQ = qp != null ? +qp : 2, MINQ = qp != null ? +qp : 0;
-  const setTier = (t) => { terrainMat.uniforms.quality.value = t; for (const m of [terrainMat, nearMat]) { m.defines.QUALITY = t; m.needsUpdate = true; } };
+  const setTier = (t) => { terrainMat.uniforms.quality.value = t; for (const m of [terrainMat, nearMat, bakeMat]) { m.defines.QUALITY = t; m.needsUpdate = true; } if (t > 0 && nearC[0] < 1e8) requestBake(nearC[0] - BAKE_M / 2, nearC[1] - BAKE_M / 2); };
   setTier(MAXQ);
   const DBG = { nopost: URLP.has('nopost'), noray: URLP.has('noray'), noterrain: URLP.has('noterrain') };
   if (DBG.noterrain) { terrain.visible = false; near.visible = false; }
@@ -333,6 +366,7 @@ async function main() {
   function frame() {
     const dt = Math.min(0.05, clock.getDelta());
     step(dt);
+    bakeStep();
     if (DBG.nopost) { renderer.setRenderTarget(null); renderer.render(scene, camera); }
     else { renderer.setRenderTarget(rt); renderer.render(scene, camera); renderer.setRenderTarget(null); renderer.render(postScene, postCam); }
     fpsAcc += dt; fpsN++;

@@ -59,7 +59,7 @@ Other measured results:
 | Measured layer: error predicting a held-out HiRISE frame, vs one raw frame | **25.4% lower** (6 frames) |
 | HiRISE blur, calibrated against rover truth | σ = 0.78 px (≈20 cm), interquartile 0.68–0.86 px over 34 stops |
 | Surface-type classifier vs guessing (held-out 100 m blocks), at 1 m / 4 m / 8 m | 3.7% / 4.1% / 6.0% lower composition error |
-| Phone profile (390×844 @3×, CPU 4× throttled, **software GL, no GPU**) | full detail 26 fps · adaptive default 32 fps · 4.2 MB download (`data_products/perf.json`) |
+| Phone profile (390×844 @3×, CPU 4× throttled, **software GL, no GPU**) | full detail 30.5 fps · adaptive default 32 fps at full detail · 4.2 MB download (`data_products/perf.json`) |
 
 The surface-type signal from orbit is weak. That's a property of the data, not a bug: it survived a
 camera-geometry fix and several feature sets. So the detail layer leans on rover-calibrated amplitude
@@ -85,7 +85,8 @@ and texture more than on class identity.
    - adjusts gain and spectral shape on training stops only;
    - applies a consistency lock that removes anything HiRISE would have seen.
 5. **Viewer** (`web/`): Three.js r128 from a CDN, no build step. The detail is synthesized in a single
-   fragment shader from small textures, which keeps it cheap on phones. It also includes:
+   fragment shader from small textures. It's baked once per 8 m of driving into a 64 m texture, so each frame reads one
+   value per pixel. That keeps it cheap on phones. It also includes:
    - adaptive render scale with an FSR1-style sharpening pass
    - a drivable 6-wheel rover with ground clamping, chase and 1.8 m mast cockpit cameras
    - gyro look-around, with the iOS permission handshake

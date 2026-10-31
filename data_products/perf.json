@@ -2,18 +2,19 @@
  "profile": "headless Chromium, 390x844 CSS px @3x, CPU throttled 4x, SwiftShader software GL (no GPU) - pessimistic vs a real phone GPU",
  "environment_ceiling_fps": 60.0,
  "results_fps": {
-  "tier 2 (full rover-texture detail)": 26.4,
-  "tier 1 (single-layer detail)": 28.8,
-  "tier 0 (measured imagery only)": 29.8,
-  "adaptive default (settles at tier 0, 75% render scale)": 32.4
+  "tier 2 (full rover-texture detail)": 30.5,
+  "tier 1 (single-layer detail)": 32.8,
+  "tier 0 (measured imagery only)": 33.9,
+  "adaptive default (stays at tier 2)": 32.2
  },
  "full_detail_drive_test": {
-  "fps_mean": 25.9,
-  "fps_min": 24.6,
-  "render_scale": 0.5,
+  "fps_mean": 31.5,
+  "fps_min": 26.0,
+  "render_scale": 0.58,
   "page_errors": 0
  },
  "optimisations": [
+  "detail baked once per 8 m of driving into a 64 m / 6.25 cm texture, 8 strips over 8 frames (one texture read per pixel per frame)",
   "near/far terrain LOD (96 m patch at 1 m DTM spacing + coarse far mesh)",
   "per-tier compiled shader variants",
   "corridor index-map lookup instead of shader loop",
