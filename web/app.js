@@ -274,7 +274,7 @@ async function main() {
     const h = reticleHit(); if (!h) { toast('Aim the reticle at the ground'); return; }
     const prov = provenanceAt(h.point, mppAt(h.distance));
     if (prov.startsWith('simulated')) { toast('Blocked: that detail is simulated. Step back so the reticle sits on measured terrain, or tag on the rover corridor.'); return; }
-    const label = prompt('What is this feature? (e.g. boulder, ripple, outcrop)', 'boulder'); if (!label) return;
+    const label = $('tagLabel').value;
     const ll = toLatLon(h.point.x, h.point.z);
     Ledger.add({ id: Date.now().toString(36), x: h.point.x, y: h.point.y, z: h.point.z, lat: ll[0], lon: ll[1], label, provenance: prov, timestamp: new Date().toISOString(), votes: 0, validation: scores ? scores.summary_line : null });
     drawTags(); toast('Tagged "' + label + '" — ' + prov);
