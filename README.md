@@ -1,0 +1,131 @@
+# Jezero Ground Truth Explorer
+
+A browser-based Mars explorer and rover simulator built on real NASA data. Every pixel is labelled
+**measured** or **simulated**, and both layers are scored in percentages against held-out
+Perseverance rover photos.
+
+- **Measured layer:** six overlapping HiRISE observations, fused.
+- **Terrain:** the HiRISE stereo DTM.
+- **Camera blur:** calibrated against rover ground truth.
+- **Detail layer:** fine detail below HiRISE's reach, built from real rover texture, guided by an
+  orbital surface-type classifier, and locked so it never alters what HiRISE measured.
+
+Hero area: the Octavia E. Butler landing site and Perseverance's first 120 sols (646 m × 646 m).
+
+## What is real, and what is not
+
+| Layer | Source | Real detail |
+|---|---|---|
+| Base imagery | 6 HiRISE observations, fused | features ≳ 60 cm (measured limit of the data) |
+| Terrain | HiRISE stereo DTM (DTEEC_045994_1985_046060_1985) | ~1 m posts |
+| Rover corridor | Perseverance Navcam photos projected through each camera model | cm-scale, placed by rover localisation (±1–3 m) |
+| Fine detail elsewhere | rover texture, classifier-guided | **simulated**: statistics match rover photos, exact pebble layout is not real |
+
+The 25 cm HiRISE pixels do **not** contain real 5–10 cm detail. We measured this: across seven
+lighting-matched observations, repeatable detail stops at about 40% of the sampling limit. Nothing
+here claims otherwise. In the viewer, the provenance overlay (`P`) tints rover-measured detail green
+and simulated detail red. Crowd tags are blocked on simulated pixels.
+
+## Results (held-out rover stops; 100% = identical to the rover's view)
+
+Twelve of the 35 rover stops in the hero area are held out. The texture library, amplitude
+calibration and spectral shaping use only the other 23 stops.
+
+| Method (4× upscale to 6.3 cm/px) | Spectral match | Texture match | Consistency with measurement |
+|---|---|---|---|
+| bicubic, single raw HiRISE frame | 15.2% | 57.6% | 100.0% |
+| Lanczos, single raw frame | 15.3% | 57.9% | 99.9% |
+| EDSR ×4 (off-the-shelf CNN), single raw frame | 15.2% | 57.4% | 98.1% |
+| ESPCN ×4, single raw frame | 15.2% | 56.4% | 96.6% |
+| FSRCNN ×4, single raw frame | 15.5% | 57.8% | 95.1% |
+| EDSR ×4 on our fused frames | 15.9% | 58.8% | 98.3% |
+| **Ours: fused + rover-texture detail** | **70.5%** | **75.3%** | **94.1%** |
+
+How to read the columns:
+- **Spectral match:** how much detail is present at each fine scale (6–25 cm) compared with the rover
+  photo. It is `100·exp(−mean|ln(P_out/P_rover)|)`.
+- **Texture match:** overlap of the gradient-magnitude distributions.
+- **Consistency:** whether the output, seen back through the measured HiRISE blur and pixel,
+  reproduces the measured image. It guards against invention.
+
+All three are registration-free, because rover photos and orbital pixels can't be aligned to the cm.
+Off-the-shelf upscalers stay consistent but add almost no real-looking fine detail. Ours adds
+rover-calibrated detail and remains about 94% consistent with the measurement.
+
+Other measured results:
+
+| Result | Value |
+|---|---|
+| Measured layer: error predicting a held-out HiRISE frame, vs one raw frame | **25.4% lower** (6 frames) |
+| HiRISE blur, calibrated against rover truth | σ = 0.78 px (≈20 cm), interquartile 0.68–0.86 px over 34 stops |
+| Surface-type classifier vs guessing (held-out 100 m blocks), at 1 m / 4 m / 8 m | 3.7% / 4.1% / 6.0% lower composition error |
+| Phone profile (390×844 @3×, CPU 4× throttled, software GL) | see `data_products/perf.json` |
+
+The surface-type signal from orbit is weak. That's a property of the data, not a bug: it survived a
+camera-geometry fix and several feature sets. So the detail layer leans on rover-calibrated amplitude
+and texture more than on class identity.
+
+## How it works
+
+1. **Fusion** (`scripts/build_hero_measured.py`):
+   - registers six lighting-matched HiRISE observations to the DTM-controlled orthoimage,
+     coarse first, then dense per-pixel motion;
+   - matches their photometry;
+   - applies a quality gate (only tiles that truly agree are used);
+   - fuses with a trimmed mean.
+2. **Rover ground truth** (`scripts/build_rover_truth.py`): projects Perseverance Navcam photos onto
+   the ground with the per-image CAHVORE camera model and rover attitude, at 5 cm/px. AI4Mars labels
+   supply the surface class and mask the rover body.
+3. **Blur calibration** (`scripts/calibrate_psf.py`): compares rover-truth spectra with HiRISE spectra
+   at 34 stops. No pixel alignment is needed, and lighting gain cancels out.
+4. **Detail layer** (`pipeline/detail.py`):
+   - takes real rover texture per surface class;
+   - mixes classes with variance-preserving fuzzy weights from the orbital classifier;
+   - sets amplitude from rover-measured fine/coarse contrast, corrected for HiRISE attenuation;
+   - adjusts gain and spectral shape on training stops only;
+   - applies a consistency lock that removes anything HiRISE would have seen.
+5. **Viewer** (`web/`): Three.js r128 from a CDN, no build step. The detail is synthesized in a single
+   fragment shader from small textures, which keeps it cheap on phones. It also includes:
+   - adaptive render scale with an FSR1-style sharpening pass
+   - a drivable 6-wheel rover with ground clamping, chase and 1.8 m mast cockpit cameras
+   - gyro look-around, with the iOS permission handshake
+   - dust-storm opacity (τ)
+   - real-slope limits from the DTM and a survey boundary
+   - reticle tagging into a stubbed ledger that's ready to swap for Supabase
+
+## Run it
+
+```bash
+pip install -r requirements.txt
+python scripts/fetch_data.py data                      # ~9 GB of public NASA data
+python scripts/build_rover_truth.py data/navcam data/rover/meta data/ai4mars/ai4mars-dataset-merged-0.6/m2020/labels \
+       data/rover/waypoints.json data/rover/hero_navcam.json data/hero/rover_truth
+python scripts/calibrate_psf.py data/hero/rover_truth data/hirise_jezero/ESP_045994_1985_RED_A_01_ORTHO.JP2 data_products/psf_calibration.json
+python scripts/build_hero_measured.py data/hirise_jezero data/hirise_rdr data/hero
+python scripts/build_surface_groundtruth.py data NAV && python scripts/train_surface_classifier.py data NAV 30 4
+python scripts/evaluate_hero.py data/hero data/hero/rover_truth <sr_models_dir> data/rover/cells_NAV_4m.npz \
+       data/hirise_jezero/ESP_045994_1985_RED_A_01_ORTHO.JP2 data/hero/scores.json
+python scripts/export_web.py data/hero data/hero/rover_truth data/hirise_jezero/DTEEC_045994_1985_046060_1985_U01.IMG \
+       data/hirise_jezero/ESP_045994_1985_RED_A_01_ORTHO.JP2 data/rover/cells_NAV_4m.npz data/rover/waypoints.json web/data data/hero/scores.json
+cd web && python -m http.server 8000                   # open http://localhost:8000
+```
+
+`<sr_models_dir>` holds the OpenCV `EDSR_x4.pb`, `ESPCN_x4.pb` and `FSRCNN_x4.pb` models, which are
+used only as baselines. The `tests/` folder runs on synthetic ground truth: `pytest`.
+
+## Limitations
+
+- **One hero site,** with 12 held-out stops. Wider validation is the next step.
+- **Rover truth geometry:** it assumes locally flat ground (projection limited to 1.5–8 m from the
+  rover). Mosaics average several photos, which slightly blurs the reference, so the PSF estimate may
+  be a little low.
+- **Rover corridor placement:** it relies on rover localisation. Rover photos could not be registered
+  to HiRISE pixels at the cm level, under any orientation or scale.
+- **The simulated layer is statistically grounded, not real at the pebble level.** It is always
+  labelled, and tags are blocked on it.
+- **Performance numbers** come from a headless software-GL phone profile, not a physical phone.
+
+## Data credits
+
+NASA/JPL-Caltech/University of Arizona (HiRISE). NASA/JPL-Caltech (Mars 2020 Navcam raw images,
+MMGIS traverse). AI4Mars dataset (Zooniverse / NASA JPL, CC-BY-4.0).

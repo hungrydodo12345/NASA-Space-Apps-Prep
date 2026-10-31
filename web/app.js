@@ -120,6 +120,8 @@ async function main() {
         float detail = 0.0, real = 0.0;
         if (fade > 0.01) {
           detail = cls.x * ampRatio.x * bomb(0.0, w) + cls.y * ampRatio.y * bomb(1.0, w) + cls.z * ampRatio.z * bomb(2.0, w) + cls.w * ampRatio.w * bomb(3.0, w);
+          vec4 a2 = ampRatio * ampRatio;                  // variance-preserving fuzzy blend (matches pipeline/detail.py)
+          detail *= sqrt(dot(cls, a2) / max(dot(cls * cls, a2), 1e-6));
           for (int i = 0; i < MAXS; i++) {
             if (i >= nStops) break;
             vec2 d = w - stops[i].xy;

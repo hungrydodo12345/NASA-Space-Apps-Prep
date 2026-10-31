@@ -43,8 +43,11 @@ def bands(truth, psf_px):
 
 
 def extract_patches(truth, classes, psf_px, size, min_frac=0.8):
-    """Square fine-band patches dominated (>= min_frac) by one class. Returns {class: [patch,...]} (unit std)."""
-    fine, _ = bands(truth, psf_px)
+    """Square patches dominated (>= min_frac) by one class, broad structure (> ~4 PSF widths) removed.
+    The HiRISE complement (1 - PSF) is applied once, later, by the consistency lock. Returns {class: [unit-std patch]}."""
+    v = np.isfinite(truth).astype(float); a = np.nan_to_num(truth)
+    broad = ndi.gaussian_filter(a * v, 4 * psf_px) / np.maximum(ndi.gaussian_filter(v, 4 * psf_px), 1e-9)
+    fine = np.where(v > 0, a - broad, np.nan)
     out = {c: [] for c in range(len(CLASSES))}
     n = truth.shape[0]
     for y in range(0, n - size + 1, size // 2):
@@ -70,7 +73,7 @@ def synthesize(base_up, probs, tiles, amp_ratio, psf_px, seed=0):
     tiles: {class: [unit-std patches]}; amp_ratio: {class: fine/coarse}; psf_px: PSF sigma on this grid."""
     rng = np.random.default_rng(seed)
     H, W = base_up.shape
-    detail = np.zeros((H, W))
+    detail = np.zeros((H, W)); var_area = np.zeros((H, W)); var_mix = np.zeros((H, W))
     for c in range(len(CLASSES)):
         if not tiles.get(c): continue
         pt = tiles[c]; s = pt[0].shape[0]
@@ -83,11 +86,52 @@ def synthesize(base_up, probs, tiles, amp_ratio, psf_px, seed=0):
                 canvas[y:y + s, x:x + s] += t * win; wsum[y:y + s, x:x + s] += win ** 2
         d = canvas / np.sqrt(np.maximum(wsum, 1e-9))
         d = d[s // 2:s // 2 + H, s // 2:s // 2 + W]
-        detail += probs[c] * amp_ratio.get(c, 0.0) * d
+        a_c = amp_ratio.get(c, 0.0)
+        detail += probs[c] * a_c * d
+        var_area += probs[c] * a_c ** 2          # a patch that is p_c class c has variance sum p_c a_c^2 ...
+        var_mix += probs[c] ** 2 * a_c ** 2      # ... but a weighted sum of independent textures has sum p_c^2 a_c^2
+    # (fuzzy blend variance is restored by the local renormalisation below)
     # local contrast of the measured coarse band sets the physical amplitude
     blur = ndi.gaussian_filter(base_up, psf_px); broad = ndi.gaussian_filter(base_up, 4 * psf_px)
     local = np.sqrt(ndi.gaussian_filter((blur - broad) ** 2, 8 * psf_px))
-    detail = detail * local
-    # consistency lock: remove any component the HiRISE PSF would see (keeps the measurement exact)
+    target = local * np.sqrt(var_area)                 # wanted rms of the final fine band
+    # consistency lock: remove any component the HiRISE PSF would see (keeps the measurement exact) ...
     detail = detail - ndi.gaussian_filter(detail, psf_px)
+    # ... then renormalise locally so the remaining fine band has exactly the target contrast
+    rms = np.sqrt(ndi.gaussian_filter(detail ** 2, 8 * psf_px))
+    detail = detail * target / np.maximum(rms, 1e-12)
+    detail = detail - ndi.gaussian_filter(detail, psf_px)   # final lock: strip low-frequency leak from the renormalisation
     return base_up + detail, detail
+
+
+def contrast_attenuation(truth, psf_px, scale=4):
+    """How much of the coarse-band contrast survives the HiRISE imaging chain (PSF + pixel + resampling).
+
+    The detail amplitude is scaled by the *measured* image's coarse-band contrast, which HiRISE has already
+    attenuated; dividing by this factor (estimated from rover truth on training stops) restores the true level.
+    """
+    v = np.isfinite(truth); a = np.where(v, truth, np.nanmean(truth))
+    seen = ndi.uniform_filter(ndi.gaussian_filter(a, psf_px), scale)[scale // 2::scale, scale // 2::scale]
+    up = ndi.zoom(seen, scale, order=3, grid_mode=True, mode="nearest")[:a.shape[0], :a.shape[1]]
+    vv = v[:up.shape[0], :up.shape[1]]
+    band = lambda x: ndi.gaussian_filter(x, psf_px) - ndi.gaussian_filter(x, 4 * psf_px)
+    return float(np.std(band(up)[vv]) / (np.std(band(a[:up.shape[0], :up.shape[1]])[vv]) + 1e-12))
+
+
+FALLBACK = {3: 1, 2: 0, 1: 0, 0: 1}   # big_rock -> bedrock, sand -> soil when the rover saw too few clean examples
+
+
+def shape_tiles(tiles, f, ln_ratio):
+    """Radial spectral correction of the texture library: multiply each tile's spectrum by exp(-ln_ratio(f)/2),
+    where ln_ratio(f) = ln(P_out/P_truth) measured on TRAINING stops (cycles per detail px)."""
+    out = {}
+    for c, lst in tiles.items():
+        new = []
+        for t in lst:
+            n = t.shape[0]
+            fy, fx = np.meshgrid(np.fft.fftfreq(n), np.fft.fftfreq(n), indexing="ij")
+            g = np.exp(-np.interp(np.hypot(fx, fy), f, ln_ratio, left=0.0, right=ln_ratio[-1]) / 2)
+            q = np.real(np.fft.ifft2(np.fft.fft2(t) * g)); q = (q - q.mean()) / (q.std() + 1e-9)
+            new.append(q.astype(np.float32))
+        out[c] = new
+    return out

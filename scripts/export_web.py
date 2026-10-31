@@ -10,7 +10,8 @@ from pipeline import detail as dt, groundtruth as gt, surface_classifier as scl,
 from pipeline.dtm import Dtm
 from sklearn.ensemble import RandomForestRegressor
 
-HERO, TRUTH, DTM, ORTHO, CELLS, WPJ, OUT = sys.argv[1:8]
+HERO, TRUTH, DTM, ORTHO, CELLS, WPJ, OUT, SCORES = sys.argv[1:9]
+CAL = json.load(open(SCORES))     # calibration learned on TRAINING stops by scripts/evaluate_hero.py
 os.makedirs(OUT, exist_ok=True)
 meta = json.load(open(f"{HERO}/measured_meta.json"))
 N, PX, TOP, LEFT = meta["size"], meta["pixel_m"], meta["top"], meta["left"]
@@ -69,7 +70,9 @@ for f in sorted(glob.glob(f"{TRUTH}/*.npz")):
     if abs(x) < SIZE_M / 2 - 10 and abs(zz) < SIZE_M / 2 - 10:
         corridor.append(dict(stop=stop, x=float(x), z=float(zz), sol=int(s["sol"]), fine=fine, ratio=float(np.nanstd(fine) / (np.nanstd(coarse) + 1e-12)),
                              yaw=float(wp[stop]["yaw"]) if stop in wp else 0.0))
-amp = [float(np.median(ratios[k])) if ratios[k] else 0.0 for k in range(4)]
+amp = [float(CAL["amp_ratio"][str(k)]) if str(k) in CAL["amp_ratio"] else float(CAL["amp_ratio"][k]) for k in range(4)]   # calibrated (incl. HiRISE attenuation + gain)
+kappa = float(CAL["contrast_attenuation"])
+shape_f, shape_ln = np.array(CAL["shape_curve"]["f"]), np.array(CAL["shape_curve"]["ln"])
 # fill classes with too few rover examples from the most similar class (documented in manifest)
 fallback = {3: 1, 2: 0, 1: 0, 0: 1}; filled = {}
 TPC = 4
@@ -79,8 +82,11 @@ for k in range(4):
     filled[dt.CLASSES[k]] = len(tiles[k])
     if amp[k] == 0.0: amp[k] = amp[fallback[k]]
     rng = np.random.default_rng(k); pick = rng.choice(len(src), size=min(TPC, len(src)), replace=False)
-    for t, idx in enumerate(pick):
-        atlas[k * 64:(k + 1) * 64, t * 64:(t + 1) * 64] = (np.clip(src[idx] / 6 + 0.5, 0, 1) * 255).astype(np.uint8)
+    shaped = dt.shape_tiles({0: [src[i] for i in pick]}, shape_f, shape_ln)[0]
+    for t, tile in enumerate(shaped):
+        tile = tile - ndi.gaussian_filter(tile, PSF_HR, mode="wrap")     # pre-applied consistency lock (shader cannot blur)
+        tile = (tile - tile.mean()) / (tile.std() + 1e-9)
+        atlas[k * 64:(k + 1) * 64, t * 64:(t + 1) * 64] = (np.clip(tile / 6 + 0.5, 0, 1) * 255).astype(np.uint8)
 cv2.imwrite(f"{OUT}/atlas.png", atlas)
 TP = 256; cols = int(math.ceil(math.sqrt(len(corridor))))
 cor = np.zeros((cols * TP, cols * TP, 3), np.uint8); cor[..., 0] = 128
@@ -95,7 +101,7 @@ for i, cdat in enumerate(corridor):
     r, cc = divmod(i, cols)
     cor[r * TP:(r + 1) * TP, cc * TP:(cc + 1) * TP, 0] = (np.clip(tile / 6 + 0.5, 0, 1) * 255).astype(np.uint8)
     cor[r * TP:(r + 1) * TP, cc * TP:(cc + 1) * TP, 1] = m.astype(np.uint8) * 255
-    stops.append(dict(stop=cdat["stop"], sol=cdat["sol"], x=cdat["x"], z=cdat["z"], ratio=cdat["ratio"], tile=i))
+    stops.append(dict(stop=cdat["stop"], sol=cdat["sol"], x=cdat["x"], z=cdat["z"], ratio=cdat["ratio"] / kappa, tile=i))
 cv2.imwrite(f"{OUT}/corridor.png", cor[..., ::-1])
 half_m = TP / 2 * PX / SC
 first = min(corridor, key=lambda c: c["sol"])
@@ -106,7 +112,7 @@ man = dict(name="Jezero - Octavia E. Butler landing area (sols 13-120)", center=
            contrast=dict(file="contrast.png", n=int(con1.shape[0]), scale=cmax),
            classes=dict(file="classes.png", n=cells, cell_m=16 * PX, names=dt.CLASSES),
            atlas=dict(file="atlas.png", tiles_per_class=TPC, tile_px=64, tile_m=64 * PX / SC, rover_examples=filled),
-           amp_ratio=amp, psf_sigma_hirise_px=psf,
+           amp_ratio=amp, psf_sigma_hirise_px=psf, contrast_attenuation=kappa,
            corridor=dict(file="corridor.png", tile_px=TP, cols=cols, half_m=half_m, stops=stops),
            start=dict(x=first["x"], z=first["z"] + 3.0, yaw=-math.radians(first["yaw"])))
 json.dump(man, open(f"{OUT}/manifest.json", "w"), indent=1)
