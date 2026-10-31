@@ -1,5 +1,5 @@
 # large NASA source data and caches (re-downloadable; see scripts/)
-data/
+/data/
 *.JP2
 *.IMG
 *.zip
