@@ -44,10 +44,11 @@ def rays(cam, xs, ys):
 def ground_points(meta, u, v, label_shape, max_range=12.0):
     """Label pixel coords (u=col, v=row) -> (north, east) metres from rover origin; NaN if no hit/too far."""
     cam = parse_cahv(meta)
-    x0, y0, w, h = [float(t) for t in meta["extended"]["subframeRect"].strip("()").split(",")]
+    # Camera model coords = delivered image pixel coords (see rover_ortho); labels may be resized.
+    dw, dh = [float(t) for t in meta["extended"]["dimension"].strip("()").split(",")]
     Lh, Lw = label_shape
-    xs = (x0 - 1) + (u + 0.5) * (w / Lw) - 0.5
-    ys = (y0 - 1) + (v + 0.5) * (h / Lh) - 0.5
+    xs = (u + 0.5) * (dw / Lw) - 0.5
+    ys = (v + 0.5) * (dh / Lh) - 0.5
     R = quat_to_R(attitude(meta))
     d = rays(cam, xs.astype(float), ys.astype(float)) @ R.T          # local-level directions
     C = R @ cam["C"]
