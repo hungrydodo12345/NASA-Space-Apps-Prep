@@ -120,6 +120,10 @@ for s in held:
                "EDSR x4 (raw single frame)": offshelf("edsr", lr_s), "ESPCN x4 (raw single frame)": offshelf("espcn", lr_s),
                "FSRCNN x4 (raw single frame)": offshelf("fsrcnn", lr_s), "EDSR x4 (our fused frames)": offshelf("edsr", lr_f),
                "bicubic (our fused frames)": base, "OURS: fused + rover-texture detail": ours}
+    if os.environ.get("DUMP_DIR"):                       # optional: save the images for figures
+        os.makedirs(os.environ["DUMP_DIR"], exist_ok=True)
+        np.savez_compressed(f"{os.environ['DUMP_DIR']}/{s['stop']}.npz", truth=z, raw=crop(up(lr_s, 0)), bicubic=crop(up(lr_s)),
+                            edsr=crop(methods["EDSR x4 (raw single frame)"]), fused=crop(base), ours=crop(ours), sol=s["sol"], probs=p)
     for k, img in methods.items():
         o = crop(img)
         lr = lr_f if "fused" in k or "OURS" in k else lr_s

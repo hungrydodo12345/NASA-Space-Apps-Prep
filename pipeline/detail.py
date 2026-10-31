@@ -68,7 +68,7 @@ def ratio_fine_coarse(truth, psf_px):
     return float(np.nanstd(fine) / (np.nanstd(coarse) + 1e-12))
 
 
-def synthesize(base_up, probs, tiles, amp_ratio, psf_px, seed=0):
+def synthesize(base_up, probs, tiles, amp_ratio, psf_px, seed=0, lock=True):
     """base_up: measured image upsampled to the detail grid; probs: (C,H,W) memberships on that grid;
     tiles: {class: [unit-std patches]}; amp_ratio: {class: fine/coarse}; psf_px: PSF sigma on this grid."""
     rng = np.random.default_rng(seed)
@@ -96,11 +96,11 @@ def synthesize(base_up, probs, tiles, amp_ratio, psf_px, seed=0):
     local = np.sqrt(ndi.gaussian_filter((blur - broad) ** 2, 8 * psf_px))
     target = local * np.sqrt(var_area)                 # wanted rms of the final fine band
     # consistency lock: remove any component the HiRISE PSF would see (keeps the measurement exact) ...
-    detail = detail - ndi.gaussian_filter(detail, psf_px)
+    if lock: detail = detail - ndi.gaussian_filter(detail, psf_px)
     # ... then renormalise locally so the remaining fine band has exactly the target contrast
     rms = np.sqrt(ndi.gaussian_filter(detail ** 2, 8 * psf_px))
     detail = detail * target / np.maximum(rms, 1e-12)
-    detail = detail - ndi.gaussian_filter(detail, psf_px)   # final lock: strip low-frequency leak from the renormalisation
+    if lock: detail = detail - ndi.gaussian_filter(detail, psf_px)   # final lock: strip low-frequency leak from the renormalisation
     return base_up + detail, detail
 
 
