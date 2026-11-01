@@ -1,0 +1,14 @@
+{
+ "raw HiRISE (1 pass)": {
+  "length_m": 2.0370707727824837,
+  "width_m": 1.4896740949963836,
+  "edge_10_90_cm_long": 228.125,
+  "edge_10_90_cm_short": 65.625
+ },
+ "restored (3 passes)": {
+  "length_m": 1.9191205011772325,
+  "width_m": 1.4254320515439836,
+  "edge_10_90_cm_long": 225.0,
+  "edge_10_90_cm_short": 65.625
+ }
+}
