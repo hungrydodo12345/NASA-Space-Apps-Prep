@@ -5,7 +5,7 @@
 * Every stop therefore gets an out-of-fold rock list. These are compared with rocks the rover truth shows (position
   match, as scripts/rocks_real_matched.py), next to the fixed blob detector run on raw HiRISE and on the restoration.
 Usage: python scripts/train_recognizer.py <restored_dir> <truth_dir> <texture_filter.json> <out_dir>
-       env: ITERS (default 2500), THR_CLEAN (0.85), SEED, GPT_DIR (adds the UCL-style TV product to the comparison)
+       env: ITERS (default 2500), THR_CLEAN (0.85), SEED, TRAIN_CLEAN=1 (train only on clean ground), GPT_DIR (adds the UCL-style TV product to the comparison)
 """
 import sys, os, glob, json, time
 import numpy as np, torch
@@ -44,9 +44,20 @@ for f in sorted(glob.glob(f"{RD}/*.npz")):
     cm = np.zeros((n, n), bool); cm[o:o + zt.shape[0], o:o + zt.shape[0]] = clean_mask(np.where(vt, zt, 0.0), ndi.binary_erosion(vt, iterations=4))
     l0, s0 = gt.latlon_to_ortho(float(t["lat"]), float(t["lon"]))
     cell = (int(l0 * gt.ORTHO["scale"] // 200), int(s0 * gt.ORTHO["scale"] // 200))
+    if os.environ.get("TRAIN_CLEAN"):
+        # learn only from clean rover-verified ground (no seams / hardware / shadows): labels outside it are untrusted
+        thr_saved = THR_CLEAN; globals()["THR_CLEAN"] = 0.85
+        ct = np.zeros((n, n), bool); ct[o:o + zt.shape[0], o:o + zt.shape[0]] = clean_mask(np.where(vt, zt, 0.0), ndi.binary_erosion(vt, iterations=4))
+        globals()["THR_CLEAN"] = thr_saved
+        M = M & ct; H = H * M[None]; rocks = [q for q in rocks if M[q[0], q[1]]]
+        if M.sum() < 1000: continue
     D.append(dict(stop=stop, X=X, H=H, C=C, M=M, rocks=rocks, clean=cm, cell=cell, r=r))
 cells = sorted({d["cell"] for d in D}); rng.shuffle(cells)
-fold_of = {c: i % 3 for i, c in enumerate(cells)}
+# balanced folds: assign map cells (largest first) to the fold with the fewest stops so far
+cnt = {c: sum(d["cell"] == c for d in D) for c in cells}; load = [0, 0, 0]; fold_of = {}
+for c in sorted(cells, key=lambda c: -cnt[c]):
+    f = int(np.argmin(load)); fold_of[c] = f; load[f] += cnt[c]
+print("stops per fold:", load, flush=True)
 print(f"{len(D)} stops with truth, {len(cells)} map cells, rocks >=25 cm in truth: {sum(len(d['rocks']) for d in D)}", flush=True)
 
 
@@ -95,7 +106,7 @@ for fold in range(3):
             print(f"fold {fold} it {it + 1} train {float(loss):.4f} val {vl:.4f} [{time.time() - t0:.0f}s]", flush=True)
     if best_state: model.load_state_dict(best_state)
     vp = [rz.predict(model, d["X"])[0] for d in val] if val else [rz.predict(model, d["X"])[0] for d in train[:10]]
-    grid = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+    grid = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95]
     thr = max(grid, key=lambda t: f1(val or train[:10], t, vp))
     torch.save(model.state_dict(), f"{OUT}/recognizer_fold{fold}.pt")
     for d in test:
