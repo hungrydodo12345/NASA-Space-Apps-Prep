@@ -1,0 +1,93 @@
+{
+ "alignment_cm": [
+  162.5,
+  -525.0
+ ],
+ "fine_corr": 0.14166541974605013,
+ "bands": {
+  "4-2 m": {
+   "NASA raw (1 pass)": {
+    "corr": 0.39499301911850265,
+    "energy_ratio": 0.849630811623269
+   },
+   "our restoration": {
+    "corr": 0.3838196787168451,
+    "energy_ratio": 0.8487409197146485
+   },
+   "our grounded fill": {
+    "corr": 0.38379753459659555,
+    "energy_ratio": 0.7788938043886444
+   }
+  },
+  "2-1 m": {
+   "NASA raw (1 pass)": {
+    "corr": 0.22985629652398062,
+    "energy_ratio": 1.0407981168278806
+   },
+   "our restoration": {
+    "corr": 0.21741212964811682,
+    "energy_ratio": 1.0420609727552306
+   },
+   "our grounded fill": {
+    "corr": 0.2175674194348807,
+    "energy_ratio": 0.9562074921101981
+   }
+  },
+  "1 m-50 cm": {
+   "NASA raw (1 pass)": {
+    "corr": 0.1172319036978412,
+    "energy_ratio": 1.0524497146282588
+   },
+   "our restoration": {
+    "corr": 0.10245317133697188,
+    "energy_ratio": 1.1073534843168695
+   },
+   "our grounded fill": {
+    "corr": 0.10222806499193335,
+    "energy_ratio": 1.0162663666561045
+   }
+  },
+  "50-25 cm": {
+   "NASA raw (1 pass)": {
+    "corr": 0.05716818719714482,
+    "energy_ratio": 0.8466968134454543
+   },
+   "our restoration": {
+    "corr": 0.04879182147465528,
+    "energy_ratio": 0.9523899132994121
+   },
+   "our grounded fill": {
+    "corr": 0.04869322377156563,
+    "energy_ratio": 0.8752833370587119
+   }
+  },
+  "25-12 cm (below HiRISE pixel)": {
+   "NASA raw (1 pass)": {
+    "corr": 0.015005331079100738,
+    "energy_ratio": 0.5284193279611498
+   },
+   "our restoration": {
+    "corr": 0.016191626669025624,
+    "energy_ratio": 0.45958227850066735
+   },
+   "our grounded fill": {
+    "corr": 0.008472547890407689,
+    "energy_ratio": 0.5493693936785311
+   }
+  },
+  "12-6 cm": {
+   "NASA raw (1 pass)": {
+    "corr": 0.001124268692556558,
+    "energy_ratio": 0.2347471166902818
+   },
+   "our restoration": {
+    "corr": 0.005428003303539569,
+    "energy_ratio": 0.13380110360155067
+   },
+   "our grounded fill": {
+    "corr": -0.005566942822886723,
+    "energy_ratio": 0.8177214351778773
+   }
+  }
+ }
+}
