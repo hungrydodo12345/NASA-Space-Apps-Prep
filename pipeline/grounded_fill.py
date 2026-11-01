@@ -14,6 +14,9 @@ from scipy import ndimage as ndi
 from pipeline import detail as dt, recognizer as rz
 
 
+px_cm_default = 25.24 / 4
+
+
 def to_grid(truth, px_cm, n):
     k = 5.0 / px_cm; z5 = truth["z"].astype(float)
     zt = ndi.zoom(np.nan_to_num(z5), k, order=1); vt = ndi.zoom(np.isfinite(z5).astype(float), k, order=1) > 0.99
@@ -74,12 +77,58 @@ def lock(detail, psf_px, scale=4, eps=1e-8):
     return detail - observe_T(x, psf_px, detail.shape, scale)
 
 
+def fine_coarse(img, psf_px, valid=None):
+    """Fine-band (below the HiRISE blur) over coarse-band (1-4 blur widths) contrast."""
+    v = np.isfinite(img) if valid is None else valid; a = np.where(v, img, 0.0); w = v.astype(float)
+    g = lambda x, s: ndi.gaussian_filter(x * w, s) / np.maximum(ndi.gaussian_filter(w, s), 1e-9)
+    a = g(a, 0.7)                                                          # light denoise (Navcam noise / JPEG is not texture)
+    fine = a - g(a, psf_px); coarse = g(a, psf_px) - g(a, 4 * psf_px)
+    m = ndi.binary_erosion(v, iterations=int(4 * psf_px))
+    return float(np.std(fine[m]) / (np.std(coarse[m]) + 1e-12)) if m.sum() > 1000 else np.nan
+
+
+def shadow_kernel(images, psf_px, D_px=8, r=12):
+    """Mean HiRISE appearance around bright rock-like blobs (measured, from the restorations themselves): its dark lobe
+    gives the shadow direction at the HiRISE sun geometry. Returns (unit shadow vector (dy, dx), kernel)."""
+    acc = np.zeros((2 * r + 1, 2 * r + 1)); n = 0
+    for im in images:
+        z = (im - ndi.gaussian_filter(im, 4 * psf_px)) / (im.std() + 1e-9)
+        lg = -ndi.gaussian_laplace(z, D_px / 2 / np.sqrt(2))
+        pk = (lg == ndi.maximum_filter(lg, 9)) & (lg > np.percentile(lg, 99.5))
+        for y, x in zip(*np.nonzero(pk)):
+            if r <= y < z.shape[0] - r and r <= x < z.shape[1] - r: acc += z[y - r:y + r + 1, x - r:x + r + 1]; n += 1
+    k = acc / max(n, 1); yy, xx = np.mgrid[-r:r + 1, -r:r + 1]
+    neg = np.clip(-k, 0, None) * (np.hypot(yy, xx) > 2)
+    v = np.array([(neg * yy).sum(), (neg * xx).sum()]); v = v / (np.linalg.norm(v) + 1e-12)
+    return v, k
+
+
+def calibrate(lib, restored, truths, psf_px, px_cm, n=512):
+    """Global texture gain so the fill's fine/coarse contrast matches the rover truth on TRAINING stops, plus the measured
+    HiRISE shadow direction. Adds lib['gain'] and lib['shadow_dir']."""
+    rt = [fine_coarse(to_grid(t, px_cm, n)[0], psf_px) for t in truths]; target = float(np.nanmedian(rt))
+    lib["gain"] = 1.0
+    cp = None; vals = {}
+    for g in (0.1, 0.2, 0.35, 0.5, 0.75, 1.0):
+        lib["gain"] = g; rr = []
+        for r in restored[:12]:
+            b = r["restored_multi"].astype(float); cp = np.zeros((rz.NCLS,) + b.shape); cp[0] = 1
+            out, _ = fill(b, cp, [], lib, psf_px); rr.append(fine_coarse(out, psf_px, np.ones_like(b, bool)))
+        vals[g] = float(np.nanmedian(rr))
+    gs = sorted(vals); ys = [vals[g] for g in gs]
+    lib["gain"] = float(np.interp(target, ys, gs)) if ys[0] <= target <= ys[-1] else (gs[0] if target < ys[0] else gs[-1])
+    lib["shadow_dir"], lib["shadow_kernel"] = shadow_kernel([r["restored_multi"].astype(float) for r in restored[:30]], psf_px)
+    lib["calibration"] = dict(truth_fine_coarse=target, fill_fine_coarse_by_gain=vals)
+    return lib
+
+
 def fill(base_up, class_prob, rocks, lib, psf_px, seed=0):
     """base_up: measured restoration; class_prob: (4,H,W) from Stage 1; rocks: [(y, x, D_cm, score)] from Stage 1."""
     rng = np.random.default_rng(seed)
     _, tex = dt.synthesize(base_up, class_prob, lib["tiles"], lib["amp"], psf_px, seed=seed, lock=True)
+    tex = tex * lib.get("gain", 1.0)
     rl = np.zeros_like(base_up); H, W = base_up.shape
-    frms = np.sqrt(ndi.gaussian_filter(tex ** 2, 8 * psf_px))
+    frms = np.sqrt(ndi.gaussian_filter(tex ** 2, 8 * psf_px)); sd = lib.get("shadow_dir")
     for y, x, D, _ in rocks:
         b = 0 if D <= rz.BANDS[0][1] else 1; pool = lib["sprites"][b] or lib["sprites"][1 - b]
         if not pool: continue
@@ -89,6 +138,12 @@ def fill(base_up, class_prob, rocks, lib, psf_px, seed=0):
         if y0 < 0 or x0 < 0 or y1 > H or x1 > W: continue
         c = s[r - 1:r + 2, r - 1:r + 2].mean(); sc = lib["rock_peak_rel"] * frms[y, x] / (abs(c) + 1e-9)
         rl[y0:y1, x0:x1] += s * sc
+        if sd is not None:                                      # cast shadow along the measured HiRISE shadow direction
+            rad = D / 2 / px_cm_default; yy, xx = np.mgrid[y0:y1, x0:x1].astype(float)
+            cy, cx = y + sd[0] * rad * 1.1, x + sd[1] * rad * 1.1
+            u = (yy - cy) * sd[0] + (xx - cx) * sd[1]; v = -(yy - cy) * sd[1] + (xx - cx) * sd[0]
+            sh = 1 / (1 + np.exp((np.sqrt((u / max(0.6 * rad, 0.8)) ** 2 + (v / max(rad, 0.8)) ** 2) - 1) / 0.15))
+            rl[y0:y1, x0:x1] -= 1.3 * lib["rock_peak_rel"] * frms[y, x] * sh
     added = lock(tex + rl, psf_px)                            # lock: nothing HiRISE could record is added
     out = base_up + added
     ob = observe(base_up, psf_px)

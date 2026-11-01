@@ -105,17 +105,17 @@ if __name__ == "__main__":
     lib_cache = f"{REC}/library_all.pkl"
     if os.path.exists(lib_cache): lib, ref_feats = pickle.load(open(lib_cache, "rb"))
     else:
-        T, Rk, ref_feats = [], [], []
+        T, Rk, ref_feats, RR = [], [], [], []
         for f in sorted(glob.glob(f"{RESTORED}/*.npz")):
             s = os.path.basename(f)[:-4]
             if s.startswith("halves_") or not os.path.exists(f"{TRUTH}/{s}.npz"): continue
             r = dict(np.load(f)); t = np.load(f"{TRUTH}/{s}.npz")
             X, _, _, M, rocks = rz.stop_arrays(r, t, E.detect, E.PX)
             if M.sum() < 2000: continue
-            T.append(t); Rk.append(rocks)
+            T.append(t); Rk.append(rocks); RR.append(r)
             pc = np.mean([rz.predict(m, X)[1] for m in models], 0)
             ref_feats.append(feats(r["restored_multi"].astype(float), pc))
-        lib = gf.build_library(T, Rk, E.PX, PSF * SC); ref_feats = np.array(ref_feats)
+        lib = gf.calibrate(gf.build_library(T, Rk, E.PX, PSF * SC), RR, T, PSF * SC, E.PX); ref_feats = np.array(ref_feats)
         pickle.dump((lib, ref_feats), open(lib_cache, "wb"))
     mu_f, cov = ref_feats.mean(0), np.cov(ref_feats.T) + 1e-6 * np.eye(ref_feats.shape[1]); icov = np.linalg.inv(cov)
     dtrain = np.sqrt(np.einsum("ij,jk,ik->i", ref_feats - mu_f, icov, ref_feats - mu_f)); dlim = float(np.percentile(dtrain, 95))

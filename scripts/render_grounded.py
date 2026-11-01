@@ -30,7 +30,7 @@ for r_, stop in enumerate(stops):
         tr_stops = [s for s in fold if fold[s] != f]
         T = [np.load(f"{TRUTH}/{s}.npz") for s in tr_stops]
         R = [rz.stop_arrays(dict(np.load(f"{RD}/{s}.npz")), t, E.detect, PX)[4] for s, t in zip(tr_stops, T)]
-        libs[f] = gf.build_library(T, R, PX, PSF_PX)
+        libs[f] = gf.calibrate(gf.build_library(T, R, PX, PSF_PX), [dict(np.load(f"{RD}/{s}.npz")) for s in tr_stops], T, PSF_PX, PX)
     lib = libs[f]
     r = dict(np.load(f"{RD}/{stop}.npz")); t = np.load(f"{TRUTH}/{stop}.npz"); p = np.load(preds[stop])
     X, H, C, M, truth_rocks = rz.stop_arrays(r, t, E.detect, PX)
