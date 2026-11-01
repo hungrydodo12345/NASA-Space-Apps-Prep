@@ -13,11 +13,13 @@ from experiments import exp3_rocks as E
 sys.argv = sv
 RD, TRUTH, FILT, OUT = sys.argv[1:5]
 filt = tq.load_filter(FILT); PX = E.PX
+THR = float(os.environ.get("THR", "0.85"))   # clean-ground score threshold (0 = every valid pixel)
 BINS = {"15-20 cm": (15, 20), "25-40 cm": (25, 40), ">=50 cm": (50, 100)}
 NAMES = ["bicubic", "average", "deconv_1frame", "restored_multi"]
 
 
-def clean_mask(z, valid, win=32, stride=16, thr=0.85):
+def clean_mask(z, valid, win=32, stride=16, thr=None):
+    thr = THR if thr is None else thr
     m = np.zeros_like(valid)
     for y in range(0, z.shape[0] - win + 1, stride):
         for x in range(0, z.shape[1] - win + 1, stride):
