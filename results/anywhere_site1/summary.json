@@ -55,7 +55,7 @@
    "resp": 0.6430435358197428
   }
  },
- "familiarity_limit": 3.608364865868354,
+ "familiarity_limit": 3.18223207806022,
  "tiles": [
   {
    "ty": 0,
@@ -65,10 +65,10 @@
     "ESP_045994_1985",
     "ESP_046060_1985"
    ],
-   "familiarity_distance": 2.820103296639426,
-   "trusted": true,
-   "rocks": 19,
-   "lock_residual_rel": 0.001281389356675956
+   "familiarity_distance": 3.271093483047337,
+   "trusted": false,
+   "rocks": 271,
+   "lock_residual_rel": null
   },
   {
    "ty": 0,
@@ -76,9 +76,9 @@
    "passes": [
     "PSP_002387_1985"
    ],
-   "familiarity_distance": 3.922252986030846,
+   "familiarity_distance": 4.490987951323535,
    "trusted": false,
-   "rocks": 3,
+   "rocks": 222,
    "lock_residual_rel": null
   },
   {
@@ -92,10 +92,10 @@
     "ESP_046060_1985",
     "ESP_068822_1985"
    ],
-   "familiarity_distance": 3.085581314167145,
-   "trusted": true,
-   "rocks": 7,
-   "lock_residual_rel": 0.00129314005937732
+   "familiarity_distance": 3.575446960698802,
+   "trusted": false,
+   "rocks": 331,
+   "lock_residual_rel": null
   },
   {
    "ty": 0,
@@ -109,10 +109,10 @@
     "ESP_068426_1985",
     "ESP_068822_1985"
    ],
-   "familiarity_distance": 2.9211553459730344,
-   "trusted": true,
-   "rocks": 23,
-   "lock_residual_rel": 0.0010962523491426018
+   "familiarity_distance": 3.977690036468705,
+   "trusted": false,
+   "rocks": 340,
+   "lock_residual_rel": null
   },
   {
    "ty": 1,
@@ -122,10 +122,10 @@
     "ESP_045994_1985",
     "ESP_046060_1985"
    ],
-   "familiarity_distance": 3.0958491152433707,
+   "familiarity_distance": 3.1524455750914857,
    "trusted": true,
-   "rocks": 33,
-   "lock_residual_rel": 0.0014833503088949838
+   "rocks": 331,
+   "lock_residual_rel": 0.006999280750837123
   },
   {
    "ty": 1,
@@ -133,9 +133,9 @@
    "passes": [
     "PSP_002387_1985"
    ],
-   "familiarity_distance": 4.783409537708745,
+   "familiarity_distance": 3.7937570494514,
    "trusted": false,
-   "rocks": 17,
+   "rocks": 260,
    "lock_residual_rel": null
   },
   {
@@ -145,10 +145,10 @@
     "PSP_002387_1985",
     "ESP_046060_1985"
    ],
-   "familiarity_distance": 3.1643094504551987,
-   "trusted": true,
-   "rocks": 26,
-   "lock_residual_rel": 0.0013519067709255627
+   "familiarity_distance": 3.392078054851646,
+   "trusted": false,
+   "rocks": 276,
+   "lock_residual_rel": null
   },
   {
    "ty": 1,
@@ -161,10 +161,10 @@
     "ESP_046060_1985",
     "ESP_068822_1985"
    ],
-   "familiarity_distance": 2.4947522663850203,
-   "trusted": true,
-   "rocks": 17,
-   "lock_residual_rel": 0.0012033139292019189
+   "familiarity_distance": 4.079631981956527,
+   "trusted": false,
+   "rocks": 264,
+   "lock_residual_rel": null
   },
   {
    "ty": 2,
@@ -174,10 +174,10 @@
     "ESP_045994_1985",
     "ESP_046060_1985"
    ],
-   "familiarity_distance": 3.386226800511505,
-   "trusted": true,
-   "rocks": 28,
-   "lock_residual_rel": 0.0013718401225875222
+   "familiarity_distance": 3.564803235516252,
+   "trusted": false,
+   "rocks": 270,
+   "lock_residual_rel": null
   },
   {
    "ty": 2,
@@ -187,9 +187,9 @@
     "ESP_045994_1985",
     "ESP_046060_1985"
    ],
-   "familiarity_distance": 3.9080368784981676,
+   "familiarity_distance": 3.6422270579417626,
    "trusted": false,
-   "rocks": 24,
+   "rocks": 299,
    "lock_residual_rel": null
   },
   {
@@ -205,10 +205,10 @@
     "ESP_068426_1985",
     "ESP_068822_1985"
    ],
-   "familiarity_distance": 2.648074680921648,
+   "familiarity_distance": 2.40464723125753,
    "trusted": true,
-   "rocks": 16,
-   "lock_residual_rel": 0.0014261247109549743
+   "rocks": 490,
+   "lock_residual_rel": 0.012075940035440953
   },
   {
    "ty": 2,
@@ -223,10 +223,10 @@
     "ESP_068426_1985",
     "ESP_068822_1985"
    ],
-   "familiarity_distance": 2.3419513759530592,
-   "trusted": true,
-   "rocks": 12,
-   "lock_residual_rel": 0.0013071144005173264
+   "familiarity_distance": 3.1884361913455543,
+   "trusted": false,
+   "rocks": 313,
+   "lock_residual_rel": null
   },
   {
    "ty": 3,
@@ -235,10 +235,10 @@
     "PSP_002387_1985",
     "ESP_045994_1985"
    ],
-   "familiarity_distance": 3.5275941735231253,
-   "trusted": true,
-   "rocks": 41,
-   "lock_residual_rel": 0.0015346887072727096
+   "familiarity_distance": 3.734305382558983,
+   "trusted": false,
+   "rocks": 262,
+   "lock_residual_rel": null
   },
   {
    "ty": 3,
@@ -253,10 +253,10 @@
     "ESP_068426_1985",
     "ESP_068822_1985"
    ],
-   "familiarity_distance": 3.403643771119563,
-   "trusted": true,
-   "rocks": 21,
-   "lock_residual_rel": 0.0010279894405868064
+   "familiarity_distance": 3.5135573431558114,
+   "trusted": false,
+   "rocks": 392,
+   "lock_residual_rel": null
   },
   {
    "ty": 3,
@@ -271,10 +271,10 @@
     "ESP_068426_1985",
     "ESP_068822_1985"
    ],
-   "familiarity_distance": 3.4560892963480176,
-   "trusted": true,
-   "rocks": 12,
-   "lock_residual_rel": 0.0012766208161051427
+   "familiarity_distance": 4.76640661378679,
+   "trusted": false,
+   "rocks": 238,
+   "lock_residual_rel": null
   },
   {
    "ty": 3,
@@ -289,12 +289,12 @@
     "ESP_068426_1985",
     "ESP_068822_1985"
    ],
-   "familiarity_distance": 2.598736812423253,
+   "familiarity_distance": 2.582543579165928,
    "trusted": true,
-   "rocks": 13,
-   "lock_residual_rel": 0.0010941716164255912
+   "rocks": 612,
+   "lock_residual_rel": 0.006939812007152742
   }
  ],
- "rocks": 312,
- "rocks_trusted": 268
+ "rocks": 5171,
+ "rocks_trusted": 1433
 }

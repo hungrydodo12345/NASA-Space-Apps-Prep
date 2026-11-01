@@ -1,0 +1,19 @@
+site 18.44715, 77.41266, 4x4 tiles of 32 m, passes ['PSP_002387_1985', 'ESP_073068_1985', 'ESP_045994_1985', 'ESP_068294_1985', 'ESP_046060_1985', 'ESP_068360_1985', 'ESP_068426_1985', 'ESP_068822_1985'] (reference PSP_002387_1985)
+locks: {'PSP_002387_1985': 1.0, 'ESP_073068_1985': 0.72, 'ESP_045994_1985': 0.81, 'ESP_068294_1985': 0.61, 'ESP_046060_1985': 0.77, 'ESP_068360_1985': 0.6, 'ESP_068426_1985': 0.59, 'ESP_068822_1985': 0.64}
+tile 0,0: 3 passes, distance 3.27 (limit 3.18) UNFAMILIAR - not filled, 271 rocks
+tile 0,1: 1 passes, distance 4.49 (limit 3.18) UNFAMILIAR - not filled, 222 rocks
+tile 0,2: 6 passes, distance 3.58 (limit 3.18) UNFAMILIAR - not filled, 331 rocks
+tile 0,3: 7 passes, distance 3.98 (limit 3.18) UNFAMILIAR - not filled, 340 rocks
+tile 1,0: 3 passes, distance 3.15 (limit 3.18) TRUSTED, 331 rocks
+tile 1,1: 1 passes, distance 3.79 (limit 3.18) UNFAMILIAR - not filled, 260 rocks
+tile 1,2: 2 passes, distance 3.39 (limit 3.18) UNFAMILIAR - not filled, 276 rocks
+tile 1,3: 6 passes, distance 4.08 (limit 3.18) UNFAMILIAR - not filled, 264 rocks
+tile 2,0: 3 passes, distance 3.56 (limit 3.18) UNFAMILIAR - not filled, 270 rocks
+tile 2,1: 3 passes, distance 3.64 (limit 3.18) UNFAMILIAR - not filled, 299 rocks
+tile 2,2: 8 passes, distance 2.40 (limit 3.18) TRUSTED, 490 rocks
+tile 2,3: 8 passes, distance 3.19 (limit 3.18) UNFAMILIAR - not filled, 313 rocks
+tile 3,0: 2 passes, distance 3.73 (limit 3.18) UNFAMILIAR - not filled, 262 rocks
+tile 3,1: 8 passes, distance 3.51 (limit 3.18) UNFAMILIAR - not filled, 392 rocks
+tile 3,2: 8 passes, distance 4.77 (limit 3.18) UNFAMILIAR - not filled, 238 rocks
+tile 3,3: 8 passes, distance 2.58 (limit 3.18) TRUSTED, 612 rocks
+done: 5171 rocks (1433 in trusted tiles) -> /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/anywhere_site1
