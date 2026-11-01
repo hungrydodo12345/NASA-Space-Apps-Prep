@@ -141,6 +141,7 @@ if __name__ == "__main__":
             m = json.load(open(f"{META}/{iid}.json")); by[f'{m["site"]}_{m["drive"]}'].append(m)
     jobs = [(s, ms, wp[s], lab, pairs) for s, ms in sorted(by.items()) if s in wp]
     if os.environ.get("ONLY"): jobs = [j for j in jobs if j[0] in os.environ["ONLY"].split(",")]
+    if os.environ.get("SKIP_DONE"): jobs = [j for j in jobs if not os.path.exists(f"{OUT}/{j[0]}.npz")]
     print(len(jobs), "stops", flush=True)
     log = open(f"{OUT}/build_log.jsonl", "a")
     with Pool(int(os.environ.get("PROCS", 4))) as pool:
