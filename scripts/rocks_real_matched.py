@@ -16,6 +16,22 @@ filt = tq.load_filter(FILT); PX = E.PX
 THR = float(os.environ.get("THR", "0.85"))   # clean-ground score threshold (0 = every valid pixel)
 BINS = {"15-20 cm": (15, 20), "25-40 cm": (25, 40), ">=50 cm": (50, 100)}
 NAMES = ["bicubic", "average", "deconv_1frame", "restored_multi"]
+ALIGN = int(os.environ.get("ALIGN", "0"))      # >0: search +-ALIGN px for the HiRISE-to-rover offset per stop
+
+
+def offset(img, tz, o, valid, R):
+    """Integer shift (dy, dx) of the HiRISE product that best matches the rover mosaic (smoothed, normalised)."""
+    if R <= 0: return 0, 0
+    a = ndi.gaussian_filter(img.astype(float), 2.0); b = ndi.gaussian_filter(tz, 2.0); t = tz.shape[0]
+    best, arg = -9, (0, 0)
+    for dy in range(-R, R + 1):
+        for dx in range(-R, R + 1):
+            y0, x0 = o + dy, o + dx
+            if y0 < 0 or x0 < 0 or y0 + t > a.shape[0] or x0 + t > a.shape[1]: continue
+            w = a[y0:y0 + t, x0:x0 + t][valid]; v = b[valid]
+            c = np.corrcoef(w, v)[0, 1]
+            if c > best: best, arg = c, (dy, dx)
+    return arg
 
 
 def clean_mask(z, valid, win=32, stride=16, thr=None):
@@ -44,8 +60,10 @@ for f in sorted(glob.glob(f"{RD}/halves_*.npz")):
     a = mask.sum() * (PX / 100) ** 2
     if a < 2.0: continue
     tz = np.where(vt, zt, np.nanmean(np.where(vt, zt, np.nan)))
-    truth = [(y + o, x + o, D) for y, x, D, _ in E.detect(tz) if cm[y, x]]
-    row = dict(stop=stop, area_m2=a, truth={b: sum(lo <= D <= hi for _, _, D in truth) for b, (lo, hi) in BINS.items()})
+    dy, dx = offset(fr["bicubic"], tz, o, ndi.binary_erosion(vt, iterations=8), ALIGN)
+    truth = [(y + o + dy, x + o + dx, D) for y, x, D, _ in E.detect(tz) if cm[y, x]]
+    mask = np.roll(np.roll(mask, dy, 0), dx, 1)
+    row = dict(stop=stop, area_m2=a, offset_px=[dy, dx], truth={b: sum(lo <= D <= hi for _, _, D in truth) for b, (lo, hi) in BINS.items()})
     for nm in NAMES + ["restored_repeatable"]:
         if nm == "restored_repeatable":
             d0 = [(y, x, D) for y, x, D, _ in E.detect(h["restored_0"].astype(float))]
