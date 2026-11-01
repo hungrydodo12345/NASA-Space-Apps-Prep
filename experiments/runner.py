@@ -16,7 +16,8 @@ def _work(args):
         return dict(id=job["id"], ok=False, err=repr(e), tb=traceback.format_exc()[-600:])
 
 
-def run(fn, jobs, out, procs=4):
+def run(fn, jobs, out, procs=None):
+    procs = procs or int(os.environ.get('PROCS', 4))
     done = {r["id"] for r in C.read(out) if r.get("ok")}
     todo = [j for j in jobs if j["id"] not in done]
     print(f"{out}: {len(done)} done, {len(todo)} to run", flush=True)

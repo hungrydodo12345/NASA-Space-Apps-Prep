@@ -5,12 +5,12 @@ from pipeline import synth
 from experiments import algos, common as C, runner
 
 GRID = dict(
-    ibp=[dict(iters=i) for i in (10, 30, 60)],
+    ibp=[dict(iters=i) for i in (10, 30, 60, 120, 240, 480, 960)],
     cg_tikhonov=[dict(mu=m) for m in (1e-4, 1e-3, 1e-2, 1e-1)],
-    irls_tv=[dict(mu=m, eps=e) for m in (1e-3, 1e-2, 1e-1) for e in (0.02, 0.05)],
-    chambolle_pock_tv=[dict(lam=l) for l in (5e-4, 2e-3, 8e-3)],
-    richardson_lucy=[dict(iters=i) for i in (10, 20, 40, 80)],
-    btv_l1=[dict(lam=l, beta=b) for l in (0.005, 0.02, 0.08) for b in (0.002, 0.004)],
+    irls_tv=[dict(mu=m, eps=e) for m in (1e-3, 1e-2, 1e-1) for e in (0.02, 0.05, 0.1, 0.2)],
+    chambolle_pock_tv=[dict(lam=l) for l in (1e-6, 1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 2e-3, 8e-3)],
+    richardson_lucy=[dict(iters=i) for i in (10, 20, 40, 80, 160, 320)],
+    btv_l1=[dict(lam=l, beta=b) for l in (0.0001, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.08) for b in (0.002, 0.004, 0.008, 0.016, 0.03)],
 )
 SCEN = [(4, 0.01), (16, 0.01), (4, 0.05), (16, 0.05)]       # (frames, relative noise)
 

@@ -1,0 +1,579 @@
+{
+ "note": "Hand labels by the author from numbered contact sheets; 82 clear tiles of 96 sampled (14 ambiguous skipped).",
+ "labels": [
+  {
+   "index": 13,
+   "img": "NLF_0084_0674405048_866ECM_N0040000NCAM03084_01_295J",
+   "stop": "4_0",
+   "r": 4.123,
+   "label": "ground"
+  },
+  {
+   "index": 17,
+   "img": "NLF_0066_0672808904_803ECM_N0032208NCAM03066_01_295J",
+   "stop": "3_2208",
+   "r": 5.099,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 19,
+   "img": "NLF_0066_0672808904_803ECM_N0032208NCAM03066_01_295J",
+   "stop": "3_2208",
+   "r": 4.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 21,
+   "img": "NLF_0066_0672808904_803ECM_N0032208NCAM03066_01_295J",
+   "stop": "3_2208",
+   "r": 4.243,
+   "label": "ground"
+  },
+  {
+   "index": 23,
+   "img": "NLF_0032_0669789274_480ECM_N0031266NCAM03032_01_295J",
+   "stop": "3_1266",
+   "r": 4.472,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 25,
+   "img": "NLF_0032_0669789274_480ECM_N0031266NCAM03032_01_295J",
+   "stop": "3_1266",
+   "r": 3.606,
+   "label": "ground"
+  },
+  {
+   "index": 32,
+   "img": "NLF_0104_0676181181_035ECM_N0040510NCAM03104_01_295J",
+   "stop": "4_510",
+   "r": 5.0,
+   "label": "ground"
+  },
+  {
+   "index": 33,
+   "img": "NLF_0104_0676181181_035ECM_N0040510NCAM03104_01_295J",
+   "stop": "4_510",
+   "r": 4.472,
+   "label": "ground"
+  },
+  {
+   "index": 41,
+   "img": "NLF_0043_0670768573_244ECM_N0031398NCAM02043_01_295J",
+   "stop": "3_1398",
+   "r": 3.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 46,
+   "img": "NLF_0043_0670768573_244ECM_N0031398NCAM02043_01_295J",
+   "stop": "3_1398",
+   "r": 5.099,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 48,
+   "img": "NLF_0073_0673428780_898ECM_N0032430NCAM03073_01_295J",
+   "stop": "3_2430",
+   "r": 5.099,
+   "label": "ground"
+  },
+  {
+   "index": 52,
+   "img": "NLF_0033_0669877142_481ECM_N0031374NCAM02033_01_295J",
+   "stop": "3_1374",
+   "r": 3.606,
+   "label": "ground"
+  },
+  {
+   "index": 59,
+   "img": "NLF_0032_0669789514_761ECM_N0031266NCAM02032_01_295J",
+   "stop": "3_1266",
+   "r": 4.243,
+   "label": "ground"
+  },
+  {
+   "index": 62,
+   "img": "NLF_0099_0675738091_200ECM_N0040218NCAM02099_01_295J",
+   "stop": "4_218",
+   "r": 5.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 78,
+   "img": "NLF_0020_0668728666_168ECM_N0030770NCAM02020_01_295J",
+   "stop": "3_770",
+   "r": 5.099,
+   "label": "ground"
+  },
+  {
+   "index": 97,
+   "img": "NLF_0031_0669701312_663ECM_N0031044NCAM03031_01_295J",
+   "stop": "3_1044",
+   "r": 4.123,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 98,
+   "img": "NLF_0031_0669701312_663ECM_N0031044NCAM03031_01_295J",
+   "stop": "3_1044",
+   "r": 5.099,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 100,
+   "img": "NLF_0031_0669701312_663ECM_N0031044NCAM03031_01_295J",
+   "stop": "3_1044",
+   "r": 3.606,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 101,
+   "img": "NLF_0031_0669701312_663ECM_N0031044NCAM03031_01_295J",
+   "stop": "3_1044",
+   "r": 4.472,
+   "label": "ground"
+  },
+  {
+   "index": 103,
+   "img": "NLF_0031_0669701312_663ECM_N0031044NCAM03031_01_295J",
+   "stop": "3_1044",
+   "r": 5.0,
+   "label": "ground"
+  },
+  {
+   "index": 105,
+   "img": "NLF_0109_0676626037_997ECM_N0040822NCAM02109_01_195J",
+   "stop": "4_822",
+   "r": 5.099,
+   "label": "ground"
+  },
+  {
+   "index": 108,
+   "img": "NLF_0073_0673429083_270ECM_N0032430NCAM02073_01_295J",
+   "stop": "3_2430",
+   "r": 3.606,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 115,
+   "img": "NLF_0031_0669701620_308ECM_N0031044NCAM02031_01_295J",
+   "stop": "3_1044",
+   "r": 5.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 118,
+   "img": "NLF_0031_0669701620_308ECM_N0031044NCAM02031_01_295J",
+   "stop": "3_1044",
+   "r": 3.606,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 121,
+   "img": "NLF_0009_0667755959_167ECM_N0030000NCAM05000_01_295J",
+   "stop": "3_0",
+   "r": 4.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 123,
+   "img": "NLF_0109_0676626037_997ECM_N0040822NCAM02109_04_195J",
+   "stop": "4_822",
+   "r": 4.472,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 126,
+   "img": "NLF_0032_0669789514_761ECM_N0031266NCAM02032_04_195J",
+   "stop": "3_1266",
+   "r": 5.0,
+   "label": "ground"
+  },
+  {
+   "index": 129,
+   "img": "NLF_0047_0671120892_300ECM_N0031708NCAM03047_01_295J",
+   "stop": "3_1708",
+   "r": 4.123,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 130,
+   "img": "NLF_0047_0671120892_300ECM_N0031708NCAM03047_01_295J",
+   "stop": "3_1708",
+   "r": 4.472,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 132,
+   "img": "NLF_0047_0671120892_300ECM_N0031708NCAM03047_01_295J",
+   "stop": "3_1708",
+   "r": 3.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 133,
+   "img": "NLF_0047_0671120892_300ECM_N0031708NCAM03047_01_295J",
+   "stop": "3_1708",
+   "r": 3.162,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 138,
+   "img": "NLF_0044_0670852318_575ECM_N0031416NCAM03044_01_295J",
+   "stop": "3_1416",
+   "r": 5.0,
+   "label": "ground"
+  },
+  {
+   "index": 142,
+   "img": "NLF_0104_0676181382_036ECM_N0040510NCAM03104_01_295J",
+   "stop": "4_510",
+   "r": 5.099,
+   "label": "ground"
+  },
+  {
+   "index": 145,
+   "img": "NLF_0104_0676181382_036ECM_N0040510NCAM03104_01_295J",
+   "stop": "4_510",
+   "r": 5.0,
+   "label": "ground"
+  },
+  {
+   "index": 146,
+   "img": "NLF_0104_0676181382_036ECM_N0040510NCAM03104_01_295J",
+   "stop": "4_510",
+   "r": 4.0,
+   "label": "ground"
+  },
+  {
+   "index": 153,
+   "img": "NLF_0048_0671211779_549ECM_N0031850NCAM03048_01_295J",
+   "stop": "3_1850",
+   "r": 4.123,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 161,
+   "img": "NLF_0102_0676000961_073ECM_N0040372NCAM02101_01_295J",
+   "stop": "4_372",
+   "r": 4.123,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 163,
+   "img": "NLF_0102_0676000961_073ECM_N0040372NCAM02101_01_295J",
+   "stop": "4_372",
+   "r": 3.606,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 175,
+   "img": "NLF_0109_0676625420_165ECM_N0040822NCAM03109_01_295J",
+   "stop": "4_822",
+   "r": 5.099,
+   "label": "ground"
+  },
+  {
+   "index": 181,
+   "img": "NLF_0103_0676094148_601ECM_N0040430NCAM03103_01_295J",
+   "stop": "4_430",
+   "r": 4.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 185,
+   "img": "NLF_0103_0676094148_601ECM_N0040430NCAM03103_01_295J",
+   "stop": "4_430",
+   "r": 5.099,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 188,
+   "img": "NLF_0110_0676713807_678ECM_N0040922NCAM03110_01_195J",
+   "stop": "4_922",
+   "r": 5.099,
+   "label": "ground"
+  },
+  {
+   "index": 189,
+   "img": "NLF_0031_0669701558_070ECM_N0031044NCAM02031_01_295J",
+   "stop": "3_1044",
+   "r": 3.606,
+   "label": "ground"
+  },
+  {
+   "index": 197,
+   "img": "NLF_0031_0669701362_769ECM_N0031044NCAM03031_01_295J",
+   "stop": "3_1044",
+   "r": 5.099,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 200,
+   "img": "NLF_0047_0671121241_934ECM_N0031708NCAM02047_01_295J",
+   "stop": "3_1708",
+   "r": 5.0,
+   "label": "ground"
+  },
+  {
+   "index": 203,
+   "img": "NLF_0047_0671121241_934ECM_N0031708NCAM02047_01_295J",
+   "stop": "3_1708",
+   "r": 3.606,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 206,
+   "img": "NLF_0104_0676181093_823ECM_N0040510NCAM03104_01_295J",
+   "stop": "4_510",
+   "r": 5.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 209,
+   "img": "NLF_0103_0676094355_987ECM_N0040430NCAM03103_01_295J",
+   "stop": "4_430",
+   "r": 5.099,
+   "label": "ground"
+  },
+  {
+   "index": 213,
+   "img": "NLF_0103_0676094195_382ECM_N0040430NCAM03103_01_295J",
+   "stop": "4_430",
+   "r": 3.606,
+   "label": "ground"
+  },
+  {
+   "index": 216,
+   "img": "NLF_0103_0676094195_382ECM_N0040430NCAM03103_01_295J",
+   "stop": "4_430",
+   "r": 5.0,
+   "label": "ground"
+  },
+  {
+   "index": 220,
+   "img": "NLF_0014_0668192307_846ECM_N0030110NCAM02014_01_285J",
+   "stop": "3_110",
+   "r": 4.123,
+   "label": "ground"
+  },
+  {
+   "index": 222,
+   "img": "NLF_0014_0668192307_846ECM_N0030110NCAM02014_01_285J",
+   "stop": "3_110",
+   "r": 4.472,
+   "label": "ground"
+  },
+  {
+   "index": 223,
+   "img": "NLF_0014_0668192307_846ECM_N0030110NCAM02014_01_285J",
+   "stop": "3_110",
+   "r": 3.606,
+   "label": "ground"
+  },
+  {
+   "index": 227,
+   "img": "NLF_0116_0677245872_058ECM_N0041250NCAM02116_04_195J",
+   "stop": "4_1250",
+   "r": 5.099,
+   "label": "ground"
+  },
+  {
+   "index": 228,
+   "img": "NLF_0104_0676181611_043ECM_N0040510NCAM02104_01_295J",
+   "stop": "4_510",
+   "r": 5.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 230,
+   "img": "NLF_0104_0676181611_043ECM_N0040510NCAM02104_01_295J",
+   "stop": "4_510",
+   "r": 4.472,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 232,
+   "img": "NLF_0072_0673345727_044ECM_N0032346NCAM02072_01_295J",
+   "stop": "3_2346",
+   "r": 4.472,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 240,
+   "img": "NLF_0016_0668370386_117ECM_N0030578NCAM02016_01_295J",
+   "stop": "3_578",
+   "r": 4.472,
+   "label": "ground"
+  },
+  {
+   "index": 246,
+   "img": "NLF_0103_0676094398_481ECM_N0040430NCAM02103_01_295J",
+   "stop": "4_430",
+   "r": 4.472,
+   "label": "ground"
+  },
+  {
+   "index": 247,
+   "img": "NLF_0103_0676094398_481ECM_N0040430NCAM02103_01_295J",
+   "stop": "4_430",
+   "r": 4.123,
+   "label": "ground"
+  },
+  {
+   "index": 248,
+   "img": "NLF_0103_0676094398_481ECM_N0040430NCAM02103_01_295J",
+   "stop": "4_430",
+   "r": 3.162,
+   "label": "ground"
+  },
+  {
+   "index": 249,
+   "img": "NLF_0103_0676094398_481ECM_N0040430NCAM02103_01_295J",
+   "stop": "4_430",
+   "r": 3.0,
+   "label": "ground"
+  },
+  {
+   "index": 254,
+   "img": "NLF_0084_0674405298_366ECM_N0040000NCAM02084_01_295J",
+   "stop": "4_0",
+   "r": 4.243,
+   "label": "ground"
+  },
+  {
+   "index": 259,
+   "img": "NLF_0017_0668454773_352ECM_N0030578NCAM00185_01_290J",
+   "stop": "3_578",
+   "r": 4.123,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 269,
+   "img": "NLF_0020_0668728577_477ECM_N0030770NCAM02020_01_295J",
+   "stop": "3_770",
+   "r": 3.162,
+   "label": "ground"
+  },
+  {
+   "index": 272,
+   "img": "NLF_0066_0672808703_559ECM_N0032208NCAM03066_01_295J",
+   "stop": "3_2208",
+   "r": 5.099,
+   "label": "ground"
+  },
+  {
+   "index": 277,
+   "img": "NLF_0104_0676181486_802ECM_N0040510NCAM02104_01_295J",
+   "stop": "4_510",
+   "r": 5.0,
+   "label": "ground"
+  },
+  {
+   "index": 280,
+   "img": "NLF_0104_0676181486_802ECM_N0040510NCAM02104_01_295J",
+   "stop": "4_510",
+   "r": 4.123,
+   "label": "ground"
+  },
+  {
+   "index": 282,
+   "img": "NLF_0104_0676181486_802ECM_N0040510NCAM02104_01_295J",
+   "stop": "4_510",
+   "r": 4.123,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 290,
+   "img": "NLF_0032_0669789369_152ECM_N0031266NCAM02032_01_295J",
+   "stop": "3_1266",
+   "r": 3.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 295,
+   "img": "NLF_0029_0669530737_914ECM_N0030828NCAM02029_01_295J",
+   "stop": "3_828",
+   "r": 3.162,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 297,
+   "img": "NLF_0065_0672721869_542ECM_N0032150NCAM03065_01_295J",
+   "stop": "3_2150",
+   "r": 4.472,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 300,
+   "img": "NLF_0023_0668989581_615ECM_N0030792NCAM03023_17_295J",
+   "stop": "3_792",
+   "r": 4.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 303,
+   "img": "NLF_0108_0676532592_679ECM_N0040738NCAM03108_01_295J",
+   "stop": "4_738",
+   "r": 3.606,
+   "label": "ground"
+  },
+  {
+   "index": 306,
+   "img": "NLF_0108_0676532592_679ECM_N0040738NCAM03108_01_295J",
+   "stop": "4_738",
+   "r": 5.0,
+   "label": "ground"
+  },
+  {
+   "index": 309,
+   "img": "NLF_0031_0669701362_769ECM_N0031044NCAM03031_04_195J",
+   "stop": "3_1044",
+   "r": 5.099,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 311,
+   "img": "NLF_0110_0676713972_675ECM_N0040922NCAM03110_01_295J",
+   "stop": "4_922",
+   "r": 3.162,
+   "label": "ground"
+  },
+  {
+   "index": 313,
+   "img": "NLF_0110_0676713972_675ECM_N0040922NCAM03110_01_295J",
+   "stop": "4_922",
+   "r": 4.472,
+   "label": "ground"
+  },
+  {
+   "index": 322,
+   "img": "NLF_0033_0669877239_418ECM_N0031374NCAM02033_01_295J",
+   "stop": "3_1374",
+   "r": 4.472,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 327,
+   "img": "NLF_0033_0669877239_418ECM_N0031374NCAM02033_01_295J",
+   "stop": "3_1374",
+   "r": 3.0,
+   "label": "hardware_or_nontexture"
+  },
+  {
+   "index": 334,
+   "img": "NLF_0105_0676269377_099ECM_N0040592NCAM03105_01_295J",
+   "stop": "4_592",
+   "r": 4.123,
+   "label": "ground"
+  },
+  {
+   "index": 337,
+   "img": "NLF_0072_0673345418_523ECM_N0032346NCAM03072_01_295J",
+   "stop": "3_2346",
+   "r": 4.0,
+   "label": "ground"
+  }
+ ]
+}

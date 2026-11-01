@@ -1,22 +1,22 @@
 {
  "ibp": {
-  "iters": 60
+  "iters": 240
  },
  "cg_tikhonov": {
   "mu": 0.01
  },
  "irls_tv": {
-  "eps": 0.05,
+  "eps": 0.2,
   "mu": 0.01
  },
  "chambolle_pock_tv": {
-  "lam": 0.0005
+  "lam": 1e-06
  },
  "richardson_lucy": {
   "iters": 80
  },
  "btv_l1": {
-  "beta": 0.004,
-  "lam": 0.005
+  "beta": 0.008,
+  "lam": 0.0001
  }
 }
