@@ -1,0 +1,17 @@
+== traverse rock test (pre-registered, blob detector)
+restored_multi         false/100m2    0.9 | 15-20 cm (n=4409): 2% [1-3] chance 0% | 25-40 cm (n=21): 10% [0-21] chance 0% | >=50 cm (n=1): 0% [0-0] chance 0%
+restored_repeatable    false/100m2    0.5 | 15-20 cm (n=4409): 1% [0-3] chance 0% | 25-40 cm (n=21): 5% [0-10] chance 0% | >=50 cm (n=1): 0% [0-0] chance 0%
++ for t in 0.85 0
++ ALIGN=0
++ THR=0
++ /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/venv/bin/python -I -W ignore scripts/rocks_real_matched.py /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/restored_v2 /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/rover_truth_traverse data_products/texture_filter.json results/rocks_traverse_thr0.json
+35 stops, 935 m2 clean rover-verified ground
+bicubic                false/100m2    2.4 | 15-20 cm (n=8847): 2% [1-3] chance 0% | 25-40 cm (n=57): 5% [0-17] chance 0% | >=50 cm (n=4): 0% [0-0] chance 0%
+average                false/100m2    2.0 | 15-20 cm (n=8847): 2% [1-3] chance 0% | 25-40 cm (n=57): 4% [0-11] chance 0% | >=50 cm (n=4): 0% [0-0] chance 0%
+deconv_1frame          false/100m2    1.0 | 15-20 cm (n=8847): 0% [0-1] chance 0% | 25-40 cm (n=57): 0% [0-0] chance 0% | >=50 cm (n=4): 0% [0-0] chance 0%
+restored_multi         false/100m2    1.1 | 15-20 cm (n=8847): 1% [1-2] chance 0% | 25-40 cm (n=57): 4% [0-12] chance 0% | >=50 cm (n=4): 0% [0-0] chance 0%
+restored_repeatable    false/100m2    0.5 | 15-20 cm (n=8847): 1% [1-2] chance 0% | 25-40 cm (n=57): 2% [0-6] chance 0% | >=50 cm (n=4): 0% [0-0] chance 0%
++ echo CHAIN_DONE
+CHAIN_DONE
+90 stops, frames: 2 orthos + ['ESP_068822_1985', 'ESP_068294_1985', 'ESP_068360_1985', 'ESP_068426_1985', 'ESP_073068_1985', 'PSP_002387_1985'], psf 1.07 px, mu 0.3
+/tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/gptstyle/restore_log.jsonl: 13 done, 77 to run

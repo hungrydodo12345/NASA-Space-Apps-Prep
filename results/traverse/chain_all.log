@@ -1,0 +1,197 @@
++ cd /home/user/NASA-Space-Apps-Prep
++ rm -rf /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/rover_truth_traverse /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/restored_v2
++ PROCS=4
++ scripts/build_truth_traverse.sh /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/venv/bin/python 121 600 30 /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/rover_truth_traverse
+16 stereo pairs at 1 stops (sols 121-150)
+downloaded 32 of 32 images
+1 stops
+5_1812 {'pairs': 5, 'coverage': 0.046962890625, 'verified': 0.033046875, 'conf': 0.8780446053082223, 'height_iqr_m': 0.14333394291579854}
+batch 121-150 done
+132 stereo pairs at 3 stops (sols 151-180)
+downloaded 264 of 264 images
+3 stops
+5_2512 {'pairs': 3, 'coverage': 0.017802734375, 'verified': 0.014697265625, 'conf': 0.8464029895200474, 'height_iqr_m': 0.08071072626914266}
+6_1450 {'pairs': 36, 'coverage': 0.070341796875, 'verified': 0.0323828125, 'conf': 0.7329705231397914, 'height_iqr_m': 0.25107706525422246}
+7_0 {'pairs': 40, 'coverage': 0.138896484375, 'verified': 0.080615234375, 'conf': 0.830747108591718, 'height_iqr_m': 0.15497852421730385}
+batch 151-180 done
+162 stereo pairs at 2 stops (sols 181-210)
+downloaded 324 of 324 images
+2 stops
+7_1836 {'pairs': 6, 'coverage': 0.002099609375, 'verified': 0.00421875, 'conf': 0.8246365702261471, 'height_iqr_m': 0.020189525815703213}
+7_2050 {'pairs': 73, 'coverage': 0.27923828125, 'verified': 0.121572265625, 'conf': 0.8139683639682292, 'height_iqr_m': 0.5302153428961756}
+batch 181-210 done
+32 stereo pairs at 1 stops (sols 211-240)
+downloaded 64 of 64 images
+1 stops
+7_2440 {'pairs': 15, 'coverage': 0.100302734375, 'verified': 0.053095703125, 'conf': 0.8457058054790738, 'height_iqr_m': 0.18408093199222064}
+batch 211-240 done
+0 stereo pairs at 0 stops (sols 241-270)
+downloaded 0 of 0 images
+0 stops
+batch 241-270 done
+0 stereo pairs at 0 stops (sols 271-300)
+downloaded 0 of 0 images
+0 stops
+batch 271-300 done
+0 stereo pairs at 0 stops (sols 301-330)
+downloaded 0 of 0 images
+0 stops
+batch 301-330 done
+468 stereo pairs at 6 stops (sols 331-360)
+downloaded 936 of 936 images
+6 stops
+9_276 {'pairs': 13, 'coverage': 0.05515625, 'verified': 0.0249609375, 'conf': 0.7715682460856665, 'height_iqr_m': 0.2365981050124813}
+9_2982 {'pairs': 19, 'coverage': 0.045185546875, 'verified': 0.019404296875, 'conf': 0.7771278737154682, 'height_iqr_m': 0.34392906780301713}
+9_2818 {'pairs': 26, 'coverage': 0.04845703125, 'verified': 0.030625, 'conf': 0.7925532596103131, 'height_iqr_m': 0.3999195160858209}
+9_3478 {'pairs': 54, 'coverage': 0.06509765625, 'verified': 0.033017578125, 'conf': 0.7530031260690078, 'height_iqr_m': 0.7263567506445956}
+9_5156 {'pairs': 60, 'coverage': 0.128232421875, 'verified': 0.058681640625, 'conf': 0.715799893480446, 'height_iqr_m': 0.1851614127063554}
+9_178 {'pairs': 72, 'coverage': 0.131171875, 'verified': 0.062431640625, 'conf': 0.7795210308033774, 'height_iqr_m': 0.2282157332535055}
+batch 331-360 done
+28 stereo pairs at 2 stops (sols 361-390)
+downloaded 56 of 56 images
+2 stops
+11_108 {'pairs': 12, 'coverage': 0.05322265625, 'verified': 0.0263671875, 'conf': 0.8837953493312963, 'height_iqr_m': 0.19955297835210892}
+11_0 {'pairs': 12, 'coverage': 0.073828125, 'verified': 0.0337109375, 'conf': 0.8725627124244586, 'height_iqr_m': 0.21864801491023883}
+batch 361-390 done
+464 stereo pairs at 12 stops (sols 391-420)
+downloaded 928 of 928 images
+12 stops
+21_1126 {'pairs': 8, 'coverage': 0.11759765625, 'verified': 0.1006640625, 'conf': 0.8845475731131311, 'height_iqr_m': 0.03153202748838324}
+21_2746 {'pairs': 24, 'coverage': 0.36171875, 'verified': 0.2860546875, 'conf': 0.8528954130419111, 'height_iqr_m': 0.15480280412653113}
+22_412 {'pairs': 25, 'coverage': 0.386982421875, 'verified': 0.32068359375, 'conf': 0.8903249081244762, 'height_iqr_m': 0.053886953278458424}
+21_2560 {'pairs': 32, 'coverage': 0.408798828125, 'verified': 0.33634765625, 'conf': 0.8573615726367241, 'height_iqr_m': 0.13149544770178093}
+22_532 {'pairs': 26, 'coverage': 0.3880078125, 'verified': 0.3145703125, 'conf': 0.8683610665030641, 'height_iqr_m': 0.06698051008564597}
+22_634 {'pairs': 27, 'coverage': 0.388291015625, 'verified': 0.317939453125, 'conf': 0.8716399825429667, 'height_iqr_m': 0.0775854887968414}
+22_788 {'pairs': 24, 'coverage': 0.386015625, 'verified': 0.336279296875, 'conf': 0.8941909187048842, 'height_iqr_m': 0.07130565724583904}
+22_822 {'pairs': 24, 'coverage': 0.38603515625, 'verified': 0.322646484375, 'conf': 0.8838532849064251, 'height_iqr_m': 0.06786974977437688}
+23_0 {'pairs': 24, 'coverage': 0.303076171875, 'verified': 0.2144140625, 'conf': 0.8781455802786968, 'height_iqr_m': 0.1837193394853145}
+23_1180 {'pairs': 10, 'coverage': 0.118154296875, 'verified': 0.07083984375, 'conf': 0.9169159894227417, 'height_iqr_m': 0.4336406108357264}
+23_2532 {'pairs': 10, 'coverage': 0.137802734375, 'verified': 0.0924609375, 'conf': 0.9444502529181977, 'height_iqr_m': 0.2842655102572683}
+23_824 {'pairs': 9, 'coverage': 0.0880078125, 'verified': 0.0671875, 'conf': 0.8609961154577418, 'height_iqr_m': 0.2229983285817011}
+batch 391-420 done
+316 stereo pairs at 13 stops (sols 421-450)
+downloaded 632 of 632 images
+13 stops
+24_0 {'pairs': 6, 'coverage': 0.044169921875, 'verified': 0.031474609375, 'conf': 0.8550075379017863, 'height_iqr_m': 0.1789349190926649}
+24_1328 {'pairs': 8, 'coverage': 0.08330078125, 'verified': 0.064140625, 'conf': 0.8687000588869596, 'height_iqr_m': 0.31582293880455004}
+24_4412 {'pairs': 8, 'coverage': 0.14447265625, 'verified': 0.1054296875, 'conf': 0.8351033184028194, 'height_iqr_m': 0.6712571057708147}
+24_3290 {'pairs': 18, 'coverage': 0.243583984375, 'verified': 0.1925, 'conf': 0.8660765428986648, 'height_iqr_m': 0.1072700388008434}
+24_4470 {'pairs': 7, 'coverage': 0.10228515625, 'verified': 0.07017578125, 'conf': 0.8300483539632817, 'height_iqr_m': 0.5246794811236983}
+24_2824 {'pairs': 24, 'coverage': 0.377900390625, 'verified': 0.3180078125, 'conf': 0.8999072448616415, 'height_iqr_m': 0.11646336762543807}
+24_2932 {'pairs': 25, 'coverage': 0.384345703125, 'verified': 0.31671875, 'conf': 0.877101430090226, 'height_iqr_m': 0.06326302614279652}
+25_0 {'pairs': 7, 'coverage': 0.108701171875, 'verified': 0.075009765625, 'conf': 0.8303987112993134, 'height_iqr_m': 0.6100226637777877}
+24_902 {'pairs': 8, 'coverage': 0.02310546875, 'verified': 0.0180859375, 'conf': 0.8670769930676322, 'height_iqr_m': 1.46206942981607}
+25_94 {'pairs': 8, 'coverage': 0.135859375, 'verified': 0.100126953125, 'conf': 0.8548610918874967, 'height_iqr_m': 0.7922387816960619}
+25_446 {'pairs': 24, 'coverage': 0.172265625, 'verified': 0.10369140625, 'conf': 0.8047502101891387, 'height_iqr_m': 0.8451136546518948}
+26_0 {'pairs': 20, 'coverage': 0.036484375, 'verified': 0.01849609375, 'conf': 0.7461302102725307, 'height_iqr_m': 0.34654918865671736}
+25_214 {'pairs': 29, 'coverage': 0.24740234375, 'verified': 0.1716796875, 'conf': 0.8532964034168911, 'height_iqr_m': 1.1638497246517312}
+batch 421-450 done
+152 stereo pairs at 8 stops (sols 451-480)
+downloaded 304 of 304 images
+8 stops
+26_218 {'pairs': 3, 'coverage': 0.004033203125, 'verified': 0.00326171875, 'conf': 0.7966948980551045, 'height_iqr_m': 0.07373198535312253}
+26_282 {'pairs': 11, 'coverage': 0.07982421875, 'verified': 0.0489453125, 'conf': 0.8245615644732185, 'height_iqr_m': 0.35844454852814434}
+26_1004 {'pairs': 12, 'coverage': 0.021904296875, 'verified': 0.010107421875, 'conf': 0.8706991324858232, 'height_iqr_m': 0.2610449669514374}
+26_756 {'pairs': 6, 'coverage': 0.033642578125, 'verified': 0.020283203125, 'conf': 0.7725741027267516, 'height_iqr_m': 0.33933430204294823}
+26_160 {'pairs': 19, 'coverage': 0.063701171875, 'verified': 0.031396484375, 'conf': 0.8209399089437257, 'height_iqr_m': 1.2536117149630657}
+26_850 {'pairs': 6, 'coverage': 0.021640625, 'verified': 0.012646484375, 'conf': 0.9306741892798354, 'height_iqr_m': 0.361442783927728}
+26_96 {'pairs': 9, 'coverage': 0.102822265625, 'verified': 0.0680859375, 'conf': 0.8014155038845578, 'height_iqr_m': 0.8095273464120988}
+26_630 {'pairs': 23, 'coverage': 0.13134765625, 'verified': 0.084052734375, 'conf': 0.8510083869113122, 'height_iqr_m': 0.7101700112795447}
+batch 451-480 done
+16 stereo pairs at 1 stops (sols 481-510)
+downloaded 32 of 32 images
+1 stops
+26_1222 {'pairs': 10, 'coverage': 0.063662109375, 'verified': 0.04078125, 'conf': 0.8767528492638157, 'height_iqr_m': 0.6454247547025356}
+batch 481-510 done
+0 stereo pairs at 0 stops (sols 511-540)
+downloaded 0 of 0 images
+0 stops
+batch 511-540 done
+59 stereo pairs at 4 stops (sols 541-570)
+downloaded 118 of 118 images
+4 stops
+28_0 {'pairs': 4, 'coverage': 0.03962890625, 'verified': 0.03130859375, 'conf': 0.8727005813912952, 'height_iqr_m': 0.08627167507658401}
+26_5150 {'pairs': 6, 'coverage': 0.0590625, 'verified': 0.04625, 'conf': 0.9073534111352434, 'height_iqr_m': 0.10631079968000456}
+27_230 {'pairs': 8, 'coverage': 0.137041015625, 'verified': 0.093818359375, 'conf': 0.8876270065328732, 'height_iqr_m': 0.39710313643327044}
+29_0 {'pairs': 18, 'coverage': 0.094287109375, 'verified': 0.06005859375, 'conf': 0.871978616593989, 'height_iqr_m': 0.1965505633871939}
+batch 541-570 done
+34 stereo pairs at 2 stops (sols 571-600)
+downloaded 68 of 68 images
+2 stops
+30_0 {'pairs': 8, 'coverage': 0.00111328125, 'verified': 0.00111328125, 'conf': 0.7152071449373214, 'height_iqr_m': 0.06650742923767217}
+29_144 {'pairs': 9, 'coverage': 0.080615234375, 'verified': 0.052666015625, 'conf': 0.835410184613538, 'height_iqr_m': 0.28255036676663325}
+batch 571-600 done
+ALL_DONE
++ PROCS=4
++ /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/venv/bin/python -I -W ignore scripts/build_rover_truth_v3.py /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/navcam /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/navcam_right /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/rover/meta /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/rover/meta_right /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/ai4mars/ai4mars-dataset-merged-0.6/m2020/labels /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/rover/waypoints.json /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/rover/hero_navcam.json /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/rover/stereo_pairs.json /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hirise_jezero/DTEEC_045994_1985_046060_1985_U01.IMG /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/rover_truth_traverse
+35 stops
+3_110 {'pairs': 11, 'coverage': 0.320771484375, 'verified': 0.207822265625, 'conf': 0.8931863321093022, 'height_iqr_m': 0.07638450242689637}
+3_1044 {'pairs': 12, 'coverage': 0.4607421875, 'verified': 0.386865234375, 'conf': 0.8510963063928174, 'height_iqr_m': 0.1396241814296807}
+3_1266 {'pairs': 21, 'coverage': 0.4948828125, 'verified': 0.376328125, 'conf': 0.9233981294563514, 'height_iqr_m': 0.08749748522761373}
+3_1374 {'pairs': 9, 'coverage': 0.49814453125, 'verified': 0.37197265625, 'conf': 0.9353426840601269, 'height_iqr_m': 0.09035236104535008}
+3_1392 {'pairs': 13, 'coverage': 0.416943359375, 'verified': 0.302412109375, 'conf': 0.926001290206498, 'height_iqr_m': 0.058082644729365585}
+3_1398 {'pairs': 9, 'coverage': 0.32919921875, 'verified': 0.25513671875, 'conf': 0.9117922204726651, 'height_iqr_m': 0.04057774620546323}
+3_1850 {'pairs': 5, 'coverage': 0.37974609375, 'verified': 0.308671875, 'conf': 0.9276830288362856, 'height_iqr_m': 0.23718899088344825}
+3_1708 {'pairs': 9, 'coverage': 0.357451171875, 'verified': 0.3031640625, 'conf': 0.8612169362452693, 'height_iqr_m': 0.1055247241004238}
+3_0 {'pairs': 45, 'coverage': 0.381142578125, 'verified': 0.28587890625, 'conf': 0.8947087914370584, 'height_iqr_m': 0.09726192336014705}
+3_1416 {'pairs': 22, 'coverage': 0.403466796875, 'verified': 0.310634765625, 'conf': 0.9172039681196551, 'height_iqr_m': 0.03255361905823663}
+3_1950 {'pairs': 9, 'coverage': 0.231591796875, 'verified': 0.19626953125, 'conf': 0.9014879297549941, 'height_iqr_m': 0.08008642430312093}
+3_2150 {'pairs': 9, 'coverage': 0.29765625, 'verified': 0.23646484375, 'conf': 0.9563196225319864, 'height_iqr_m': 0.20161569029171422}
+3_2208 {'pairs': 13, 'coverage': 0.440654296875, 'verified': 0.3466796875, 'conf': 0.9511703710293675, 'height_iqr_m': 0.12415369119605213}
+3_2346 {'pairs': 9, 'coverage': 0.42677734375, 'verified': 0.361962890625, 'conf': 0.9055014220920167, 'height_iqr_m': 0.2281037214478931}
+3_2046 {'pairs': 23, 'coverage': 0.26048828125, 'verified': 0.1858203125, 'conf': 0.9101621192887817, 'height_iqr_m': 0.07788281439486958}
+3_2430 {'pairs': 23, 'coverage': 0.457412109375, 'verified': 0.34810546875, 'conf': 0.9074950579907055, 'height_iqr_m': 0.33570289769159406}
+3_578 {'pairs': 18, 'coverage': 0.45732421875, 'verified': 0.353603515625, 'conf': 0.8521326129118783, 'height_iqr_m': 0.15575363943661624}
+3_770 {'pairs': 19, 'coverage': 0.443935546875, 'verified': 0.34994140625, 'conf': 0.8500232300799822, 'height_iqr_m': 0.08053208957711369}
+3_386 {'pairs': 36, 'coverage': 0.439560546875, 'verified': 0.358447265625, 'conf': 0.8775191263999709, 'height_iqr_m': 0.06315804667870561}
+3_828 {'pairs': 12, 'coverage': 0.275791015625, 'verified': 0.21193359375, 'conf': 0.8601483806862725, 'height_iqr_m': 0.08220073796331473}
+4_0 {'pairs': 10, 'coverage': 0.476708984375, 'verified': 0.387890625, 'conf': 0.9530419117573555, 'height_iqr_m': 0.08343457213265548}
+3_792 {'pairs': 23, 'coverage': 0.423896484375, 'verified': 0.29890625, 'conf': 0.8530210399629132, 'height_iqr_m': 0.10021328179693241}
+4_218 {'pairs': 12, 'coverage': 0.3699609375, 'verified': 0.301279296875, 'conf': 0.9331082218580669, 'height_iqr_m': 0.1726783501785158}
+4_1250 {'pairs': 23, 'coverage': 0.288125, 'verified': 0.2178515625, 'conf': 0.9042329782505538, 'height_iqr_m': 0.2918814002893464}
+4_1062 {'pairs': 24, 'coverage': 0.51353515625, 'verified': 0.42802734375, 'conf': 0.8742247322463712, 'height_iqr_m': 0.18263229331805642}
+4_372 {'pairs': 9, 'coverage': 0.388896484375, 'verified': 0.290703125, 'conf': 0.8912653137070066, 'height_iqr_m': 0.2502583580603712}
+4_430 {'pairs': 12, 'coverage': 0.4925, 'verified': 0.454462890625, 'conf': 0.8722394612756541, 'height_iqr_m': 0.05153700608313122}
+4_136 {'pairs': 34, 'coverage': 0.36154296875, 'verified': 0.2720703125, 'conf': 0.9259116394576885, 'height_iqr_m': 0.1210920048014334}
+4_48 {'pairs': 20, 'coverage': 0.410869140625, 'verified': 0.30392578125, 'conf': 0.9302016344267032, 'height_iqr_m': 0.10434491720971213}
+4_510 {'pairs': 12, 'coverage': 0.4820703125, 'verified': 0.4365234375, 'conf': 0.8688288073039984, 'height_iqr_m': 0.1299277355735287}
+4_592 {'pairs': 18, 'coverage': 0.361044921875, 'verified': 0.265869140625, 'conf': 0.8413370762133958, 'height_iqr_m': 0.21785730556826727}
+4_644 {'pairs': 21, 'coverage': 0.341123046875, 'verified': 0.24771484375, 'conf': 0.8814857339700048, 'height_iqr_m': 0.21124823298338002}
+4_738 {'pairs': 21, 'coverage': 0.318427734375, 'verified': 0.244189453125, 'conf': 0.8969503409765592, 'height_iqr_m': 0.07506495827462739}
+4_822 {'pairs': 18, 'coverage': 0.524072265625, 'verified': 0.47072265625, 'conf': 0.8529219065468213, 'height_iqr_m': 0.07822106540783347}
+4_922 {'pairs': 56, 'coverage': 0.5409375, 'verified': 0.46748046875, 'conf': 0.8328201169292979, 'height_iqr_m': 0.1481007804957974}
++ echo TRUTH_DONE
+TRUTH_DONE
++ PROCS=4
++ /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/venv/bin/python -I -W ignore scripts/restore_real_v2.py /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hirise_jezero /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hirise_rdr /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/rover_truth_traverse /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/restored_v2
+90 stops, frames: 2 orthos + ['ESP_068822_1985', 'ESP_068294_1985', 'ESP_068360_1985', 'ESP_068426_1985', 'ESP_073068_1985', 'PSP_002387_1985'], psf 1.07 px, mu 0.3
+/tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/restored_v2/restore_log.jsonl: 0 done, 90 to run
+  20/90 [507s]
+  40/90 [1006s]
+  60/90 [1608s]
+  80/90 [2251s]
+finished /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/restored_v2/restore_log.jsonl in 2520s
++ echo RESTORE_DONE
+RESTORE_DONE
++ for t in 0.85 0
++ ALIGN=0
++ THR=0.85
++ /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/venv/bin/python -I -W ignore scripts/rocks_real_matched.py /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/restored_v2 /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/rover_truth_traverse data_products/texture_filter.json results/rocks_traverse_thr0.85.json
+28 stops, 439 m2 clean rover-verified ground
+bicubic                false/100m2    1.8 | 15-20 cm (n=4409): 2% [1-4] chance 1% | 25-40 cm (n=21): 14% [0-30] chance 0% | >=50 cm (n=1): 0% [0-0] chance 0%
+average                false/100m2    2.5 | 15-20 cm (n=4409): 2% [1-4] chance 1% | 25-40 cm (n=21): 10% [0-20] chance 0% | >=50 cm (n=1): 0% [0-0] chance 0%
+deconv_1frame          false/100m2    1.1 | 15-20 cm (n=4409): 1% [0-1] chance 0% | 25-40 cm (n=21): 0% [0-0] chance 0% | >=50 cm (n=1): 0% [0-0] chance 0%
+restored_multi         false/100m2    0.9 | 15-20 cm (n=4409): 2% [1-3] chance 0% | 25-40 cm (n=21): 10% [0-21] chance 0% | >=50 cm (n=1): 0% [0-0] chance 0%
+restored_repeatable    false/100m2    0.5 | 15-20 cm (n=4409): 1% [0-3] chance 0% | 25-40 cm (n=21): 5% [0-10] chance 0% | >=50 cm (n=1): 0% [0-0] chance 0%
++ for t in 0.85 0
++ ALIGN=0
++ THR=0
++ /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/venv/bin/python -I -W ignore scripts/rocks_real_matched.py /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/restored_v2 /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/rover_truth_traverse data_products/texture_filter.json results/rocks_traverse_thr0.json
+35 stops, 935 m2 clean rover-verified ground
+bicubic                false/100m2    2.4 | 15-20 cm (n=8847): 2% [1-3] chance 0% | 25-40 cm (n=57): 5% [0-17] chance 0% | >=50 cm (n=4): 0% [0-0] chance 0%
+average                false/100m2    2.0 | 15-20 cm (n=8847): 2% [1-3] chance 0% | 25-40 cm (n=57): 4% [0-11] chance 0% | >=50 cm (n=4): 0% [0-0] chance 0%
+deconv_1frame          false/100m2    1.0 | 15-20 cm (n=8847): 0% [0-1] chance 0% | 25-40 cm (n=57): 0% [0-0] chance 0% | >=50 cm (n=4): 0% [0-0] chance 0%
+restored_multi         false/100m2    1.1 | 15-20 cm (n=8847): 1% [1-2] chance 0% | 25-40 cm (n=57): 4% [0-12] chance 0% | >=50 cm (n=4): 0% [0-0] chance 0%
+restored_repeatable    false/100m2    0.5 | 15-20 cm (n=8847): 1% [1-2] chance 0% | 25-40 cm (n=57): 2% [0-6] chance 0% | >=50 cm (n=4): 0% [0-0] chance 0%
++ echo CHAIN_DONE
+CHAIN_DONE
