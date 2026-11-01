@@ -1,17 +1,20 @@
 {
  "21_2560": {
-  "lock_residual_rel": 0.0032739242029634474,
+  "lock_residual_rel": 0.0015036883394145162,
   "rocks_recognised": 1246,
+  "rocks_placed": 4,
   "rover_rocks": 194
  },
  "21_1126": {
-  "lock_residual_rel": 0.0026706535333236004,
+  "lock_residual_rel": 0.0010041754488832343,
   "rocks_recognised": 502,
+  "rocks_placed": 1,
   "rover_rocks": 67
  },
  "24_3290": {
-  "lock_residual_rel": 0.008488760717316671,
+  "lock_residual_rel": 0.001545187626559625,
   "rocks_recognised": 1323,
+  "rocks_placed": 3,
   "rover_rocks": 74
  }
 }

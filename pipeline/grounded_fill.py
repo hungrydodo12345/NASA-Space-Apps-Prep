@@ -129,6 +129,11 @@ def fill(base_up, class_prob, rocks, lib, psf_px, seed=0):
     tex = tex * lib.get("gain", 1.0)
     rl = np.zeros_like(base_up); H, W = base_up.shape
     frms = np.sqrt(ndi.gaussian_filter(tex ** 2, 8 * psf_px)); sd = lib.get("shadow_dir")
+    # place a rock only where the MEASURED restoration shows a bright rock-scale blob (scale-normalised LoG above
+    # k x robust noise); a rock HiRISE does not support would have to be cancelled by the lock, leaving a ring.
+    zb = (base_up - ndi.gaussian_filter(base_up, 4 * psf_px)); zb = zb / (1.4826 * np.median(np.abs(zb - np.median(zb))) + 1e-12)
+    resp = -(psf_px ** 2) * ndi.gaussian_laplace(zb, psf_px); resp = ndi.maximum_filter(resp, 5)
+    rocks = [q for q in rocks if resp[int(q[0]), int(q[1])] > lib.get("support_k", 2.5)]
     for y, x, D, _ in rocks:
         b = 0 if D <= rz.BANDS[0][1] else 1; pool = lib["sprites"][b] or lib["sprites"][1 - b]
         if not pool: continue
@@ -148,4 +153,4 @@ def fill(base_up, class_prob, rocks, lib, psf_px, seed=0):
     out = base_up + added
     ob = observe(base_up, psf_px)
     resid = float(np.std(observe(out, psf_px) - ob) / (np.std(ob - ob.mean()) + 1e-12))
-    return out, dict(texture=tex, rocks=rl, added=added, lock_residual_rel=resid)
+    return out, dict(texture=tex, rocks=rl, added=added, lock_residual_rel=resid, rocks_placed=len(rocks))

@@ -40,7 +40,7 @@ for r_, stop in enumerate(stops):
     rocks = [q for q in rz.decode(rp, thr)]
     base = r["restored_multi"].astype(float)
     out, info = gf.fill(base, cp, rocks, lib, PSF_PX, seed=1)
-    stats[stop] = dict(lock_residual_rel=info["lock_residual_rel"], rocks_recognised=len(rocks), rover_rocks=len(truth_rocks))
+    stats[stop] = dict(lock_residual_rel=info["lock_residual_rel"], rocks_recognised=len(rocks), rocks_placed=info.get("rocks_placed"), rover_rocks=len(truth_rocks))
     Z, _ = gf.to_grid(t, PX, base.shape[0])
     ys, xs = np.nonzero(np.isfinite(Z)); y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
     crop = lambda a: a[y0:y1, x0:x1]
