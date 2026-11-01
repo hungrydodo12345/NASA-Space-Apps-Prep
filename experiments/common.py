@@ -52,7 +52,7 @@ def welch_coherence(a, b, valid=None, size=64, stride=16, nb=32):
     return 0.5 * (edges[1:] + edges[:-1]), coh
 
 
-def evaluate(hr, truth, bic, valid=None, margin=12):
+def evaluate(hr, truth, bic, valid=None, margin=12, block=64):
     """Scores of a reconstruction against ground truth (all percentages / cm).
 
     rmse_reduction_pct : 100*(1 - RMSE/RMSE_bicubic)   (positive = better than bicubic)
@@ -65,7 +65,7 @@ def evaluate(hr, truth, bic, valid=None, margin=12):
     v = ndi.binary_erosion(v, iterations=1)[sl]
     e = lambda x: np.sqrt(np.mean((x[sl][v] - truth[sl][v]) ** 2))
     vv = None if valid is None else valid[sl]
-    f, c = welch_coherence(hr[sl], truth[sl], vv)
+    f, c = welch_coherence(hr[sl], truth[sl], vv, size=block, stride=max(4, block // 4), nb=block // 2)
     if c is None: return None
     lr_nyq = 0.5 / SCALE
     band = f > lr_nyq

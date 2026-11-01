@@ -26,7 +26,7 @@ def job(j):
     frames, est, _ = C.simulate(truth, j["n"], rng, noise_rel=j["noise"], reg_err=j["reg"], light=j["light"], psf_lr=j["psf"])
     bic = algos.reconstruct("bicubic", frames, est, C.SCALE, j["psf"] * C.SCALE)
     hr = algos.reconstruct(j["algo"], frames, est, C.SCALE, j["psf"] * C.SCALE, **HP.get(j["algo"], {}))
-    r = C.evaluate(hr, truth, bic, valid)
+    r = C.evaluate(hr, truth, bic, valid, block=32 if j["scene"] == "rover" else 64)
     return dict({k: j[k] for k in ("algo", "scene", "idx", "n", "noise", "reg", "light", "psf")}, **(r or {}))
 
 
