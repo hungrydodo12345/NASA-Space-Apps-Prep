@@ -125,7 +125,7 @@
    "familiarity_distance": 3.1524455750914857,
    "trusted": true,
    "rocks": 331,
-   "lock_residual_rel": 0.006999280750837123
+   "lock_residual_rel": 0.0016491116520838687
   },
   {
    "ty": 1,
@@ -208,7 +208,7 @@
    "familiarity_distance": 2.40464723125753,
    "trusted": true,
    "rocks": 490,
-   "lock_residual_rel": 0.012075940035440953
+   "lock_residual_rel": 0.0016246035219383806
   },
   {
    "ty": 2,
@@ -292,7 +292,7 @@
    "familiarity_distance": 2.582543579165928,
    "trusted": true,
    "rocks": 612,
-   "lock_residual_rel": 0.006939812007152742
+   "lock_residual_rel": 0.0012087411622333077
   }
  ],
  "rocks": 5171,
