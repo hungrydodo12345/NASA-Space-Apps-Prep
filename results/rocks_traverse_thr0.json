@@ -1,0 +1,3123 @@
+{
+ "stops": 35,
+ "clean_area_m2": 935.3935409348052,
+ "summary": {
+  "bicubic": {
+   "false_per_100m2": 2.351951241614715,
+   "15-20 cm": {
+    "rover_rocks": 8847,
+    "found_pct": [
+     1.69548999660902,
+     0.9502113339599383,
+     2.5555583192304625
+    ],
+    "chance_pct": [
+     0.46343393240646547,
+     0.13500222448376845,
+     0.8555728569310262
+    ]
+   },
+   "25-40 cm": {
+    "rover_rocks": 57,
+    "found_pct": [
+     5.2631578947368425,
+     0.0,
+     16.666666666666664
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   ">=50 cm": {
+    "rover_rocks": 4,
+    "found_pct": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "average": {
+   "false_per_100m2": 2.031230617758163,
+   "15-20 cm": {
+    "rover_rocks": 8847,
+    "found_pct": [
+     1.9328585961342828,
+     1.2807308890216342,
+     2.6650275705775948
+    ],
+    "chance_pct": [
+     0.3730077992539844,
+     0.1263502977859318,
+     0.6381150621322281
+    ]
+   },
+   "25-40 cm": {
+    "rover_rocks": 57,
+    "found_pct": [
+     3.508771929824561,
+     0.0,
+     11.11111111111111
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   ">=50 cm": {
+    "rover_rocks": 4,
+    "found_pct": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "deconv_1frame": {
+   "false_per_100m2": 0.9621618715696563,
+   "15-20 cm": {
+    "rover_rocks": 8847,
+    "found_pct": [
+     0.46343393240646547,
+     0.20938752055457074,
+     0.7527364780186301
+    ],
+    "chance_pct": [
+     0.1356391997287216,
+     0.0,
+     0.34284727155618455
+    ]
+   },
+   "25-40 cm": {
+    "rover_rocks": 57,
+    "found_pct": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   ">=50 cm": {
+    "rover_rocks": 4,
+    "found_pct": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "restored_multi": {
+   "false_per_100m2": 1.069068746188507,
+   "15-20 cm": {
+    "rover_rocks": 8847,
+    "found_pct": [
+     1.4129083305075167,
+     0.7962353912614982,
+     2.2079023608604103
+    ],
+    "chance_pct": [
+     0.2034587995930824,
+     0.014025353458068079,
+     0.45275069637882953
+    ]
+   },
+   "25-40 cm": {
+    "rover_rocks": 57,
+    "found_pct": [
+     3.508771929824561,
+     0.0,
+     11.76470588235294
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   ">=50 cm": {
+    "rover_rocks": 4,
+    "found_pct": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "restored_repeatable": {
+   "false_per_100m2": 0.5345343730942534,
+   "15-20 cm": {
+    "rover_rocks": 8847,
+    "found_pct": [
+     1.0738103311857126,
+     0.5170082942122819,
+     1.7477535290719806
+    ],
+    "chance_pct": [
+     0.1356391997287216,
+     0.0,
+     0.3378054275860817
+    ]
+   },
+   "25-40 cm": {
+    "rover_rocks": 57,
+    "found_pct": [
+     1.7543859649122806,
+     0.0,
+     5.55751173708919
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   ">=50 cm": {
+    "rover_rocks": 4,
+    "found_pct": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  }
+ },
+ "per_stop": [
+  {
+   "stop": "21_2560",
+   "area_m2": 4.045823258463263,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 40,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "25_214",
+   "area_m2": 10.106593927145434,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 67,
+    "25-40 cm": 4,
+    ">=50 cm": 1
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "26_630",
+   "area_m2": 4.033876929944178,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 34,
+    "25-40 cm": 1,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 2
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 2
+   }
+  },
+  {
+   "stop": "3_0",
+   "area_m2": 21.22066155940032,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 177,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 2
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 4
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "3_1044",
+   "area_m2": 43.715598160836315,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 454,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 4,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 4
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 6,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 5
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "3_110",
+   "area_m2": 12.137469775389787,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 99,
+    "25-40 cm": 3,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 4
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 3,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 4
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 4
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "3_1266",
+   "area_m2": 48.56182543007824,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 407,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 5,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 5
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 4,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 5
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 3
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 5
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 2
+   }
+  },
+  {
+   "stop": "3_1374",
+   "area_m2": 35.576166329833455,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 302,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 8,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 4
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 14,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 9
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 10,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 5
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 7,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   }
+  },
+  {
+   "stop": "3_1392",
+   "area_m2": 24.354581740906806,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 222,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 4,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "3_1398",
+   "area_m2": 11.102121303735803,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 110,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 2
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "3_1416",
+   "area_m2": 37.5353642069633,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 374,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 5,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 4
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 2
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "3_1708",
+   "area_m2": 20.20124152577178,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 224,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "3_1850",
+   "area_m2": 23.22764475060651,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 208,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 11,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 12,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 4
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 9,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 5
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 10,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   }
+  },
+  {
+   "stop": "3_2046",
+   "area_m2": 10.146415022209048,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 62,
+    "25-40 cm": 12,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "3_2150",
+   "area_m2": 15.207676204794488,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 105,
+    "25-40 cm": 14,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "3_2208",
+   "area_m2": 34.449229339533154,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 297,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 3
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 3
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 2
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "3_2346",
+   "area_m2": 26.31377961803665,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 254,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 5
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   }
+  },
+  {
+   "stop": "3_2430",
+   "area_m2": 22.291849016611557,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 187,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 9,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 5
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 8,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 7
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 3
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   }
+  },
+  {
+   "stop": "3_386",
+   "area_m2": 43.67179495626634,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 441,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 20,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 16,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 8
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 11,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 10,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 5
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 11,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 8,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 4
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 8,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 8,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 5
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "3_578",
+   "area_m2": 31.402915567166623,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 297,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 5,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 5
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 4,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 4,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "3_770",
+   "area_m2": 36.37657034061211,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 370,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 3
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "3_792",
+   "area_m2": 22.287866907105197,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 216,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 11,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "4_0",
+   "area_m2": 27.35709230870336,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 226,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 3,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "4_1062",
+   "area_m2": 35.4367924971108,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 344,
+    "25-40 cm": 1,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 9,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 3,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 4,
+    "detections": 12
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 6,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 5
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 3,
+    "detections": 3
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 6,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 5,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "4_1250",
+   "area_m2": 6.116520201771232,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 65,
+    "25-40 cm": 1,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "4_136",
+   "area_m2": 7.032405388234372,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 61,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "4_218",
+   "area_m2": 7.112047578361602,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 73,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 4,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 7,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 3,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "4_372",
+   "area_m2": 12.057827585262558,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 125,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "4_430",
+   "area_m2": 64.96413448678116,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 682,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 6,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 7
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 4,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 7
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 3,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 5
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 3
+   }
+  },
+  {
+   "stop": "4_48",
+   "area_m2": 23.359054364316435,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 207,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 5
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 5
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   }
+  },
+  {
+   "stop": "4_510",
+   "area_m2": 77.18522856180455,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 814,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 12,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 6,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "detections": 14
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 10,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 8,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 3,
+    "detections": 19
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 4
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 8,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 2,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 12
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 12,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 3,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 5
+   }
+  },
+  {
+   "stop": "4_644",
+   "area_m2": 4.013966382412371,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 44,
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 5,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 4
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 6,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 5,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 5,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   }
+  },
+  {
+   "stop": "4_738",
+   "area_m2": 25.3063059129272,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 229,
+    "25-40 cm": 8,
+    ">=50 cm": 0
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 1
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 0
+   }
+  },
+  {
+   "stop": "4_822",
+   "area_m2": 49.640977106302195,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 488,
+    "25-40 cm": 3,
+    ">=50 cm": 2
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 5,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 1,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 3,
+    "detections": 6
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 17,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 8,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 2
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 17,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 3
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 14,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 0,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 2
+   }
+  },
+  {
+   "stop": "4_922",
+   "area_m2": 57.844122689406845,
+   "offset_px": [
+    0,
+    0
+   ],
+   "truth": {
+    "15-20 cm": 542,
+    "25-40 cm": 10,
+    ">=50 cm": 1
+   },
+   "bicubic": {
+    "found": {
+     "15-20 cm": 39,
+     "25-40 cm": 3,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 9,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 9
+   },
+   "average": {
+    "found": {
+     "15-20 cm": 30,
+     "25-40 cm": 2,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 6,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 10
+   },
+   "deconv_1frame": {
+    "found": {
+     "15-20 cm": 6,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 3,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 9
+   },
+   "restored_multi": {
+    "found": {
+     "15-20 cm": 31,
+     "25-40 cm": 2,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 7,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "detections": 7
+   },
+   "restored_repeatable": {
+    "found": {
+     "15-20 cm": 26,
+     "25-40 cm": 1,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "15-20 cm": 8,
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "detections": 5
+   }
+  }
+ ]
+}
