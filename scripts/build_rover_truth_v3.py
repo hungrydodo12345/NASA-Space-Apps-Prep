@@ -21,7 +21,7 @@ from pipeline import rover_ortho as ro, rover_stereo as rs, rover_project as rp,
 from pipeline.dtm import Dtm
 
 NAV, NAVR, META, METAR, LAB, WP, ITEMS, PAIRS, DTM, OUT = sys.argv[1:11]
-HALF, RES, RMIN, RMAX = 8.0, 0.05, 2.0, 8.0
+HALF = float(os.environ.get("HALF", 8.0)); RMAX = float(os.environ.get("RMAX", 8.0)); RES, RMIN = 0.05, 2.0
 DZ = np.arange(-1.0, 1.0001, 0.02)          # height search around the DTM prior (m); rough ground needs +-1 m
 os.makedirs(OUT, exist_ok=True)
 

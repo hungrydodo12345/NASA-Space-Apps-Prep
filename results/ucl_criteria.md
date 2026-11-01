@@ -34,3 +34,16 @@ Our test is stricter than UCL's:
 4. **Above chance:** every completeness number used above is clearly above its chance level.
 
 If only some of these hold, we report exactly which ones and do not claim to beat UCL.
+
+## Amendment 1 (2026-11-01, before any result on the extended ground truth)
+
+**Why:** the traverse rock test showed that the rover-verified ground holds only 4 rocks ≥ 50 cm, so criterion 1 (at least 30 such rocks) cannot be tested.
+
+**The cause** is how the truth was built. It used only steeply downward Navcam tiles (mast elevation ≤ −15°), which see 2–8 m around the rover, and the rover parks away from boulders.
+
+**The change:**
+
+- The truth is extended to ±16 m around each stop, the full 32 m area each restoration already covers.
+- Navcam tiles with mast elevation ≤ −5° are now included.
+- The terrain-aware stereo method, the detector, the matching rule and all thresholds are unchanged.
+- Results on the original ±8 m truth stay reported (`results/rocks_traverse_thr*.json`).

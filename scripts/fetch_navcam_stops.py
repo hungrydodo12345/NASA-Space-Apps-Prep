@@ -12,6 +12,7 @@ import sys, os, json, time, urllib.request, collections
 from concurrent.futures import ThreadPoolExecutor
 
 WP, OUT, SMIN, SMAX = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
+MAXEL = float(os.environ.get("MAXEL", -15))      # keep tiles with mast elevation <= MAXEL degrees
 API = "https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&search={cam}&sol={sol}"
 for d in ("meta", "meta_right", "left", "right", "lists"): os.makedirs(f"{OUT}/{d}", exist_ok=True)
 
@@ -62,7 +63,7 @@ if __name__ == "__main__":
             ext = m.get("extended", {})
             try: el = float(ext["mastEl"])
             except (KeyError, ValueError): continue
-            if el > -15 or ext.get("scaleFactor") != "1" or m["camera"].get("camera_model_type") != "CAHVORE": continue
+            if el > MAXEL or ext.get("scaleFactor") != "1" or m["camera"].get("camera_model_type") != "CAHVORE": continue
             x, y, w, h = rect(ext["subframeRect"]); best = None
             for r in right_by_time.get(m["imageid"].split("_")[2], []):
                 if r["extended"].get("scaleFactor") != "1": continue
