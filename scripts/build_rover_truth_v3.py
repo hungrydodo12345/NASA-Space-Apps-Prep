@@ -65,6 +65,9 @@ def build(job):
             L = np.where(Lb == 255, np.nan, L)
         r = rs.sweep_pair(L, R, m, mR, prior, NN, EE, dz=DZ, rmin=RMIN, rmax=RMAX)
         if r is not None: res.append(r); used.append(m)
+    corr = [(0.0, 0.0, 0.0)] * len(res)
+    if os.environ.get("ANCHOR", "1") == "1": res, _planes = rs.anchor_to_prior(res, prior, NN, EE)
+    if os.environ.get("BUNDLE", "1") == "1": res, corr = rs.adjust_pairs(res)
     f = rs.fuse_stop(res)
     if f is None: return stop, None
     # isolated height outliers: > 5 cm from the 9x9 median of confident neighbours
@@ -100,7 +103,10 @@ def build(job):
         cam = rs.parse_cahvore(m); Rm = rp.quat_to_R(rp.attitude(m))
         sel = allowed & (rng_ >= RMIN) & (rng_ <= RMAX)
         P = np.stack([NN[sel], EE[sel], mesh[sel]], -1) @ Rm
-        o = np.full(NN.shape, np.nan); o[sel] = rs._sample(L, cam, P); orths.append(o)
+        o = np.full(NN.shape, np.nan); o[sel] = rs._sample(L, cam, P)
+        cy_, cx_, cz_ = corr[used.index(m)]
+        if cy_ or cx_: o = ndi.shift(o, (cy_, cx_), order=1, mode="constant", cval=np.nan)   # same correction as its stereo pair
+        orths.append(o)
     proj = rs.blend_photos(orths)
     if proj is not None:
         f["z_stereo_only"] = f["z"]; f["z"] = np.where(allowed, proj, np.nan)

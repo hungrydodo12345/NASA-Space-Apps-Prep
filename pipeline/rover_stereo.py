@@ -177,3 +177,69 @@ def blend_photos(orths, norm_sigma_cells=30, feather_cells=12):
     if acc is None: return None
     out = acc / np.maximum(wsum, 1e-9); out[wsum < 0.05] = np.nan
     return out
+
+
+def adjust_pairs(results, max_shift=10, min_overlap=1500, ncc_min=0.6):
+    """Per-stop bundle adjustment in map space: one horizontal shift (cells) and one height offset (m) per stereo pair,
+    chosen so that overlapping pairs agree. Pairwise offsets come from texture correlation (shift) and the median
+    height difference (offset) in each overlap; per-pair corrections solve them jointly by weighted least squares
+    with zero mean. Returns corrected copies of the results and the corrections [(dy, dx, dz)]."""
+    K = len(results)
+    if K < 2: return results, [(0, 0, 0.0)] * K
+    ok = [np.isfinite(r["ncc"]) & (r["ncc"] >= ncc_min) for r in results]
+    tex = []
+    for r, m in zip(results, ok):
+        t = np.where(m, r["tex"], np.nan); t = (t - np.nanmean(t)) / (np.nanstd(t) + 1e-9)
+        hpt = np.nan_to_num(t) - ndi.gaussian_filter(np.nan_to_num(t), 6); tex.append(np.where(m, hpt, 0.0))
+    rows, rhs_xy, rhs_z, w = [], [], [], []
+    for i in range(K):
+        for j in range(i + 1, K):
+            ov = ok[i] & ndi.binary_dilation(ok[j], iterations=max_shift)
+            if ov.sum() < min_overlap: continue
+            ys, xs = np.nonzero(ov); y0, y1 = max(ys.min() - max_shift, 0), ys.max() + max_shift + 1; x0, x1 = max(xs.min() - max_shift, 0), xs.max() + max_shift + 1
+            ti, tj = tex[i][y0:y1, x0:x1], tex[j][y0:y1, x0:x1]; mi, mj = ok[i][y0:y1, x0:x1].astype(float), ok[j][y0:y1, x0:x1].astype(float)
+            sh = (ti.shape[0] + 2 * max_shift, ti.shape[1] + 2 * max_shift)
+            F = lambda a: np.fft.rfft2(a, sh); IF = lambda a: np.fft.irfft2(a, sh)
+            # sum_y a(y) b(y - d) for all d: correlation of a with b
+            xc = lambda a, b: IF(F(a) * np.conj(F(b)))
+            C = xc(ti, tj); Ei = xc(ti * ti, mj); Ej = xc(mi, tj * tj); Nn = xc(mi, mj)
+            best = (-2, 0, 0)
+            for dy in range(-max_shift, max_shift + 1):
+                for dx in range(-max_shift, max_shift + 1):
+                    if Nn[dy, dx] < min_overlap: continue
+                    c = C[dy, dx] / np.sqrt(max(Ei[dy, dx] * Ej[dy, dx], 1e-12))
+                    if c > best[0]: best = (float(c), dy, dx)
+            c, dy, dx = best
+            if c < 0.3: continue
+            zj = np.roll(np.roll(np.where(ok[j], results[j]["z"], np.nan), dy, 0), dx, 1)
+            mm = ok[i] & np.isfinite(zj)
+            dz = float(np.nanmedian(results[i]["z"][mm] - zj[mm]))
+            e = np.zeros(K); e[j] = 1; e[i] = -1
+            rows.append(e); rhs_xy.append((dy, dx)); rhs_z.append(dz); w.append(c * np.sqrt(mm.sum()))
+    if not rows: return results, [(0, 0, 0.0)] * K
+    A = np.vstack(rows + [np.ones(K)]); W = np.sqrt(np.array(w + [max(w) * 10]))
+    sol = lambda b: np.linalg.lstsq(A * W[:, None], np.append(b, 0.0) * W, rcond=None)[0]
+    cy = sol(np.array([r[0] for r in rhs_xy], float)); cx = sol(np.array([r[1] for r in rhs_xy], float)); cz = sol(np.array(rhs_z))
+    out, corr = [], []
+    for r, y_, x_, z_ in zip(results, cy, cx, cz):
+        s = lambda a, order=1: ndi.shift(a, (y_, x_), order=order, mode="constant", cval=np.nan)
+        q = dict(z=s(r["z"]) + z_, ncc=s(r["ncc"], 0), tex=s(r["tex"]), sd=s(r["sd"]))
+        out.append(q); corr.append((float(y_), float(x_), float(z_)))
+    return out, corr
+
+
+def anchor_to_prior(results, prior, NN, EE, ncc_min=0.6, min_cells=1500):
+    """Remove each stereo pair's pointing error in height: robustly fit a plane a + b*N + c*E to (stereo height - DTM
+    prior) over the pair's confident cells and subtract it. Photos then agree with the HiRISE DTM (and so with each
+    other) at large scale, while relief smaller than a photo's footprint - rocks, ripples - is kept."""
+    out, planes = [], []
+    for r in results:
+        m = np.isfinite(r["ncc"]) & (r["ncc"] >= ncc_min) & np.isfinite(r["z"]) & np.isfinite(prior)
+        if m.sum() < min_cells: out.append(r); planes.append(None); continue
+        d = (r["z"] - prior)[m]; A = np.stack([np.ones(m.sum()), NN[m], EE[m]], 1); wts = np.ones(m.sum())
+        for _ in range(5):                                           # iteratively reweighted (Huber, 5 cm)
+            coef = np.linalg.lstsq(A * wts[:, None], d * wts, rcond=None)[0]
+            res = d - A @ coef; wts = np.sqrt(np.minimum(1.0, 0.05 / np.maximum(np.abs(res), 1e-6)))
+        q = dict(r); q["z"] = r["z"] - (coef[0] + coef[1] * NN + coef[2] * EE)
+        out.append(q); planes.append(coef.tolist())
+    return out, planes
