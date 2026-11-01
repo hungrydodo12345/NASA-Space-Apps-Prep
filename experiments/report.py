@@ -6,6 +6,7 @@ import sys, os, json, collections
 import numpy as np
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.ticker import NullFormatter
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from experiments import common as C, algos
 
@@ -40,10 +41,10 @@ for scene in ("fractal", "rover"):
         ax[0].errorbar(xs, er, yerr=np.array(ec).T, color=COL[a], marker="o", ms=3, lw=1.2, capsize=2, label=algos.LABEL[a])
         ax[1].errorbar(xs, rr, yerr=np.array(rc).T, color=COL[a], marker="o", ms=3, lw=1.2, capsize=2)
     for k, t in enumerate(("Smallest real feature (cm)", "Error vs bicubic (% lower)")):
-        ax[k].set_xscale("log", base=2); ax[k].set_xticks(ns); ax[k].set_xticklabels(ns); ax[k].set_xlabel("HiRISE passes fused"); ax[k].set_ylabel(t)
-    ax[0].legend(fontsize=6, frameon=False, ncol=1)
-    fig.suptitle(f"Frame-count scaling, {'fractal terrain' if scene == 'fractal' else 'real rover ground texture'} (measured blur, 2% noise)", fontsize=9)
-    fig.tight_layout(); fig.savefig(f"{OUT}/fig_scaling_{scene}.png"); plt.close(fig)
+        ax[k].set_xscale("log", base=2); ax[k].set_xticks(ns); ax[k].set_xticklabels(ns); ax[k].xaxis.set_minor_formatter(NullFormatter()); ax[k].set_xlabel("HiRISE passes fused"); ax[k].set_ylabel(t)
+    h, l = ax[0].get_legend_handles_labels(); fig.legend(h, l, fontsize=6.5, frameon=False, loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.02))
+    fig.subplots_adjust(bottom=0.32); fig.suptitle(f"Frame-count scaling, {'fractal terrain' if scene == 'fractal' else 'real rover ground texture'} (measured blur, 2% noise)", fontsize=9)
+    fig.tight_layout(rect=(0, 0.14, 1, 1)); fig.savefig(f"{OUT}/fig_scaling_{scene}.png"); plt.close(fig)
     summary[f"scaling_{scene}"] = tab
 
 # ---------- Experiment 3: rocks
@@ -64,7 +65,7 @@ if rows:
         ax.errorbar(sizes, [x[0] for x in m], yerr=np.array([(x[0] - x[1], x[2] - x[0]) for x in m]).T, color=COL[a], ls=ls, marker="o", ms=3, capsize=2,
                     lw=1.6 if n == 16 else 1.1, label=f"{algos.LABEL[a]}, {n} pass{'es' if n > 1 else ''}")
     ax.axhline(50, color="#444", lw=0.6); ax.text(sizes[-1], 52, "50% = 'most rocks'", ha="right", fontsize=7)
-    ax.set_xlabel("Rock diameter (cm)"); ax.set_ylabel("Rocks found (%)"); ax.set_xscale("log"); ax.set_xticks(sizes); ax.set_xticklabels(sizes)
+    ax.set_xlabel("Rock diameter (cm)"); ax.set_ylabel("Rocks found (%)"); ax.set_xscale("log"); ax.set_xticks(sizes); ax.set_xticklabels(sizes); ax.xaxis.set_minor_formatter(NullFormatter())
     ax.legend(fontsize=6, frameon=False); fig.tight_layout(); fig.savefig(f"{OUT}/fig_rocks.png"); plt.close(fig)
 
 json.dump(summary, open(f"{OUT}/summary.json", "w"), indent=1)
