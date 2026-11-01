@@ -101,7 +101,7 @@ def build(job):
         sel = allowed & (rng_ >= RMIN) & (rng_ <= RMAX)
         P = np.stack([NN[sel], EE[sel], mesh[sel]], -1) @ Rm
         o = np.full(NN.shape, np.nan); o[sel] = rs._sample(L, cam, P); orths.append(o)
-    proj = ro.mosaic(orths)
+    proj = rs.blend_photos(orths)
     if proj is not None:
         f["z_stereo_only"] = f["z"]; f["z"] = np.where(allowed, proj, np.nan)
         f["height"] = np.where(np.isfinite(f["z"]), mesh, np.nan)

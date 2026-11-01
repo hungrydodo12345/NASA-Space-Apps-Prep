@@ -154,3 +154,26 @@ def fuse_stop(results, ncc_min=0.6, z_tol=0.06):
     tex[n == 0] = np.nan; zmed[n == 0] = np.nan
     conf = np.where(n > 0, wsum / np.maximum(n, 1), np.nan)
     return dict(z=tex, height=zmed, conf=conf, n_pairs=n)
+
+
+def blend_photos(orths, norm_sigma_cells=30, feather_cells=12):
+    """Seam-free top-down mosaic of several projected photos.
+
+    Each photo is normalised LOCALLY (Gaussian mean/std over ~norm_sigma_cells), which removes brightness and contrast
+    differences between photos (exposure, viewing angle) while keeping rock-scale contrast (the rock detector works at
+    <= 1 m). Photos are then averaged with weights that fall to zero toward each photo's footprint edge, so the
+    transition between photos is gradual instead of a step the rock detector could mistake for a rock."""
+    acc = wsum = None
+    for o in orths:
+        ok = np.isfinite(o)
+        if ok.sum() < 100: continue
+        x = np.where(ok, o, 0.0); w = ok.astype(float)
+        g = lambda a: ndi.gaussian_filter(a, norm_sigma_cells)
+        n = np.maximum(g(w), 1e-6); m = g(x) / n; v = np.maximum(g(x * x) / n - m * m, 1e-9)
+        z = np.where(ok, (x - m) / np.sqrt(v), 0.0)
+        fw = np.clip(ndi.distance_transform_edt(ok) / feather_cells, 0, 1) ** 2
+        acc = z * fw if acc is None else acc + z * fw
+        wsum = fw if wsum is None else wsum + fw
+    if acc is None: return None
+    out = acc / np.maximum(wsum, 1e-9); out[wsum < 0.05] = np.nan
+    return out
