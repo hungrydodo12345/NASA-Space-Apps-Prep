@@ -169,6 +169,58 @@ def halves_job(j):
     return dict(stop=j["stop"], frames=len(used), halves=H, mu=MU, frc=res, f=f.tolist())
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Development variants (chosen on DEV stops only, then run once on TEST stops):
+#   PHOTO=local  local gain/offset matching   ALG=btv  robust L1 + bilateral TV   REFINE=1  motion re-estimated against
+#   the restored image rendered at the reference grid (a sharper, less noisy registration target)
+def prepare(j):
+    ytop, xleft = j["ytop"], j["xleft"]
+    ref = np.asarray(OA[ytop:ytop + L, xleft:xleft + L]).astype(float)
+    stack = [ref, np.asarray(OB[ytop:ytop + L, xleft:xleft + L]).astype(float)] + [frame_window(o, LOCKS[o], ytop, xleft) for o in FRAMES if LOCKS[o]["score"] >= 0.35]
+    yy, xx = np.mgrid[0:L, 0:L].astype(float)
+    used, flows = [ref], [(np.zeros((L, L)), np.zeros((L, L)))]
+    for f in stack[1:]:
+        fl = mf.dense_flow_2pass(ref, f)
+        fm = fuse_flow.local_photometric_match(ref, f, fl) if os.environ.get("PHOTO") == "local" else mf.photometric_match(ref, f, fl, m=MG)
+        w = ndi.map_coordinates(fm, [yy - fl[1], xx - fl[0]], order=3, mode="nearest")
+        a, b = mf.hp(ref)[MG:-MG, MG:-MG], mf.hp(w)[MG:-MG, MG:-MG]
+        if float((a * b).sum() / np.sqrt((a * a).sum() * (b * b).sum() + 1e-12)) >= 0.5: used.append(fm); flows.append(fl)
+    return used, flows
+
+
+def restore(frames, flows):
+    if os.environ.get("ALG") == "btv":
+        return fuse_flow.fuse_flow_btv(frames, flows, scale=SC, psf_sigma=PSF * SC, lam=float(os.environ.get("LAM", 1e-4)), beta=float(os.environ.get("BETA", 0.008)), iters=150)[0]
+    return fuse_flow.fuse_flow(frames, flows, scale=SC, psf_sigma=PSF * SC, mu=MU, iters=40)[0]
+
+
+def refine(frames, flows, idx):
+    """Re-register each pass against the restored image rendered on the reference grid."""
+    hr = restore([frames[i] for i in idx], [flows[i] for i in idx])
+    target = fuse_flow.FlowModel(frames[0].shape, [flows[0]], SC, PSF * SC).forward(hr, 0)
+    new = list(flows)
+    for i in idx:
+        if i == 0: continue
+        new[i] = mf.dense_flow_2pass(target, frames[i])
+    return new
+
+
+def variant_job(j):
+    used, flows = prepare(j)
+    if len(used) < 4: return dict(stop=j["stop"], skipped=True)
+    H = [list(range(0, len(used), 2)), list(range(1, len(used), 2))]
+    core = lambda a: a[MG * SC:(MG + N) * SC, MG * SC:(MG + N) * SC]
+    halves = []
+    for idx in H:
+        fl = refine(used, flows, idx) if os.environ.get("REFINE") == "1" else flows
+        halves.append(core(restore([used[i] for i in idx], [fl[i] for i in idx])))
+    f, c = frc(halves[0], halves[1])
+    return dict(stop=j["stop"], variant=VARIANT, res_cm=frc_res_cm(f, c, ORTHO_PX * 100 / SC), curve=c.tolist(), f=f.tolist())
+
+
+VARIANT = "|".join(f"{k}={os.environ.get(k, '')}" for k in ("PHOTO", "ALG", "REFINE", "LAM", "BETA")) + f"|MU={MU:g}|frames={len(FRAMES)}"
+
+
 if __name__ == "__main__":
     LOCKS = lock_frames()
     jobs = []
@@ -179,7 +231,13 @@ if __name__ == "__main__":
         jobs.append(dict(id=os.path.basename(f)[:-4], stop=os.path.basename(f)[:-4], ytop=ytop, xleft=xleft))
     jobs = jobs[:int(os.environ.get("LIMIT", len(jobs)))]
     print(f"{len(jobs)} rover stops to restore with frames {FRAMES}", flush=True)
-    if os.environ.get("MODE") == "halves":
+    if os.environ.get("SPLIT") in ("dev", "test"):
+        keep = (lambda i: i % 3 == 0) if os.environ["SPLIT"] == "dev" else (lambda i: i % 3 != 0)
+        jobs = [jb for i, jb in enumerate(jobs) if keep(i)]
+    if os.environ.get("MODE") == "variant":
+        tag = VARIANT.replace("|", "_").replace("=", "-")
+        runner.run(variant_job, jobs, f"{OUT}/variant_{os.environ.get('SPLIT', 'all')}_{tag}.jsonl", procs=int(os.environ.get("PROCS", 4)))
+    elif os.environ.get("MODE") == "halves":
         runner.run(halves_job, jobs, f"{OUT}/halves_log_mu{MU:g}.jsonl", procs=int(os.environ.get("PROCS", 4)))
     elif os.environ.get("MODE") == "cv":
         runner.run(cv_job, jobs, f"{OUT}/cv_log.jsonl", procs=int(os.environ.get("PROCS", 4)))

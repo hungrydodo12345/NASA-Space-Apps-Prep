@@ -97,3 +97,34 @@ def fuse_flow(frames, flows, scale=2, psf_sigma=1.4, mu=2e-2, lam=1e-6, iters=40
     op = LinearOperator((HH * WW, HH * WW), matvec=normal, dtype=np.float64)
     x, _ = cg(op, b, x0=x0, maxiter=iters, rtol=1e-6)
     return x.reshape(HH, WW), m
+
+
+def fuse_flow_btv(frames, flows, scale=4, psf_sigma=3.1, lam=1e-4, beta=0.008, iters=150, P=2, alpha=0.7, value_scale=None):
+    """Robust multi-frame restoration with dense motion: L1 data term (ignores passes that disagree, e.g. a shadow
+    present in one pass only) + bilateral total variation. beta is relative to an image std of 0.12 (as tuned)."""
+    m = FlowModel(frames[0].shape, flows, scale, psf_sigma); n = len(frames); HH, WW = m.hr
+    vs = value_scale or float(np.std(frames[0]))
+    x = ndi.zoom(frames[0].astype(np.float64), scale, order=3, grid_mode=True, mode="nearest")
+    step = beta * vs / 0.12
+    for it in range(iters):
+        g = np.zeros((HH, WW))
+        for k in range(n): g += m.adjoint(np.sign(m.forward(x, k) - frames[k]), k)
+        g *= scale * scale / n
+        for l in range(-P, P + 1):
+            for mm in range(0, P + 1):
+                if (l == 0 and mm == 0) or (mm == 0 and l < 0): continue
+                sg = np.sign(x - np.roll(np.roll(x, l, 1), mm, 0))
+                g += lam * alpha ** (abs(l) + mm) * (sg - np.roll(np.roll(sg, -l, 1), -mm, 0))
+        x = x - step * (1 - it / (1.2 * iters)) * g
+    return x, m
+
+
+def local_photometric_match(ref, frame, flow, sigma=16.0):
+    """Match a frame to the reference with smooth local gain/offset fields (removes shading / albedo-scale lighting
+    differences between passes larger than ~sigma px, keeps finer structure)."""
+    H, W = frame.shape; yy, xx = np.mgrid[0:H, 0:W].astype(float)
+    r = ndi.map_coordinates(ref, [yy + flow[1], xx + flow[0]], order=3, mode="nearest")    # reference seen at frame coords
+    g = lambda a: ndi.gaussian_filter(a, sigma)
+    mf_, mr = g(frame), g(r)
+    sf = np.sqrt(np.maximum(g((frame - mf_) ** 2), 1e-12)); sr = np.sqrt(np.maximum(g((r - mr) ** 2), 1e-12))
+    return (frame - mf_) / sf * sr + mr
