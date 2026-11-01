@@ -16,6 +16,8 @@ filt = tq.load_filter(FILT); PX = E.PX
 THR = float(os.environ.get("THR", "0.85"))   # clean-ground score threshold (0 = every valid pixel)
 BINS = {"15-20 cm": (15, 20), "25-40 cm": (25, 40), ">=50 cm": (50, 100)}
 NAMES = ["bicubic", "average", "deconv_1frame", "restored_multi"]
+from pipeline.grounded_fill import assert_not_synthetic
+for _n in NAMES: assert_not_synthetic(_n)                 # filled (synthetic) images are never scored
 ALIGN = int(os.environ.get("ALIGN", "0"))      # >0: search +-ALIGN px for the HiRISE-to-rover offset per stop
 
 

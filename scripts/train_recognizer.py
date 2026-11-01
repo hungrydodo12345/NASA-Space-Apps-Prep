@@ -128,6 +128,8 @@ if GPT_DIR:
         prods = {**{k: v for k, v in list(prods.items())[:1]},
                  "UCL-style TV restoration (blob detector; our reimplementation)": lambda d: [(y, x, D_) for y, x, D_, _ in E.detect(d["gpt"]) if D_ >= 25],
                  **{k: v for k, v in list(prods.items())[1:]}}
+from pipeline.grounded_fill import assert_not_synthetic
+for _n in prods: assert_not_synthetic(_n)                 # filled (synthetic) images are never scored
 rows = []
 for d in D:
     if d["stop"] not in oof: continue

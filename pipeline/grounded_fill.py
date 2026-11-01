@@ -153,4 +153,15 @@ def fill(base_up, class_prob, rocks, lib, psf_px, seed=0):
     out = base_up + added
     ob = observe(base_up, psf_px)
     resid = float(np.std(observe(out, psf_px) - ob) / (np.std(ob - ob.mean()) + 1e-12))
-    return out, dict(texture=tex, rocks=rl, added=added, lock_residual_rel=resid, rocks_placed=len(rocks))
+    # The filled image contains pasted rover rocks: it is for display only and must never be passed to a rock detector
+    # or scored (that would re-detect what Stage 1 placed). Scoring code checks this flag via assert_not_synthetic().
+    return out, dict(texture=tex, rocks=rl, added=added, lock_residual_rel=resid, rocks_placed=len(rocks), synthetic=True)
+
+
+SYNTHETIC_KEYS = {"grounded", "grounded_fill", "fill"}
+
+
+def assert_not_synthetic(name):
+    """Guard used by every scoring script: refuse products that came out of the grounded fill (Stage 2)."""
+    if any(k in str(name).lower() for k in SYNTHETIC_KEYS):
+        raise ValueError(f"'{name}' is a grounded-fill (synthetic) product; it may be displayed but never scored or detected on")
