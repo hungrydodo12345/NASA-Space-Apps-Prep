@@ -5,7 +5,7 @@
 * Every stop therefore gets an out-of-fold rock list. These are compared with rocks the rover truth shows (position
   match, as scripts/rocks_real_matched.py), next to the fixed blob detector run on raw HiRISE and on the restoration.
 Usage: python scripts/train_recognizer.py <restored_dir> <truth_dir> <texture_filter.json> <out_dir>
-       env: ITERS (default 2500), THR_CLEAN (0.85), SEED
+       env: ITERS (default 2500), THR_CLEAN (0.85), SEED, GPT_DIR (adds the UCL-style TV product to the comparison)
 """
 import sys, os, glob, json, time
 import numpy as np, torch
@@ -108,6 +108,15 @@ BINS = {"25-40 cm": (25, 40), ">=50 cm": (50, 100)}
 prods = {"raw HiRISE (blob detector)": lambda d: [(y, x, D_) for y, x, D_, _ in E.detect(d["r"]["bicubic"].astype(float)) if D_ >= 25],
          "multi-frame restoration (blob detector)": lambda d: [(y, x, D_) for y, x, D_, _ in E.detect(d["r"]["restored_multi"].astype(float)) if D_ >= 25],
          "recogniser (U-Net, out-of-fold)": lambda d: [(y, x, D_) for y, x, D_, _ in rz.decode(oof[d["stop"]][0], oof[d["stop"]][2])]}
+GPT_DIR = os.environ.get("GPT_DIR")
+if GPT_DIR:
+    for d in D:
+        gp = f"{GPT_DIR}/{d['stop']}_gptstyle.npz"
+        if os.path.exists(gp): d["gpt"] = np.load(gp)["gpt_style"].astype(float)
+    if all("gpt" in d for d in D if d["stop"] in oof):
+        prods = {**{k: v for k, v in list(prods.items())[:1]},
+                 "UCL-style TV restoration (blob detector; our reimplementation)": lambda d: [(y, x, D_) for y, x, D_, _ in E.detect(d["gpt"]) if D_ >= 25],
+                 **{k: v for k, v in list(prods.items())[1:]}}
 rows = []
 for d in D:
     if d["stop"] not in oof: continue

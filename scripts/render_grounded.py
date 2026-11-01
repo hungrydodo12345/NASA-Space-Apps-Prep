@@ -22,7 +22,9 @@ if stops is None:   # default: the held-out stops with the most rover rocks
     sc = json.load(open(glob.glob(f"{REC}/ucl_yardstick_thr*.json")[0]))["per_stop"]
     stops = [r["stop"] for r in sorted(sc, key=lambda r: -sum(r["truth"].values()))[:3]]
 libs, stats = {}, {}
-fig, ax = plt.subplots(len(stops), 5, figsize=(21, 4.6 * len(stops) + 1)); ax = np.atleast_2d(ax)
+GPT_DIR = os.environ.get("GPT_DIR")
+NC = 6 if GPT_DIR else 5
+fig, ax = plt.subplots(len(stops), NC, figsize=(4.2 * NC, 4.6 * len(stops) + 1.2)); ax = np.atleast_2d(ax)
 CL = np.array([[0.80, 0.68, 0.50], [0.55, 0.45, 0.40], [0.93, 0.80, 0.45], [0.35, 0.25, 0.25]])
 for r_, stop in enumerate(stops):
     f = fold[stop]
@@ -42,8 +44,11 @@ for r_, stop in enumerate(stops):
     Z, _ = gf.to_grid(t, PX, base.shape[0])
     ys, xs = np.nonzero(np.isfinite(Z)); y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
     crop = lambda a: a[y0:y1, x0:x1]
-    show = [("Raw HiRISE (one pass)", r["bicubic"]), ("Multi-frame restoration (8 passes)", base),
-            ("Stage 1: recognised surface + rocks", None), ("Stage 2: grounded fill", out), ("Rover photos (truth)", Z)]
+    show = [("Raw HiRISE (one pass)", r["bicubic"])]
+    if GPT_DIR:
+        gp = f"{GPT_DIR}/{stop}_gptstyle.npz"
+        show.append(("UCL-style TV restoration\n(our reimplementation of GPT's approach,\nnot UCL's product)", np.load(gp)["gpt_style"] if os.path.exists(gp) else np.full_like(base, np.nan)))
+    show += [("Our multi-frame restoration (8 passes)", base), ("Stage 1: recognised surface + rocks", None), ("Stage 2: grounded fill", out), ("Rover photos (truth)", Z)]
     for j, (ti, im) in enumerate(show):
         a = ax[r_, j]
         if im is None:
@@ -53,14 +58,14 @@ for r_, stop in enumerate(stops):
                 if y0 <= y < y1 and x0 <= x < x1: a.add_patch(Circle((x - x0, y - y0), D / 2 / PX, fill=False, ec="#00e5ff" if D < 50 else "#ff1744", lw=1.5))
         else:
             c = crop(im); lo, hi = np.nanpercentile(c, [1, 99]); a.imshow(c, cmap="gray", vmin=lo, vmax=hi)
-            if j == 4:
+            if j == NC - 1:
                 for y, x, D in truth_rocks: a.add_patch(Circle((x - x0, y - y0), D / 2 / PX, fill=False, ec="#ffb300" if D < 50 else "#e53935", lw=1.3))
         a.set_xticks([]); a.set_yticks([]); a.set_title(ti if r_ == 0 else "", fontsize=10)
         a.plot([6, 6 + 100 / PX], [(y1 - y0) - 8] * 2, color="w", lw=3)
     ax[r_, 0].set_ylabel(f"held-out stop {stop}", fontsize=10)
-    ax[r_, 2].set_xlabel(f"{len(rocks)} rocks recognised (cyan 25-40 cm, red >= 50 cm)", fontsize=8)
-    ax[r_, 4].set_xlabel(f"{len(truth_rocks)} rover rocks >= 25 cm (amber 25-40, red >= 50)", fontsize=8)
-    ax[r_, 3].set_xlabel(f"seen through HiRISE blur, differs from the measurement by {100 * info['lock_residual_rel']:.1f}%", fontsize=8)
+    ax[r_, NC - 3].set_xlabel(f"{len(rocks)} rocks recognised (cyan 25-40 cm, red >= 50 cm)", fontsize=8)
+    ax[r_, NC - 1].set_xlabel(f"{len(truth_rocks)} rover rocks >= 25 cm (amber 25-40, red >= 50)", fontsize=8)
+    ax[r_, NC - 2].set_xlabel(f"seen at HiRISE resolution, differs from the measurement by {100 * info['lock_residual_rel']:.2f}%", fontsize=8)
 fig.text(0.5, 0.005, "Surface colours: soil sandy-beige, bedrock grey-brown, sand yellow, big rock dark. Scale bar 1 m. Every model shown never saw its stop.", ha="center", fontsize=9)
 fig.tight_layout(rect=(0, 0.02, 1, 1)); fig.savefig(PNG, dpi=105)
 json.dump(stats, open(PNG.replace(".png", "_stats.json"), "w"), indent=1); print(json.dumps(stats, indent=1))

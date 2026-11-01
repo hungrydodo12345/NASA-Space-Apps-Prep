@@ -9,7 +9,8 @@ Differences from restore_real.py:
   * one job writes both the full restoration ({stop}.npz) and the two disjoint half-set restorations (halves_{stop}.npz),
     with the same keys as restore_real.py, so rocks_real_matched.py and the FRC summary run unchanged.
 Usage: python scripts/restore_real_v2.py <hirise_jezero> <hirise_rdr> <truth_dirs comma-separated> <out_dir>
-       env: FRAMES, PSF (px, default 1.07), MU (default 0.3), PROCS, LIMIT, ONLY (comma list of stops)
+       env: FRAMES, PSF (px, default 1.07), MU (default 0.3), PROCS, LIMIT, ONLY (comma list of stops),
+            GPT_STYLE=1 also writes a UCL-GPT-style TV restoration ({stop}_gptstyle.npz); GPT_ONLY=1 skips the rest
 """
 import sys, os, json, glob
 import numpy as np, cv2, glymur
@@ -119,8 +120,15 @@ def job(j):
     fuse = lambda idx: core(fuse_flow.fuse_flow([used[i] for i in idx], [flows[i] for i in idx], scale=SC, psf_sigma=PSF * SC, mu=MU, iters=40)[0])
     allidx = list(range(len(used)))
     out = dict(bicubic=core(up(ref)), average=core(up(np.mean([warp(i) for i in allidx], 0))), deconv_1frame=fuse([0]), restored_multi=fuse(allidx))
-    np.savez_compressed(f"{OUT}/{j['stop']}.npz", **{k: v.astype(np.float32) for k, v in out.items()}, frames=np.array(kept),
+    if not os.environ.get("GPT_ONLY"): np.savez_compressed(f"{OUT}/{j['stop']}.npz", **{k: v.astype(np.float32) for k, v in out.items()}, frames=np.array(kept),
                         gate=json.dumps(gate), ytop=ytop + MG, xleft=xleft + MG, px_cm=ORTHO_PX * 100 / SC)
+    if os.environ.get("GPT_STYLE"):
+        # UCL-GPT-style comparison product (our reimplementation, NOT UCL's code or data): same frames and motion,
+        # robust L1 data term + total-variation-type (bilateral TV, P=1) regularisation, as in Gotcha-PDE-TV.
+        g = fuse_flow.fuse_flow_btv(used, flows, scale=SC, psf_sigma=PSF * SC, P=1, iters=150)
+        g = g[0] if isinstance(g, tuple) else g
+        np.savez_compressed(f"{OUT}/{j['stop']}_gptstyle.npz", gpt_style=core(g).astype(np.float32))
+        if os.environ.get("GPT_ONLY"): return dict(stop=j["stop"], gpt_style=True)
     H = [allidx[0::2], allidx[1::2]]; hv = {}
     for h, idx in enumerate(H):
         hv[f"single_{h}"] = core(up(warp(idx[0]))); hv[f"average_{h}"] = core(up(np.mean([warp(i) for i in idx], 0)))
