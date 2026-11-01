@@ -1,0 +1,36 @@
+# Pre-registered criteria: "better than UCL"
+
+Written on 2026-11-01, **before** the traverse-wide (sols 13–600) real-data rock results were computed.
+
+## What UCL claims
+
+Tao & Muller (2016) report the following for GPT super-resolution restoration (SRR) from 6 or more HiRISE passes at Gale crater, using count-based comparison with Navcam:
+
+- (a) 25 cm HiRISE alone resolves individual rocks only when they are larger than 100 cm.
+- (b) 6.25 cm SRR resolves *most* individual rocks larger than 50 cm.
+- (c) SRR resolves a *limited* number of rocks between 25 and 50 cm.
+
+## Our test
+
+Our test is stricter than UCL's:
+
+- **Position matching, not counts.** Each rock seen in the rover truth must be detected at the same place, within the larger of 2 px or half its diameter.
+- **Truth:** terrain-aware Navcam stereo (rover truth v3).
+- **Chance level:** detections shifted 40 px.
+- **False detections:** counted per 100 m².
+- **Confidence intervals:** 95% bootstrap over stops.
+- **Products compared:**
+  - raw HiRISE upsampled bicubically (one pass);
+  - single-frame deconvolution;
+  - shift-and-average;
+  - our multi-frame restoration (8 passes with sun azimuth 165–178°, blur 1.07 px).
+- **Fixed settings:** the detector (`experiments/exp3_rocks.py`) and all thresholds stay as they are; nothing is tuned on these results.
+
+## We call it "better than UCL" only if ALL of the following hold
+
+1. **Rocks ≥ 50 cm:** the multi-frame restoration finds more than 50% of the rover-verified rocks ≥ 50 cm, and the lower bound of the 95% confidence interval is above 50%. This meets claim (b) under a stricter, position-matched test. There must be at least 30 such rocks.
+2. **Rocks 25–50 cm:** the multi-frame restoration finds more of them than raw HiRISE, and the paired bootstrap confidence interval of the difference excludes zero. This turns UCL's qualitative "limited" into a measured, position-verified gain.
+3. **False detections:** the multi-frame restoration's false-detection rate is no higher than raw HiRISE's.
+4. **Above chance:** every completeness number used above is clearly above its chance level.
+
+If only some of these hold, we report exactly which ones and do not claim to beat UCL.

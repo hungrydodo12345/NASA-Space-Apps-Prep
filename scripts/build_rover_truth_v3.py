@@ -22,6 +22,7 @@ from pipeline.dtm import Dtm
 
 NAV, NAVR, META, METAR, LAB, WP, ITEMS, PAIRS, DTM, OUT = sys.argv[1:11]
 HALF, RES, RMIN, RMAX = 8.0, 0.05, 2.0, 8.0
+DZ = np.arange(-1.0, 1.0001, 0.02)          # height search around the DTM prior (m); rough ground needs +-1 m
 os.makedirs(OUT, exist_ok=True)
 
 
@@ -62,7 +63,7 @@ def build(job):
             lf, kind = lab[lid]; Lb = np.asarray(Image.open(lf)); Lb = Lb[..., 0] if Lb.ndim == 3 else Lb
             Lb = np.asarray(Image.fromarray(Lb).resize(L.shape[::-1], Image.NEAREST))
             L = np.where(Lb == 255, np.nan, L)
-        r = rs.sweep_pair(L, R, m, mR, prior, NN, EE, rmin=RMIN, rmax=RMAX)
+        r = rs.sweep_pair(L, R, m, mR, prior, NN, EE, dz=DZ, rmin=RMIN, rmax=RMAX)
         if r is not None: res.append(r); used.append(m)
     f = rs.fuse_stop(res)
     if f is None: return stop, None
@@ -71,10 +72,10 @@ def build(job):
     med = ndi.generic_filter(np.where(ok, hgt, np.nan), np.nanmedian, size=9, mode="constant", cval=np.nan)
     bad = ok & (np.abs(hgt - med) > 0.05)
     for k in ("z", "height", "conf"): f[k][bad] = np.nan
-    # off-ground structures (rover hardware, shadow edges, mismatches): > 0.30 m from the smooth ground surface (1.5 m median)
+    # off-ground structures (rover hardware, shadow edges, mismatches): > 0.60 m from the smooth ground surface (1.5 m median)
     hgt = f["height"]; ok = np.isfinite(hgt)
     surf = ndi.generic_filter(np.where(ok, hgt, np.nan), np.nanmedian, size=31, mode="constant", cval=np.nan)
-    bad = ok & (np.abs(hgt - surf) > 0.30)
+    bad = ok & (np.abs(hgt - surf) > 0.60)   # boulders up to ~0.6 m tall survive
     # thin spokes / slivers (< ~25 cm across): not ground patches; rocks are compact and survive a 5 x 5 opening
     keep = ndi.binary_opening(ok & ~bad, structure=np.ones((5, 5)))
     for k in ("z", "height", "conf"): f[k][~keep] = np.nan
