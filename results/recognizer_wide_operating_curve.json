@@ -1,0 +1,71 @@
+{
+ "stops": 27,
+ "area_m2": 1602.1778672275025,
+ "raw": [
+  0.0,
+  0.45045045045045046,
+  2.122111451884895
+ ],
+ "network_curve": [
+  {
+   "threshold": 0.2,
+   "big_pct": 28.571428571428573,
+   "mid_pct": 10.36036036036036,
+   "false_per_100m2": 84.69721294728832
+  },
+  {
+   "threshold": 0.3,
+   "big_pct": 7.142857142857143,
+   "mid_pct": 2.2522522522522523,
+   "false_per_100m2": 14.105799650764302
+  },
+  {
+   "threshold": 0.4,
+   "big_pct": 0.0,
+   "mid_pct": 0.45045045045045046,
+   "false_per_100m2": 0.9362256405374537
+  },
+  {
+   "threshold": 0.5,
+   "big_pct": 0.0,
+   "mid_pct": 0.0,
+   "false_per_100m2": 0.0
+  },
+  {
+   "threshold": 0.6,
+   "big_pct": 0.0,
+   "mid_pct": 0.0,
+   "false_per_100m2": 0.0
+  },
+  {
+   "threshold": 0.7,
+   "big_pct": 0.0,
+   "mid_pct": 0.0,
+   "false_per_100m2": 0.0
+  },
+  {
+   "threshold": 0.8,
+   "big_pct": 0.0,
+   "mid_pct": 0.0,
+   "false_per_100m2": 0.0
+  },
+  {
+   "threshold": 0.9,
+   "big_pct": 0.0,
+   "mid_pct": 0.0,
+   "false_per_100m2": 0.0
+  },
+  {
+   "threshold": 0.95,
+   "big_pct": 0.0,
+   "mid_pct": 0.0,
+   "false_per_100m2": 0.0
+  },
+  {
+   "threshold": 0.98,
+   "big_pct": 0.0,
+   "mid_pct": 0.0,
+   "false_per_100m2": 0.0
+  }
+ ]
+}

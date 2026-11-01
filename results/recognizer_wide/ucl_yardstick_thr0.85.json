@@ -1,0 +1,1306 @@
+{
+ "stops": 27,
+ "clean_area_m2": 1602.1778672275025,
+ "threshold_clean": 0.85,
+ "summary": {
+  "raw HiRISE (blob detector)": {
+   "false_per_100m2": 2.122111451884895,
+   "25-40 cm": {
+    "rover_rocks": 222,
+    "found_pct": [
+     0.45045045045045046,
+     0.0,
+     0.6993006993006993
+    ],
+    "chance_pct": [
+     1.3513513513513513,
+     0.0,
+     2.088167053364269
+    ]
+   },
+   ">=50 cm": {
+    "rover_rocks": 28,
+    "found_pct": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "multi-frame restoration (blob detector)": {
+   "false_per_100m2": 1.1234707686449446,
+   "25-40 cm": {
+    "rover_rocks": 222,
+    "found_pct": [
+     2.2522522522522523,
+     0.29583616972997506,
+     8.737864077669903
+    ],
+    "chance_pct": [
+     0.9009009009009009,
+     0.0,
+     1.4059753954305798
+    ]
+   },
+   ">=50 cm": {
+    "rover_rocks": 28,
+    "found_pct": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "chance_pct": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "recogniser (U-Net, out-of-fold)": {
+   "false_per_100m2": 82.51268645270092,
+   "25-40 cm": {
+    "rover_rocks": 222,
+    "found_pct": [
+     10.36036036036036,
+     7.042253521126761,
+     13.207937002962733
+    ],
+    "chance_pct": [
+     2.2522522522522523,
+     0.0,
+     3.4722222222222223
+    ]
+   },
+   ">=50 cm": {
+    "rover_rocks": 28,
+    "found_pct": [
+     28.571428571428573,
+     8.333333333333332,
+     45.45454545454545
+    ],
+    "chance_pct": [
+     7.142857142857143,
+     0.0,
+     15.789473684210526
+    ]
+   }
+  }
+ },
+ "paired_differences": {
+  "multi-frame restoration (blob detector) minus raw HiRISE, 25-40 cm": [
+   1.8018018018018018,
+   -0.22677025355596786,
+   9.018256333830111
+  ],
+  "recogniser (U-Net, out-of-fold) minus raw HiRISE, 25-40 cm": [
+   9.90990990990991,
+   6.936273107079494,
+   13.131497456314978
+  ],
+  "multi-frame restoration (blob detector) minus raw HiRISE, >=50 cm": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "recogniser (U-Net, out-of-fold) minus raw HiRISE, >=50 cm": [
+   28.571428571428573,
+   9.090909090909092,
+   44.44444444444444
+  ]
+ },
+ "per_stop": [
+  {
+   "stop": "21_1126",
+   "area_m2": 127.04522169095662,
+   "truth": {
+    "25-40 cm": 21,
+    ">=50 cm": 5
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "n": 1
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 3,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 45,
+    "n": 56
+   }
+  },
+  {
+   "stop": "21_2560",
+   "area_m2": 300.03204075680566,
+   "truth": {
+    "25-40 cm": 118,
+    ">=50 cm": 6
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 1,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 3,
+     ">=50 cm": 0
+    },
+    "false": 4,
+    "n": 7
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 2,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "n": 6
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 12,
+     ">=50 cm": 3
+    },
+    "chance": {
+     "25-40 cm": 5,
+     ">=50 cm": 1
+    },
+    "false": 295,
+    "n": 348
+   }
+  },
+  {
+   "stop": "22_412",
+   "area_m2": 156.46106461444887,
+   "truth": {
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "n": 2
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 3,
+    "n": 3
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 168,
+    "n": 168
+   }
+  },
+  {
+   "stop": "22_788",
+   "area_m2": 180.61255877053125,
+   "truth": {
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "n": 2
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 239,
+    "n": 239
+   }
+  },
+  {
+   "stop": "22_822",
+   "area_m2": 127.09300700503296,
+   "truth": {
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "n": 2
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 161,
+    "n": 161
+   }
+  },
+  {
+   "stop": "23_0",
+   "area_m2": 40.760872907116095,
+   "truth": {
+    "25-40 cm": 8,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "n": 1
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "n": 1
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 7,
+    "n": 7
+   }
+  },
+  {
+   "stop": "23_824",
+   "area_m2": 14.064810776468743,
+   "truth": {
+    "25-40 cm": 3,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "n": 1
+   }
+  },
+  {
+   "stop": "24_1328",
+   "area_m2": 14.271880470799541,
+   "truth": {
+    "25-40 cm": 4,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 2,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 2
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 1,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "n": 2
+   }
+  },
+  {
+   "stop": "24_2824",
+   "area_m2": 155.30227074809767,
+   "truth": {
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 7,
+    "n": 7
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 54,
+    "n": 54
+   }
+  },
+  {
+   "stop": "24_2932",
+   "area_m2": 111.75790329603491,
+   "truth": {
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "n": 2
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 3,
+    "n": 3
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 126,
+    "n": 126
+   }
+  },
+  {
+   "stop": "24_3290",
+   "area_m2": 80.2912739767665,
+   "truth": {
+    "25-40 cm": 16,
+    ">=50 cm": 3
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "n": 4
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 1,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "n": 3
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 2,
+     ">=50 cm": 2
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 79,
+    "n": 93
+   }
+  },
+  {
+   "stop": "24_4412",
+   "area_m2": 4.0776801345141545,
+   "truth": {
+    "25-40 cm": 2,
+    ">=50 cm": 2
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 1
+   }
+  },
+  {
+   "stop": "25_0",
+   "area_m2": 25.461608183675295,
+   "truth": {
+    "25-40 cm": 2,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 6,
+    "n": 6
+   }
+  },
+  {
+   "stop": "25_214",
+   "area_m2": 47.90079525202223,
+   "truth": {
+    "25-40 cm": 8,
+    ">=50 cm": 2
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "n": 2
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "n": 3
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 1,
+     ">=50 cm": 1
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 1
+    },
+    "false": 30,
+    "n": 34
+   }
+  },
+  {
+   "stop": "25_294",
+   "area_m2": 67.07863463465911,
+   "truth": {
+    "25-40 cm": 7,
+    ">=50 cm": 2
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 4,
+    "n": 5
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 1,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 4,
+    "n": 5
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 1,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 47,
+    "n": 50
+   }
+  },
+  {
+   "stop": "25_446",
+   "area_m2": 25.33418067947173,
+   "truth": {
+    "25-40 cm": 5,
+    ">=50 cm": 2
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 1
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 16,
+    "n": 17
+   }
+  },
+  {
+   "stop": "25_94",
+   "area_m2": 21.19278679285579,
+   "truth": {
+    "25-40 cm": 2,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "n": 2
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "n": 1
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 6,
+    "n": 6
+   }
+  },
+  {
+   "stop": "26_96",
+   "area_m2": 8.091646516926525,
+   "truth": {
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 8,
+    "n": 8
+   }
+  },
+  {
+   "stop": "27_230",
+   "area_m2": 4.0776801345141545,
+   "truth": {
+    "25-40 cm": 1,
+    ">=50 cm": 1
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   }
+  },
+  {
+   "stop": "29_58",
+   "area_m2": 7.131958125893409,
+   "truth": {
+    "25-40 cm": 3,
+    ">=50 cm": 2
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "n": 1
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 1
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 1
+   }
+  },
+  {
+   "stop": "3_386",
+   "area_m2": 20.30477637293718,
+   "truth": {
+    "25-40 cm": 8,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 2,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 8,
+    "n": 11
+   }
+  },
+  {
+   "stop": "4_136",
+   "area_m2": 15.167855109730873,
+   "truth": {
+    "25-40 cm": 3,
+    ">=50 cm": 1
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 1
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 1,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 1
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "n": 2
+   }
+  },
+  {
+   "stop": "4_922",
+   "area_m2": 26.36554704161935,
+   "truth": {
+    "25-40 cm": 6,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 3,
+    "n": 3
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 1,
+    "n": 1
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 1,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 12,
+    "n": 14
+   }
+  },
+  {
+   "stop": "7_2440",
+   "area_m2": 4.0776801345141545,
+   "truth": {
+    "25-40 cm": 2,
+    ">=50 cm": 1
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   }
+  },
+  {
+   "stop": "9_178",
+   "area_m2": 4.013966382412371,
+   "truth": {
+    "25-40 cm": 0,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 6,
+    "n": 6
+   }
+  },
+  {
+   "stop": "9_2982",
+   "area_m2": 6.05678855917581,
+   "truth": {
+    "25-40 cm": 2,
+    ">=50 cm": 0
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 2,
+    "n": 2
+   }
+  },
+  {
+   "stop": "9_5156",
+   "area_m2": 8.151378159521947,
+   "truth": {
+    "25-40 cm": 1,
+    ">=50 cm": 1
+   },
+   "raw HiRISE (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "multi-frame restoration (blob detector)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 0,
+    "n": 0
+   },
+   "recogniser (U-Net, out-of-fold)": {
+    "found": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "chance": {
+     "25-40 cm": 0,
+     ">=50 cm": 0
+    },
+    "false": 3,
+    "n": 3
+   }
+  }
+ ]
+}

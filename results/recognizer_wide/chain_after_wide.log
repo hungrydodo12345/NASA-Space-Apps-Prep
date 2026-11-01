@@ -1,0 +1,49 @@
+67 stops, frames: 2 orthos + ['ESP_068822_1985', 'ESP_068294_1985', 'ESP_068360_1985', 'ESP_068426_1985', 'ESP_073068_1985', 'PSP_002387_1985'], psf 1.07 px, mu 0.3
+/tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/restored_v2/restore_log.jsonl: 90 done, 3 to run
+finished /tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/hero/restored_v2/restore_log.jsonl in 92s
+27 stops, 1602 m2 clean rover-verified ground
+bicubic                false/100m2    3.3 | 15-20 cm (n=15759): 2% [2-3] chance 1% | 25-40 cm (n=222): 2% [0-4] chance 1% | >=50 cm (n=28): 4% [0-14] chance 4%
+average                false/100m2    1.6 | 15-20 cm (n=15759): 2% [2-3] chance 1% | 25-40 cm (n=222): 0% [0-0] chance 2% | >=50 cm (n=28): 0% [0-0] chance 0%
+deconv_1frame          false/100m2    0.7 | 15-20 cm (n=15759): 1% [0-1] chance 0% | 25-40 cm (n=222): 0% [0-3] chance 0% | >=50 cm (n=28): 7% [0-16] chance 0%
+restored_multi         false/100m2    0.6 | 15-20 cm (n=15759): 1% [1-2] chance 0% | 25-40 cm (n=222): 2% [0-9] chance 1% | >=50 cm (n=28): 4% [0-12] chance 0%
+restored_repeatable    false/100m2    0.1 | 15-20 cm (n=15759): 1% [0-1] chance 0% | 25-40 cm (n=222): 1% [0-5] chance 0% | >=50 cm (n=28): 0% [0-0] chance 0%
+39 stops, 2652 m2 clean rover-verified ground
+bicubic                false/100m2    3.2 | 15-20 cm (n=24071): 2% [2-3] chance 1% | 25-40 cm (n=597): 2% [1-3] chance 1% | >=50 cm (n=131): 6% [2-10] chance 1%
+average                false/100m2    1.7 | 15-20 cm (n=24071): 2% [2-2] chance 1% | 25-40 cm (n=597): 2% [1-4] chance 1% | >=50 cm (n=131): 8% [4-15] chance 2%
+deconv_1frame          false/100m2    0.8 | 15-20 cm (n=24071): 1% [0-1] chance 0% | 25-40 cm (n=597): 0% [0-1] chance 0% | >=50 cm (n=131): 4% [0-9] chance 2%
+restored_multi         false/100m2    1.0 | 15-20 cm (n=24071): 1% [1-2] chance 1% | 25-40 cm (n=597): 1% [0-3] chance 0% | >=50 cm (n=131): 5% [1-9] chance 1%
+restored_repeatable    false/100m2    0.2 | 15-20 cm (n=24071): 1% [0-1] chance 0% | 25-40 cm (n=597): 2% [0-4] chance 0% | >=50 cm (n=131): 2% [0-4] chance 1%
+WIDE_TEST_DONE
+stops per fold: [17, 17, 16]
+50 stops with truth, 18 map cells, rocks >=25 cm in truth: 2110
+fold 0 it 125 train 1.1751 val 0.9073 [69s]
+fold 0 it 250 train 0.7668 val 0.7695 [189s]
+fold 0 it 375 train 0.8311 val 0.8028 [389s]
+fold 0 it 500 train 0.5734 val 0.7531 [447s]
+fold 0 it 625 train 0.6018 val 0.7677 [505s]
+fold 0 it 750 train 0.5308 val 0.7717 [560s]
+fold 0: 20 train / 13 val / 17 test stops, threshold 0.2
+fold 1 it 125 train 1.1389 val 0.8823 [57s]
+fold 1 it 250 train 1.0022 val 0.7617 [114s]
+fold 1 it 375 train 1.0364 val 0.7795 [172s]
+fold 1 it 500 train 0.8985 val 0.7965 [231s]
+fold 1 it 625 train 0.9161 val 0.7800 [292s]
+fold 1 it 750 train 1.0289 val 0.7948 [351s]
+fold 1: 24 train / 9 val / 17 test stops, threshold 0.2
+fold 2 it 125 train 1.0549 val 0.8360 [56s]
+fold 2 it 250 train 0.7973 val 0.7530 [112s]
+fold 2 it 375 train 0.8350 val 0.8438 [173s]
+fold 2 it 500 train 0.7305 val 0.8444 [233s]
+fold 2 it 625 train 0.6935 val 0.8415 [292s]
+fold 2 it 750 train 0.8174 val 0.8526 [351s]
+fold 2: 24 train / 10 val / 16 test stops, threshold 0.2
+
+27 held-out stops, 1602 m2 clean rover-verified ground
+raw HiRISE (blob detector)                 false/100m2   2.1 | 25-40 cm (n=222): 0% [0-1] chance 1% | >=50 cm (n=28): 0% [0-0] chance 0%
+multi-frame restoration (blob detector)    false/100m2   1.1 | 25-40 cm (n=222): 2% [0-9] chance 1% | >=50 cm (n=28): 0% [0-0] chance 0%
+recogniser (U-Net, out-of-fold)            false/100m2  82.5 | 25-40 cm (n=222): 10% [7-13] chance 2% | >=50 cm (n=28): 29% [8-45] chance 7%
+  multi-frame restoration (blob detector) minus raw HiRISE, 25-40 cm: +2 pts [-0, +9]
+  recogniser (U-Net, out-of-fold) minus raw HiRISE, 25-40 cm: +10 pts [+7, +13]
+  multi-frame restoration (blob detector) minus raw HiRISE, >=50 cm: +0 pts [+0, +0]
+  recogniser (U-Net, out-of-fold) minus raw HiRISE, >=50 cm: +29 pts [+9, +44]
+WIDE_NN_DONE
