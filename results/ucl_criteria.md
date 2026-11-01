@@ -47,3 +47,16 @@ If only some of these hold, we report exactly which ones and do not claim to bea
 - Navcam tiles with mast elevation ≤ −5° are now included.
 - The terrain-aware stereo method, the detector, the matching rule and all thresholds are unchanged.
 - Results on the original ±8 m truth stay reported (`results/rocks_traverse_thr*.json`).
+
+## Amendment 2 (2026-11-01, before any registered result)
+
+**Why:** a check that uses no rock detections showed that the rover truth and HiRISE are misregistered by 0.6–1.4 m at typical stops. The matching tolerance for a 50 cm rock is 25 cm, so at the given positions the test cannot credit any method.
+
+The evidence: at the nominal position, the high-pass correlation between the rover map blurred to HiRISE resolution and raw HiRISE has a median of 0.07; at its peak the median is 0.28.
+
+**The change:**
+
+- **Registration:** each stop's rover truth is shifted to the peak of that image correlation. The search covers ±3 m, in 2 px steps followed by a 1 px refinement, against raw HiRISE (bicubic).
+- **Same shift for every product:** the shift is applied to all products alike.
+- **Which stops count:** only stops with a well-defined peak are scored, meaning the peak lies inside the search window and the correlation is at least 0.3. Stops that fail are reported as unregistered.
+- **Unchanged:** the detector, the matching rule and the thresholds.

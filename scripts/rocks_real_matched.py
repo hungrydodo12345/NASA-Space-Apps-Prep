@@ -47,6 +47,25 @@ def near(p, dets, tol=0.5):
     return any(np.hypot(p[0] - q[0], p[1] - q[1]) <= max(2.0, tol * max(p[2], q[2]) / PX) for q in dets)
 
 
+REG = int(os.environ.get("REG", "0")); PSFH = 1.07 * 4; unreg = []
+
+
+def register_truth(bic, zt, vt, o, R=48, rmin=0.3):
+    """Shift (dy, dx) of the rover truth that best matches raw HiRISE at HiRISE resolution (Amendment 2): high-passed,
+    blurred truth vs high-passed bicubic HiRISE, +-R px, coarse 2 px then 1 px. None if the peak is weak or on the edge."""
+    n = bic.shape[0]; t = zt.shape[0]
+    Z = np.zeros((n, n)); V = np.zeros((n, n)); Z[o:o + t, o:o + t] = np.where(vt, zt, 0.0); V[o:o + t, o:o + t] = vt
+    zb = ndi.gaussian_filter(Z, PSFH) / np.maximum(ndi.gaussian_filter(V, PSFH), 1e-6)
+    hpf = lambda a: a - ndi.gaussian_filter(a, 4 * PSFH)
+    A = hpf(zb); B = hpf(bic); vv = ndi.binary_erosion(V > 0.5, iterations=int(2 * PSFH))   # only the truth is masked; HiRISE covers the window
+    if vv.sum() < 2000: return None, None, None
+    def corr(dy, dx): return np.corrcoef(A[vv], np.roll(np.roll(B, -dy, 0), -dx, 1)[vv])[0, 1]
+    best = max(((corr(dy, dx), dy, dx) for dy in range(-R, R + 1, 2) for dx in range(-R, R + 1, 2)))
+    best = max(((corr(dy, dx), dy, dx) for dy in range(best[1] - 1, best[1] + 2) for dx in range(best[2] - 1, best[2] + 2)))
+    if best[0] < rmin or abs(best[1]) >= R - 1 or abs(best[2]) >= R - 1: return None, None, None
+    return best[1], best[2], best[0]                   # corr compares truth(y) with HiRISE(y + d): move truth by +d
+
+
 rows = []
 for f in sorted(glob.glob(f"{RD}/halves_*.npz")):
     stop = os.path.basename(f)[7:-4]; full = f"{RD}/{stop}.npz"; tf = f"{TRUTH}/{stop}.npz"
@@ -60,7 +79,11 @@ for f in sorted(glob.glob(f"{RD}/halves_*.npz")):
     a = mask.sum() * (PX / 100) ** 2
     if a < 2.0: continue
     tz = np.where(vt, zt, np.nanmean(np.where(vt, zt, np.nan)))
-    dy, dx = offset(fr["bicubic"], tz, o, ndi.binary_erosion(vt, iterations=8), ALIGN)
+    if REG:
+        dy, dx, rr = register_truth(fr["bicubic"].astype(float), zt, vt, o)
+        if dy is None: unreg.append(stop); continue
+    else:
+        dy, dx = offset(fr["bicubic"], tz, o, ndi.binary_erosion(vt, iterations=8), ALIGN)
     truth = [(y + o + dy, x + o + dx, D) for y, x, D, _ in E.detect(tz) if cm[y, x]]
     mask = np.roll(np.roll(mask, dy, 0), dx, 1)
     row = dict(stop=stop, area_m2=a, offset_px=[dy, dx], truth={b: sum(lo <= D <= hi for _, _, D in truth) for b, (lo, hi) in BINS.items()})
@@ -96,7 +119,8 @@ for nm in NAMES + ["restored_repeatable"]:
         den = [r["truth"][b] for r in rows]
         summ[nm][b] = dict(rover_rocks=int(sum(den)), found_pct=boot([r[nm]["found"][b] for r in rows], den),
                            chance_pct=boot([r[nm]["chance"][b] for r in rows], den))
-json.dump(dict(stops=len(rows), clean_area_m2=area, summary=summ, per_stop=rows), open(OUT, "w"), indent=1)
+json.dump(dict(stops=len(rows), clean_area_m2=area, registered=bool(REG), unregistered_stops=unreg, summary=summ, per_stop=rows), open(OUT, "w"), indent=1)
+if REG: print(f"registration: {len(rows)} stops registered and scored, {len(unreg)} excluded (no well-defined peak)")
 print(f"{len(rows)} stops, {area:.0f} m2 clean rover-verified ground")
 for nm, s in summ.items():
     print(f"{nm:22s} false/100m2 {s['false_per_100m2']:6.1f} | " + " | ".join(
