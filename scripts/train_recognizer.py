@@ -85,7 +85,7 @@ for fold in range(3):
     for it in range(ITERS):
         model.train(); x, h, c, m = batch(train); loss = rz.loss_fn(model(x), h, c, m)
         opt.zero_grad(); loss.backward(); opt.step(); sched.step()
-        if (it + 1) % 250 == 0 and val:
+        if (it + 1) % int(os.environ.get("EVAL_EVERY", 250)) == 0 and val:
             model.eval(); vl = 0.0
             with torch.no_grad():
                 for d in val:
