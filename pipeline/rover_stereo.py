@@ -78,7 +78,11 @@ def grid(half=8.0, res=0.05):
     return np.meshgrid(north, east, indexing="ij")
 
 
-def _sample(img, cam, P_rov, edge=4):
+EDGE_PX = int(__import__("os").environ.get("EDGE_PX", 4))     # ignore this many pixels at every photo edge
+
+
+def _sample(img, cam, P_rov, edge=None):
+    edge = EDGE_PX if edge is None else edge
     x, y, ok = project(cam, P_rov)
     h, w = img.shape
     ok &= (x >= edge) & (x <= w - 1 - edge) & (y >= edge) & (y <= h - 1 - edge)
