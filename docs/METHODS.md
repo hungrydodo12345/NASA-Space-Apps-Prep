@@ -168,6 +168,79 @@ HiRISE sharpness varies between passes: spacecraft jitter, viewing angle and foc
   - Each pass is therefore matched in gain and offset to the reference over the Gotcha-aligned overlap before restoration.
   - Results on real tiles are in Section 5b.
 
-## 6–9
+## 6. Confidence-scored fill (`pipeline/confidence.py`, `scripts/confidence_fill.py`)
+
+- **Output.**
+  - At threshold `t`: `out(t) = X + lock( T · 1[t ≤ c_tex] · trust  +  Σ_{rocks i: P_i ≥ t, trusted} R_i )`.
+  - `X` is the measured restoration (Section 2).
+  - `T` is rover-photo texture of the class the recogniser assigns.
+  - `R_i` is a real rover-photographed rock sprite with a cast shadow along the HiRISE sun direction (`grounded_fill.fill`).
+  - `lock` is the exact projection onto the null space of the HiRISE observation. At every threshold the output, seen through HiRISE's blur, equals the measurement; the lock residual is reported for each render.
+- **Where confidence comes from.**
+  - **Rock.** `P = logistic(w · [z, log(D/25 cm), S·1[D ≥ 100 cm], 1[D ≥ 100 cm]])`.
+    - `z` is the blob response (negative LoG at the rock's scale) in the measured restoration, in units of that scale's robust spread over the image.
+    - `S` is the multi-pass shadow evidence (Section 4).
+    - `w` is fitted on simulations with exact truth (Section 7).
+    - The recogniser's own rock score is not used, because on real data it does not rank candidates (Section 7).
+  - **Texture.** The recogniser's class map chooses the exemplars. Its accuracy against rover truth is 26.6%, below the 49.9% you get by always guessing soil (Section 7). The calibrator therefore stores `c_tex = 0.266`, so texture is shown only at thresholds of 0.27 or below.
+  - **Trust.** No detail is added where the calibrated 25 cm uncertainty (Section 5) exceeds `--sigma-limit` × scene standard deviation (default 0.5).
+- **User control.**
+  - CLI: `--confidence t` renders one threshold.
+  - `--thresholds` renders several and writes `confidence_viewer.html`, a self-contained page with a threshold slider, rock circles coloured by P, and a measured-only toggle.
+  - `rocks.csv` lists every candidate with its P, so any threshold can be applied afterwards.
+
+## 7. Calibration and reliability
+
+### 7a. Real data: the rover answer key cannot verify confidences below about 1 m
+
+- **Setup.** 50 traverse stops with rover top-down truth: 6373 recogniser candidates, 2110 truth rocks of 25 cm and up, and 59,534 AI4Mars-labelled pixels. Predictions are out-of-fold (spatial 3-fold cross-validation).
+- **Recogniser rock score** (`scripts/recogniser_reliability_traverse.py`).
+  - Raw ECE is 10.5%. Cross-fitted isotonic calibration makes it worse (15.8%), because the folds do not agree on the score-to-truth relation.
+  - Within each fold, every feature ranks real against false candidates at about chance: score AUC 0.46–0.50; HiRISE blob support 0.46–0.48; size 0.50–0.60.
+- **Recogniser surface class.** Top-class accuracy is 26.6%, against 49.9% for always guessing soil. Confidence-versus-correct AUC is 0.41–0.48 in the two large folds. The isotonic map collapses to the base rate (held-out ECE 1.4%, all mass in one bin).
+- **Physics P(rock) on the same stops** (`scripts/anchored_reliability.py`, no per-pass stack, so S = 0).
+
+  | Evidence | Candidates | Share matching a truth rock | Share matching truth shifted 40 px | AUC | AUC vs shifted truth |
+  |---|---|---|---|---|---|
+  | Physics P(rock) | 1084 | 29.2% | 17.9% | 0.43 | 0.44 |
+  | Recogniser score | 4148 | 28.8% | 15.5% | 0.46 | 0.48 |
+
+  Candidate positions match the truth 1.6–1.9× more often than chance, so the answer key does carry positional signal. But no score, physical or learned, ranks candidates against it.
+- **Why.** The truth's registration to HiRISE is too poor at most stops:
+  - Only 4 of 27 stops could be registered (`results/rocks_wide_registered_*.json`), on 4–56 m² of ground, with shifts up to 35–45 px (2–3 m, near the search limit).
+  - Rover waypoints carry about 10–20 m of local error (`results/geolocation_finding.md`).
+  - At the landing site, the JPL mosaic's fine-scale alignment correlation is only 0.14, and its orientation is unresolved.
+
+  A rock-sized misregistration turns every label into noise.
+- **Consequence.** Confidences are calibrated in simulation (7b). The real-data numbers above are reported as the limit of what can currently be verified.
+
+### 7b. Simulation calibration (`experiments/exp7_confidence_calibration.py` → `data_products/confidence_calibrator.json`)
+
+- **Scenes.**
+  - 32 × 32 m, 6.25 cm truth grid, fractal ground.
+  - Rocks of 25 / 40 / 60 / 100 / 150 cm (counts 40 / 30 / 20 / 10 / 8), brightness 0.4–1.2 × ground standard deviation, each with a shadow for every pass's real sun geometry.
+  - 15 decoys per size: flat bright patches with no shadow.
+- **Passes and restoration.** The 8 restoration passes with their measured blur, random offsets, 3% noise and 0.03 px registration error, restored with weighted PDE-TV.
+- **Fit and test.** 10 scenes fit the model, 6 held-out scenes test it. A candidate counts as real if it lies within max(3 px, D/2) of a real rock's centre. About 88 s per scene on CPU.
+- **Fitted model.** `P = σ(0.941 z − 0.248 log(D/25) + 1.396 S·1[D≥100] − 0.722·1[D≥100] − 4.297)`.
+- **Held-out results** (1924 candidates, 648 real rocks).
+  - AUC 0.72; blob z alone gives 0.71; without the shadow feature, 0.717.
+  - ECE 1.5%. The reliability bins (predicted → observed) are 0.08→0.08, 0.14→0.14, 0.24→0.23, 0.34→0.39, 0.44→0.52, 0.55→0.45, 0.64→0.68 and 0.74→0.59. The top bins hold fewer than 20 candidates each.
+  - AUC by size: 25 cm 0.69, 40 cm 0.60, 60 cm 0.87, 100 cm 0.79, 150 cm 0.77.
+
+  | Threshold | Rocks shown | Real (precision) | Real rocks found (recall) | Recall 25 / 40 / 60 / 100 / 150 cm |
+  |---|---|---|---|---|
+  | 0.3 | 265 | 47% | 18.8% | — |
+  | 0.4 | 141 | 55% | 11.7% | 0.4 / 1.7 / 34 / 30 / 27% |
+  | 0.5 | 91 | 56% | 7.9% | 0.4 / 1.1 / 24 / 15 / 21% |
+  | 0.6 | 53 | 64% | 5.2% | 0.4 / 1.1 / 17 / 7 / 15% |
+
+- **Findings.**
+  - The probabilities are honest: they match observed frequencies to within 1.5% on scenes the model never saw.
+  - Confidence is useful only for rocks of 60 cm and up. Below that, very few rocks are found at any useful threshold, consistent with the about-40% repeatable-detail limit.
+  - Shadows add almost nothing over blob strength once the restoration is good. This matches Section 4: clutter, not noise, is the limit.
+- **Limits.** The calibration is only as good as the simulation's realism: fractal ground, idealised rock photometry, Gaussian blur. The real-data positional check (7a) is consistent with it but cannot confirm it.
+
+## 8–9
 
 These sections are filled in as each component lands: per-pass blur from the rover, shadow evidence, uncertainty, confidence fill, rover-anchored calibration, hazard maps, and the benchmark.

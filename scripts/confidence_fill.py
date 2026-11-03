@@ -13,8 +13,9 @@ Steps:
  1. Recogniser inputs from the chain's own passes: bicubic reference, average of aligned passes, single-pass PDE-TV,
     multi-pass PDE-TV (the chain's restoration). The three cross-validation recogniser models are averaged; the class
     map chooses which rover-photo texture is drawn (pipeline/grounded_fill.fill).
- 2. Rock candidates and P(rock) from measured evidence (pipeline/confidence.score: restoration blob response,
-    multi-pass shadow evidence for >= 100 cm, size), with the simulation-fitted calibrator.
+ 2. Rock candidates and P(rock) from measured evidence (pipeline/confidence.score: blob repeatability against two
+    restorations from disjoint pass halves, multi-pass shadow evidence for >= 100 cm, size), with the
+    simulation-fitted calibrator.
  3. For each threshold t: base + lock(texture if t <= texture confidence, rocks with P >= t). Every output, seen
     through HiRISE's blur, equals the measurement (lock residual reported).
 Outputs: fill_t{t}.png (8-bit, one fixed contrast stretch for all thresholds), measured.png, rocks.csv
@@ -58,7 +59,8 @@ lib, _ = pickle.load(open(f"{a.rec}/library_all.pkl", "rb"))
 # 2. calibrated rocks
 geoms = [se.pass_geometry(f"{a.rdr}/{o}_RED.LBL") for o in used]
 sn = ndi.zoom(d["sigma_native_cal"].astype(float), base.shape[0] / d["sigma_native_cal"].shape[0], order=1)
-layers = cf.score(base, cal, aligned, geoms, sig_lr, sigma_native=sn, sigma_limit=a.sigma_limit * s0, scale=SC)
+halves = cf.split_halves(frames, flows, [s_ * SC for s_ in sig_lr], scale=SC, lam=meta["lam"], iters=meta["iters"])
+layers = cf.score(base, cal, aligned, geoms, sig_lr, sigma_native=sn, sigma_limit=a.sigma_limit * s0, scale=SC, halves=halves)
 tex_conf = cal.get("texture_confidence") or 0.0
 
 # 3. render

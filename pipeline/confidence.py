@@ -3,8 +3,9 @@ chooses how sure it must be (docs/METHODS.md Sections 6-7).
 
 What carries a confidence, and where it comes from:
   * a rock (position + diameter): measured evidence only -
-      - z: the blob response (negative Laplacian of Gaussian at the rock's scale) in the MEASURED restoration, in units
-        of that scale's robust spread over the image;
+      - z: repeatability of the blob - its response (negative Laplacian of Gaussian at the rock's scale) in the
+        MEASURED restoration divided by the measurement noise of that response, from two restorations made from
+        disjoint halves of the passes (blob_candidates);
       - S: the multi-pass shadow evidence (pipeline/shadow_evidence.py) at the nearest evaluated size, credited only for
         D >= 100 cm where it separates rocks from flat bright patches (Section 4);
       - log D.
@@ -56,15 +57,43 @@ def auc(score, label):
     return float(roc_auc_score(label, score)) if 0 < label.sum() < len(label) else None
 
 
-def blob_candidates(X, floor=2.0, sizes_cm=SIZES_CM, min_dist=3):
+def split_halves(frames, flows, sigmas_hr, **kw):
+    """Two independent restorations from disjoint halves of the passes (even / odd indices)."""
+    from .pde_tv import pde_tv
+    A, B = list(range(0, len(frames), 2)), list(range(1, len(frames), 2))
+    pick = lambda idx: ([frames[i] for i in idx], [flows[i] for i in idx], [sigmas_hr[i] for i in idx])
+    fa, la, sa = pick(A); fb, lb, sb = pick(B)
+    return pde_tv(fa, la, psf_sigma=sa, **kw)[0], pde_tv(fb, lb, psf_sigma=sb, **kw)[0]
+
+
+def blob_candidates(X, halves=None, floor=2.0, sizes_cm=SIZES_CM, min_dist=3):
     """Bright blob candidates in the measured restoration X (6.25 cm grid): local maxima over position and scale of the
-    negative LoG, each scale in units of its own robust spread over the image (median / MAD), so z says how unusual
-    the blob is for this ground at this size. Returns list of (y, x, D_cm, z)."""
-    def robust_z(a): return (a - np.median(a)) / (1.4826 * np.median(np.abs(a - np.median(a))) + 1e-12)
-    R = np.stack([robust_z(-ndi.gaussian_laplace(X, s)) for s in [D / 2 / PX_HR_CM / math.sqrt(2) for D in sizes_cm]])
-    best = R.max(0); arg = R.argmax(0)
+    negative LoG at each rock size. Returns list of (y, x, D_cm, z).
+    With halves = (XA, XB), restorations from two disjoint halves of the passes, z is a REPEATABILITY score: the blob
+    response divided by the measurement noise of that response, estimated robustly from the half-to-half difference
+    (noise of the full-stack response ~ MAD(LoG XA - LoG XB) / 2). This depends on noise, registration and blur, not on
+    how textured the scene is, so it transfers between simulation and real ground. Without halves, z is in units of the
+    response's robust spread over the image (scene-normalised; does not transfer, kept for comparison)."""
+    def mad(a): return 1.4826 * np.median(np.abs(a - np.median(a))) + 1e-12
+    R = []
+    for s in [D / 2 / PX_HR_CM / math.sqrt(2) for D in sizes_cm]:
+        r = -ndi.gaussian_laplace(X, s)
+        if halves is None: R.append((r - np.median(r)) / mad(r))
+        else: R.append((r - np.median(r)) / (mad(ndi.gaussian_laplace(halves[0], s) - ndi.gaussian_laplace(halves[1], s)) / 2))
+    R = np.stack(R); best = R.max(0); arg = R.argmax(0)
     pk = (best == ndi.maximum_filter(best, size=2 * min_dist + 1)) & (best > floor)
     return [(int(y), int(x), sizes_cm[arg[y, x]], float(best[y, x])) for y, x in zip(*np.nonzero(pk))]
+
+
+def disagreement(X, halves, sizes_cm=SIZES_CM):
+    """Split-half disagreement per rock size: noise of the blob response (MAD(LoG XA - LoG XB) / 2) over the response's
+    spread in the scene (MAD(LoG X)). Used to tune the simulation's pass-to-pass disagreement to real data."""
+    def mad(a): return 1.4826 * np.median(np.abs(a - np.median(a))) + 1e-12
+    out = {}
+    for D in sizes_cm:
+        s = D / 2 / PX_HR_CM / math.sqrt(2)
+        out[D] = float(mad(ndi.gaussian_laplace(halves[0], s) - ndi.gaussian_laplace(halves[1], s)) / 2 / mad(ndi.gaussian_laplace(X, s)))
+    return out
 
 
 def align_passes(frames, flows):
@@ -89,7 +118,7 @@ def features(cands, shadow, scale=4):
     return np.array(rows, float).reshape(-1, 4)
 
 
-FEATURE_NAMES = ["blob z (restoration)", "log(D / 25 cm)", "shadow evidence S (D >= 100 cm only)", "D >= 100 cm"]
+FEATURE_NAMES = ["blob repeatability z (split-half noise units)", "log(D / 25 cm)", "shadow evidence S (D >= 100 cm only)", "D >= 100 cm"]
 
 
 def fit_logistic(F, y, C=1.0):
@@ -102,9 +131,11 @@ def predict(cal, F):
     w = np.array(cal["coef"]); return 1.0 / (1.0 + np.exp(-(F @ w + cal["intercept"])))
 
 
-def score(X, cal, aligned=None, geoms=None, sigmas=None, sigma_native=None, sigma_limit=None, scale=4):
-    """Calibrated rock list [(y, x, D, P)] on the 6.25 cm grid and the base-trust mask."""
-    cands = blob_candidates(X)
+def score(X, cal, aligned=None, geoms=None, sigmas=None, sigma_native=None, sigma_limit=None, scale=4, halves=None):
+    """Calibrated rock list [(y, x, D, P)] on the 6.25 cm grid and the base-trust mask. halves: see blob_candidates
+    (required for the repeatability calibrator, cal['z_kind'] == 'repeatability')."""
+    if cal.get("z_kind") == "repeatability" and halves is None: raise ValueError("this calibrator needs split-half restorations")
+    cands = blob_candidates(X, halves)
     shadow = se.evidence(aligned, geoms, sigmas, sizes_cm=SHADOW_SIZES) if aligned is not None else None
     P = predict(cal["rock"], features(cands, shadow, scale)) if cands else np.zeros(0)
     trust = np.ones(X.shape, bool)

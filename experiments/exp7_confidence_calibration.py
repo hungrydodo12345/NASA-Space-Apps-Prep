@@ -6,7 +6,8 @@ brightness 0.4-1.2 x ground std above the ground and a shadow per pass sun geome
 decoys - flat bright patches of the same sizes and brightness, no height, no shadow (15 per size).
 Passes: the 8 restoration passes' real sun geometry and measured blur (Section 3), random sub-pixel offsets, 3 % noise,
 0.03 px registration error. Restoration: weighted PDE-TV (Section 2). Shadow evidence on the aligned passes (Section 4).
-Candidates: blob maxima in the restoration (pipeline/confidence.blob_candidates). Label 1 if within max(3 px, D/2) of a
+Candidates: blob maxima in the restoration, scored by repeatability against two restorations from disjoint halves
+of the passes (pipeline/confidence.blob_candidates). Label 1 if within max(3 px, D/2) of a
 real rock's centre (decoys and ground are 0). Logistic model on [z, log D, S (D >= 100 cm), D >= 100 cm] fitted on
 scenes 0-9, tested on scenes 10-15.
 Output: results/confidence_calibration_simulation.json, data_products/confidence_calibrator.json
@@ -23,6 +24,9 @@ GEOMS = [dict(sun_az=a, incidence=i) for a, i in [(177.4, 47.6), (176.8, 49.9), 
 SIG = [1.336, 1.426, 0.889, 0.587, 0.828, 1.381, 1.16, 1.203]
 COUNTS = {25: 40, 40: 30, 60: 20, 100: 10, 150: 8}; DECOYS = 15
 N_TRAIN = int(os.environ.get("N_TRAIN", 10)); N_TEST = int(os.environ.get("N_TEST", 6))
+# pass-to-pass disagreement (tuned so the simulation's split-half disagreement matches real HiRISE; see
+# scripts/tune_sim_disagreement.py): white noise, smooth multiplicative illumination mismatch, registration error
+NOISE = float(os.environ.get("SIM_NOISE", 0.03)); LIGHT = float(os.environ.get("SIM_LIGHT", 0.0)); REG = float(os.environ.get("SIM_REG", 0.03))
 
 
 def scene(seed):
@@ -49,18 +53,21 @@ def scene(seed):
         if k == 0: truth_img = sc
         dx, dy = (0.0, 0.0) if k == 0 else rng.uniform(-2, 2, 2)
         lr = ndi.gaussian_filter(ndi.shift(sc, (-SC * dy, -SC * dx), order=3, mode="reflect"), s * SC)[::SC, ::SC]
-        frames.append(lr); ex, ey = (0.0, 0.0) if k == 0 else rng.normal(0, 0.03, 2)
+        if LIGHT > 0:
+            f_ = ndi.gaussian_filter(rng.standard_normal(lr.shape), 6.0); f_ = f_ / (f_.std() + 1e-9); lr = lr * (1 + LIGHT * f_)
+        frames.append(lr); ex, ey = (0.0, 0.0) if k == 0 else rng.normal(0, REG, 2)
         flows.append((np.full(lr.shape, dx + ex), np.full(lr.shape, dy + ey)))
-    s0 = frames[0].std(); frames = [f + rng.normal(0, 0.03 * s0, f.shape) for f in frames]
+    s0 = frames[0].std(); frames = [f + rng.normal(0, NOISE * s0, f.shape) for f in frames]
     return frames, flows, objs
 
 
 def run(seed):
     t = time.time(); frames, flows, objs = scene(seed)
     X, _ = pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in SIG], lam=0.005, iters=ITERS)
+    halves = cf.split_halves(frames, flows, [s * SC for s in SIG], scale=SC, lam=0.005, iters=ITERS)
     aligned = cf.align_passes(frames, flows)
     shadow = se.evidence(aligned, GEOMS, SIG, sizes_cm=cf.SHADOW_SIZES)
-    cands = [q for q in cf.blob_candidates(X) if 8 * SC <= q[0] < X.shape[0] - 8 * SC and 8 * SC <= q[1] < X.shape[1] - 8 * SC]
+    cands = [q for q in cf.blob_candidates(X, halves) if 8 * SC <= q[0] < X.shape[0] - 8 * SC and 8 * SC <= q[1] < X.shape[1] - 8 * SC]
     F = cf.features(cands, shadow, SC)
     rocks = [(y * SC, x * SC, D) for y, x, D, r, _ in objs if r]
     def match(q):
@@ -102,7 +109,8 @@ if __name__ == "__main__":
                model=cal, train=summarise(tr, cal), heldout=summarise(te, cal),
                heldout_without_shadow_feature=dict(model=cal_noshadow, **summarise(te_ns, cal_noshadow)))
     json.dump(out, open(os.path.join(ROOT, "results", "confidence_calibration_simulation.json"), "w"), indent=1)
-    cf.save(dict(rock=cal, texture_confidence=None, sigma_limit_rel=None,
+    cf.save(dict(rock=cal, z_kind="repeatability", texture_confidence=0.266,
+                 texture_confidence_source="recogniser top-class accuracy on 50 held-out rover stops (results/recogniser_reliability_traverse.json); texture is shown only at thresholds <= this",
                  note="P(rock) = logistic(coef . [z, log(D/25), S*(D>=100), D>=100] + intercept); fitted on simulations (experiments/exp7_confidence_calibration.py)"),
             os.path.join(ROOT, "data_products", "confidence_calibrator.json"))
     h = out["heldout"]; print(json.dumps(dict(model=cal, auc=h["auc_all"], auc_z=h["auc_blob_z_only"], ece=h["reliability"]["ece"], by_size=h["by_size"],
