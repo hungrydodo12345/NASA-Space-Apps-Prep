@@ -1,0 +1,11 @@
+{
+ "what": "Place the Ingenuity flight-26 nadir mosaic (40 frames, ~17 m across, backshell + debris + rock field) in HiRISE ESP_068294 and use it as centimetre-scale truth.",
+ "mosaic": "40 downward frames chained by SIFT+RANSAC homographies (38 of 39 pairs with >=20 inliers). Scale from the nominal 8 m / 294 px = 0.027 m per pixel.",
+ "attempts": [
+  {"method": "pixel correlation, backshell anchored, rotation 0-359 deg, scale 0.022-0.033, both chiralities", "best_corr": 0.341, "best_scale_mpp": 0.020, "best_theta": 120, "next_best_wrong_alternative_corr": 0.277, "verdict": "rejected: best scale at the edge of the search range, margin over the alternative only 0.064"},
+  {"method": "two shared objects: backshell + a debris piece 4.2 m NW in HiRISE / 156 px in the mosaic", "implied_scale_mpp": 0.0269, "implied_theta_deg": -70.6, "independent_check_matches_of_other_objects": "0 of 20 (chance: mean 0.9, 95th percentile 2, best of 360 rotations 4)", "pixel_corr_at_this_pose": 0.080, "rank_among_240_placements": 108, "verdict": "not validated: the other mosaic objects are mostly rocks < 0.5 m, invisible at 25 cm per pixel, so the check has little power; the pixel correlation gives it no support"},
+  {"method": "long frame chain (101 frames, t = 59-139 s) to link the parachute to the backshell", "verdict": "invalid: across featureless dune stretches the matcher locks onto fixed camera features (helicopter shadow, lens marks) and returns zero motion, so the mosaic does not grow"}
+ ],
+ "conclusion": "No validated placement. The Ingenuity mosaic is NOT used as truth and no parameter search was run against it.",
+ "what_would_fix_it": "Ground-plane motion from visual odometry with static-feature masking, or the 10 colour frames (oblique, both objects) with a photogrammetric solution, or a larger shared structure than the backshell and one piece."
+}

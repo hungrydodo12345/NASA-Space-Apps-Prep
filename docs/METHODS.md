@@ -242,6 +242,17 @@ HiRISE sharpness varies between passes: spacecraft jitter, viewing angle and foc
   - Shadows add almost nothing over blob strength once the restoration is good. This matches Section 4: clutter, not noise, is the limit.
 - **Limits.** The calibration is only as good as the simulation's realism: fractal ground, idealised rock photometry, Gaussian blur. The real-data positional check (7a) is consistent with it but cannot confirm it.
 
+### 7c. Attempt to use Ingenuity's downward images as centimetre-scale truth (negative result)
+
+- **Data.** Ingenuity flight 26 (Perseverance sol 414, 2022-04-20): 190 downward navigation frames (640 × 480, published camera model) and 10 colour frames. The parachute and backshell are in both HiRISE (post-landing passes) and these images, so they are shared physical artifacts. `scripts/ingenuity/`.
+- **HiRISE side.** The objects were found by differencing the 2016 and 2021 passes: a tight cluster of four new bright objects about 1.1 km west and 0.2 km north of the landing spot. A native-resolution crop shows the parachute (a crumpled patch about 13 × 15 m) and the backshell (two bright halves about 3.4 m apart). The alignment chain on that tile with the 5 post-landing passes matched 40–90% of grid points at correlations of 0.87–0.91.
+- **Mosaic.** 40 downward frames chained by SIFT and RANSAC homographies give a metric mosaic about 17 m across: the backshell, debris pieces and a rock field.
+- **Placement: not achieved.**
+  - Pixel correlation against the raw HiRISE pass gave a best score of 0.34 at a scale (0.020 m per pixel) at the edge of the search range, with a margin of only 0.064 over the best wrong alternative. Rejected.
+  - Two shared objects (the backshell and a piece 4.2 m from it) imply a scale of 0.0269 m per pixel, consistent with the 8 m flight height, and a rotation of −71°. But 0 of 20 other mosaic objects land on HiRISE bright objects (chance: 0.9 on average, up to 4 over all rotations), and the pixel correlation at this pose is 0.08, ranked 108 of 240 placements. Not validated.
+  - A 101-frame chain to link the parachute to the backshell failed: over featureless dunes the matcher locks onto camera-fixed features and returns zero motion.
+- **Consequence.** The mosaic is not used as truth, and no parameter search was run against it. A search against an unvalidated registration would tune the pipeline to the registration error. Details: `results/ingenuity/registration_attempt.json`.
+
 ## 8. Hazard maps (`pipeline/hazard.py`, written by `scripts/confidence_fill.py`)
 
 - **Per cell** (default 1 m), from the calibrated rocks of Section 6:
