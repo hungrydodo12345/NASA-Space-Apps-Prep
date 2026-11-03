@@ -135,6 +135,39 @@ HiRISE sharpness varies between passes: spacecraft jitter, viewing angle and foc
   - **Why combining passes does not help small rocks.** The limiting factor is background clutter, which is the same ground texture in every pass, not independent noise. Stacking passes cannot average it away, and blurrier passes add little.
 - **Use.** In the confidence model (Section 6), shadow evidence raises confidence only for rocks of 100 cm and above, where it is informative. It is not credited below that.
 
-## 5–9
+## 5. Uncertainty from a pass-subset bootstrap (`pipeline/uncertainty.py`, test: `experiments/exp6_bootstrap_uncertainty.py`)
+
+- **Method.** The restoration of Section 2 is rebuilt B times. Each rebuild uses K passes drawn with replacement from the K available, so a pass drawn twice counts twice. The spread of the rebuilds at each pixel is `σ_boot(p) = std_b X_b(p)`.
+  - It captures what depends on which passes were taken: noise, registration error, per-pass blur, and changes between passes.
+  - It cannot capture error that every pass shares, chiefly detail finer than any pass recorded. That part is absorbed by one factor κ, fitted in simulation where the truth is known.
+  - The calibrated uncertainty is `σ = κ · σ_boot`.
+- **Scale matters.** All rebuilds, the mean and the truth are evaluated after smoothing by a Gaussian of 0, 2 or 4 output pixels, which corresponds to 6.25 cm, 12.5 cm and 25 cm.
+- **Simulation.**
+  - Fractal terrain, 64 × 64 native pixels, scale 4.
+  - 8 passes, each with its own measured blur (Section 3 values), 3% noise, 0.03 px registration error, and a planted 2 m change in one pass.
+  - B = 16 rebuilds, 200 iterations each, about 250 s per bootstrap on 4 CPU cores.
+  - κ is fitted on scene A (seed 2001) and tested on scene B (seed 2002), which is held out.
+
+  | Scale | κ (fitted on A) | Held-out coverage ±1σ / ±2σ (target 68.3 / 95.4 %) | Spearman(σ, \|error\|) on 4 × 4 blocks, A / B | Error in least- vs most-confident 10 % of blocks (B) | σ at the planted change ÷ median σ (A / B) |
+  |---|---|---|---|---|---|
+  | 6.25 cm (output pixel) | 12.8 | 81.5 / 96.0 % | 0.14 / 0.14 | 25.7 vs 21.6 % | 12.5 / 11.5 |
+  | 12.5 cm | 4.8 | 85.1 / 97.9 % | 0.32 / 0.34 | 9.5 vs 4.5 % | 18.1 / 17.6 |
+  | **25 cm (native HiRISE pixel)** | **2.1** | **86.4 / 99.1 %** | **0.45 / 0.39** | **3.8 vs 0.6 %** | **41.3 / 44.5** |
+
+  Errors are given as a percentage of the true scene contrast (standard deviation). Uncalibrated, the bootstrap covers only 34–51% (±1σ) at 25 cm, and 7–11% at 6.25 cm.
+- **Findings.**
+  - **At the native 25 cm scale the bootstrap is informative and close to honest after one factor.**
+    - κ = 2.1 fitted on one scene gives slightly conservative coverage on another (86% where 68% is the target).
+    - σ ranks errors (Spearman about 0.4): the least-confident tenth of the map has about 6× the error of the most-confident tenth.
+    - A change present in only one pass stands out at about 43× the median σ.
+  - **At the 6.25 cm output pixel, per-pixel uncertainty is not meaningful.** The error there is dominated by detail no pass recorded. That detail is missing from every rebuild in the same way, so the spread cannot see it: κ must be about 13, and σ barely ranks errors (Spearman 0.14).
+  - **A second, texture-driven term does not fix this.** We tested a model with the bootstrap plus local restored texture, `σ² = (κ σ_boot)² + (β · tex)²`, fitted by maximum likelihood. It gives κ = 7.5, β = 1.6 and held-out coverage of 81 / 98%, but Spearman of only 0.11. Missing fine detail is not predictable from the restoration.
+- **Use.** The pipeline reports `σ_native = 2.1 · std_b(G₄ ∗ X_b)` (25 cm scale) as the trust map. The confidence fill (Section 6) adds no detail where σ_native exceeds a limit. The 6.25 cm pixels inherit that 25 cm σ; we do not claim a finer uncertainty.
+- **Real data** (`scripts/run_chain.py`).
+  - Passes taken years apart differ by up to about 60% in mean brightness, while ground texture is about 1% of the signal. Without radiometric normalisation, the bootstrap spread measured these offsets: σ came out at about 2000% of scene contrast in a smoke test.
+  - Each pass is therefore matched in gain and offset to the reference over the Gotcha-aligned overlap before restoration.
+  - Results on real tiles are in Section 5b.
+
+## 6–9
 
 These sections are filled in as each component lands: per-pass blur from the rover, shadow evidence, uncertainty, confidence fill, rover-anchored calibration, hazard maps, and the benchmark.

@@ -1,0 +1,150 @@
+{
+ "setup": {
+  "n_lr": 64,
+  "scale": 4,
+  "passes": 8,
+  "bootstrap_replicates": 16,
+  "iters": 200,
+  "per_pass_sigma_lr": [
+   0.889,
+   0.587,
+   0.828,
+   1.336,
+   1.426,
+   1.381,
+   1.16,
+   1.203
+  ],
+  "noise_rel": 0.03,
+  "reg_err_px": 0.03,
+  "lam": 0.005,
+  "seconds_per_bootstrap": [
+   250.3777060508728,
+   250.4855420589447
+  ]
+ },
+ "scales": {
+  "6.25 cm (output pixel)": {
+   "kappa_fitted_on_A": 12.75154420102098,
+   "scene_A_fit": {
+    "rms_error_pct": 38.1522341420838,
+    "median_sigma_boot_pct": 2.9413326194279508,
+    "coverage_raw": {
+     "1.0": 0.0723696375739645,
+     "2.0": 0.14439256656804733
+    },
+    "coverage_calibrated": {
+     "1.0": 0.6826923076923077,
+     "2.0": 0.9022744082840237
+    },
+    "spearman_sigma_vs_error": 0.14429815868601412,
+    "error_pct_most_confident_10pct": 29.05630705319296,
+    "error_pct_least_confident_10pct": 34.88355556118698
+   },
+   "scene_B_heldout": {
+    "rms_error_pct": 29.030276070008103,
+    "median_sigma_boot_pct": 3.3303733324116895,
+    "coverage_raw": {
+     "1.0": 0.10895894970414201,
+     "2.0": 0.21079881656804733
+    },
+    "coverage_calibrated": {
+     "1.0": 0.8154354659763313,
+     "2.0": 0.9598049186390533
+    },
+    "spearman_sigma_vs_error": 0.13933319728490523,
+    "error_pct_most_confident_10pct": 21.586180342402546,
+    "error_pct_least_confident_10pct": 25.730327028630878
+   },
+   "sigma_at_planted_change_over_median": {
+    "A": 12.54460620880127,
+    "B": 11.514179229736328
+   }
+  },
+  "12.5 cm": {
+   "kappa_fitted_on_A": 4.75112378607406,
+   "scene_A_fit": {
+    "rms_error_pct": 9.894196161951625,
+    "median_sigma_boot_pct": 1.8854604037532565,
+    "coverage_raw": {
+     "1.0": 0.16413184171597633,
+     "2.0": 0.3201507026627219
+    },
+    "coverage_calibrated": {
+     "1.0": 0.6826923076923077,
+     "2.0": 0.9263822115384616
+    },
+    "spearman_sigma_vs_error": 0.3242995775468544,
+    "error_pct_most_confident_10pct": 6.073282075466777,
+    "error_pct_least_confident_10pct": 12.20547282544819
+   },
+   "scene_B_heldout": {
+    "rms_error_pct": 7.390832780196313,
+    "median_sigma_boot_pct": 2.058162861419924,
+    "coverage_raw": {
+     "1.0": 0.2492141272189349,
+     "2.0": 0.4789432322485207
+    },
+    "coverage_calibrated": {
+     "1.0": 0.8514238165680473,
+     "2.0": 0.9790356878698225
+    },
+    "spearman_sigma_vs_error": 0.33623960794214885,
+    "error_pct_most_confident_10pct": 4.540217384607454,
+    "error_pct_least_confident_10pct": 9.463728350435952
+   },
+   "sigma_at_planted_change_over_median": {
+    "A": 18.055299758911133,
+    "B": 17.57143783569336
+   }
+  },
+  "25 cm (native HiRISE pixel)": {
+   "kappa_fitted_on_A": 2.1074910353433496,
+   "scene_A_fit": {
+    "rms_error_pct": 2.26054711554622,
+    "median_sigma_boot_pct": 0.6952436216391287,
+    "coverage_raw": {
+     "1.0": 0.3406065088757396,
+     "2.0": 0.6533376479289941
+    },
+    "coverage_calibrated": {
+     "1.0": 0.6826923076923077,
+     "2.0": 0.9551127958579881
+    },
+    "spearman_sigma_vs_error": 0.4521820956780581,
+    "error_pct_most_confident_10pct": 0.8763906149951768,
+    "error_pct_least_confident_10pct": 3.460753691826304
+   },
+   "scene_B_heldout": {
+    "rms_error_pct": 2.57153587849253,
+    "median_sigma_boot_pct": 0.7110823991635625,
+    "coverage_raw": {
+     "1.0": 0.5094767011834319,
+     "2.0": 0.8435882026627219
+    },
+    "coverage_calibrated": {
+     "1.0": 0.8643907174556213,
+     "2.0": 0.9905001849112426
+    },
+    "spearman_sigma_vs_error": 0.39118060223546836,
+    "error_pct_most_confident_10pct": 0.6397025811610315,
+    "error_pct_least_confident_10pct": 3.7602898368628166
+   },
+   "sigma_at_planted_change_over_median": {
+    "A": 41.25151824951172,
+    "B": 44.53834915161133
+   }
+  }
+ },
+ "two_component_6.25cm": {
+  "kappa": 7.535659294528742,
+  "beta": 1.584893192461114,
+  "scene_B_coverage": {
+   "1.0": 0.8113211908284024,
+   "2.0": 0.9758228550295858
+  },
+  "spearman_sigma_vs_error": 0.11012476958370529,
+  "error_pct_most_confident_10pct": 22.00845090949749,
+  "error_pct_least_confident_10pct": 25.47382314841019
+ }
+}
