@@ -1,0 +1,100 @@
+{
+ "chain": "/tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/chain_site1",
+ "passes": [
+  "PSP_002387_1985",
+  "ESP_073068_1985",
+  "ESP_045994_1985",
+  "ESP_068294_1985",
+  "ESP_046060_1985",
+  "ESP_068360_1985",
+  "ESP_068426_1985",
+  "ESP_068822_1985"
+ ],
+ "psf_hr_px": 4.811911459185691,
+ "texture_confidence": 0.266,
+ "sigma_limit_rel": 0.5,
+ "trusted_area_pct": 68.60733032226562,
+ "candidates": 1220,
+ "class_share_pct": {
+  "soil": 58.35762023925781,
+  "bedrock": 33.9813232421875,
+  "sand": 6.746673583984375,
+  "big rock": 0.9143829345703125
+ },
+ "renders": [
+  {
+   "threshold": 0.1,
+   "rocks_shown": 1105,
+   "texture_shown": true,
+   "lock_residual_rel": 0.003133091050782451,
+   "synthetic": true
+  },
+  {
+   "threshold": 0.2,
+   "rocks_shown": 771,
+   "texture_shown": true,
+   "lock_residual_rel": 0.0018730368403870855,
+   "synthetic": true
+  },
+  {
+   "threshold": 0.3,
+   "rocks_shown": 588,
+   "texture_shown": false,
+   "lock_residual_rel": 0.0011058064180809821,
+   "synthetic": true
+  },
+  {
+   "threshold": 0.4,
+   "rocks_shown": 463,
+   "texture_shown": false,
+   "lock_residual_rel": 0.0011719292427964257,
+   "synthetic": true
+  },
+  {
+   "threshold": 0.5,
+   "rocks_shown": 358,
+   "texture_shown": false,
+   "lock_residual_rel": 0.0010332542816886895,
+   "synthetic": true
+  },
+  {
+   "threshold": 0.6,
+   "rocks_shown": 268,
+   "texture_shown": false,
+   "lock_residual_rel": 0.0006987083140579016,
+   "synthetic": true
+  },
+  {
+   "threshold": 0.7,
+   "rocks_shown": 179,
+   "texture_shown": false,
+   "lock_residual_rel": 0.0004748313078198542,
+   "synthetic": true
+  },
+  {
+   "threshold": 0.8,
+   "rocks_shown": 103,
+   "texture_shown": false,
+   "lock_residual_rel": 0.00038627024918932296,
+   "synthetic": true
+  },
+  {
+   "threshold": 0.9,
+   "rocks_shown": 53,
+   "texture_shown": false,
+   "lock_residual_rel": 0.00022823611403170247,
+   "synthetic": true
+  }
+ ],
+ "calibrator": "/home/user/NASA-Space-Apps-Prep/scripts/../data_products/confidence_calibrator.json",
+ "hazard": {
+  "cells": 1024,
+  "hazard_pct": 0.0,
+  "clear_pct": 81.4453125,
+  "unknown_pct": 18.5546875,
+  "expected_hazard_rocks": 3.4527695135737986,
+  "cell_m": 1.0,
+  "d_hazard_cm": 40,
+  "p_alarm": 0.5
+ }
+}

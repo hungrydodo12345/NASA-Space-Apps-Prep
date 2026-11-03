@@ -1,0 +1,133 @@
+{
+ "site": "/tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/anywhere_site1_v2",
+ "reference": "PSP_002387_1985",
+ "tile_native_px": 128,
+ "y0": 192,
+ "x0": 192,
+ "origin_global": [
+  -4372122,
+  -23485260
+ ],
+ "scale": 4,
+ "passes_used": [
+  "PSP_002387_1985",
+  "ESP_073068_1985",
+  "ESP_045994_1985",
+  "ESP_068294_1985",
+  "ESP_046060_1985",
+  "ESP_068360_1985",
+  "ESP_068426_1985",
+  "ESP_068822_1985"
+ ],
+ "pass_sigma_hr": [
+  4.811911459185691,
+  4.638371685305368,
+  5.343640322012941,
+  3.5572791479895662,
+  5.705654378863354,
+  2.3482955288980483,
+  3.310509728229459,
+  5.52399238694647
+ ],
+ "gotcha": {
+  "PSP_002387_1985": {
+   "n_matched": null,
+   "radiometric_gain": 0.9999999991182805,
+   "radiometric_offset": 7.367313703543488e-11
+  },
+  "ESP_073068_1985": {
+   "n_seeds": 45,
+   "n_matched": 198,
+   "n_grid": 1089,
+   "median_quality": 0.6379066630052185,
+   "mean_dx": 0.8080908761701638,
+   "mean_dy": 1.251740208320461,
+   "radiometric_gain": 1.36801331273539,
+   "radiometric_offset": -0.008421527207277832
+  },
+  "ESP_045994_1985": {
+   "n_seeds": 27,
+   "n_matched": 489,
+   "n_grid": 1089,
+   "median_quality": 0.6517751232806367,
+   "mean_dx": 0.510020607543963,
+   "mean_dy": -0.21759047911617768,
+   "radiometric_gain": 1.131488541926941,
+   "radiometric_offset": 0.002964208530958995
+  },
+  "ESP_068294_1985": {
+   "n_seeds": 45,
+   "n_matched": 270,
+   "n_grid": 1089,
+   "median_quality": 0.6640268633524945,
+   "mean_dx": 3.3824717153798924,
+   "mean_dy": 0.3917525978153534,
+   "radiometric_gain": 1.0418434633892577,
+   "radiometric_offset": -0.027435961389944544
+  },
+  "ESP_046060_1985": {
+   "n_seeds": 14,
+   "n_matched": 397,
+   "n_grid": 1089,
+   "median_quality": 0.6762988203675334,
+   "mean_dx": 2.0902787828924665,
+   "mean_dy": -1.2332226102867674,
+   "radiometric_gain": 1.175280567719675,
+   "radiometric_offset": -0.009627895879901191
+  },
+  "ESP_068360_1985": {
+   "n_seeds": 41,
+   "n_matched": 149,
+   "n_grid": 1089,
+   "median_quality": 0.6475606357235446,
+   "mean_dx": 2.7416074165143804,
+   "mean_dy": 1.9133019047582693,
+   "radiometric_gain": 0.9421736852537443,
+   "radiometric_offset": -0.015090919311927437
+  },
+  "ESP_068426_1985": {
+   "n_seeds": 36,
+   "n_matched": 112,
+   "n_grid": 1089,
+   "median_quality": 0.6466344445435919,
+   "mean_dx": 1.8782761753754036,
+   "mean_dy": 1.4220377202628118,
+   "radiometric_gain": 1.0154954277948942,
+   "radiometric_offset": -0.023254838130911504
+  },
+  "ESP_068822_1985": {
+   "n_seeds": 42,
+   "n_matched": 267,
+   "n_grid": 1089,
+   "median_quality": 0.6508702520003012,
+   "mean_dx": 2.486012646844056,
+   "mean_dy": 0.7005652155191795,
+   "radiometric_gain": 1.1256158231667632,
+   "radiometric_offset": -0.03806440776911829
+  }
+ },
+ "pass_weights": [
+  0.21487645903147864,
+  0.10309858842408971,
+  0.13653868109480763,
+  0.20419635265494415,
+  0.13784946630978503,
+  1.0,
+  0.15206855851758902,
+  0.22810069959188656
+ ],
+ "lam": 0.005,
+ "iters": 200,
+ "bootstrap": {
+  "B": 8,
+  "kappa": 2.1074910353433496,
+  "median_sigma_native_pct_of_scene_std": 39.58253264427185,
+  "p90_sigma_native_pct_of_scene_std": 70.91375589370728
+ },
+ "exclude_rover": false,
+ "seconds": {
+  "align": 39.04421830177307,
+  "restore": 91.26335048675537,
+  "bootstrap": 710.6137278079987
+ }
+}

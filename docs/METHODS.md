@@ -60,9 +60,10 @@ Re-implemented from the paper's text (Sec. 3.2, Eq. 10, MSA-SIFT steps i–vi); 
 - **Parameters.**
   - λ = 0.005–0.02 (relative to the image standard deviation s₀).
   - μ = 0.2 s₀; 300 iterations; step factor 0.9.
-- **Weighting (our addition, not in GPT).** The weights are re-estimated every 20 iterations:
-  - Per-pass weight `w_k = (σ_min / σ_k)²`, where σ_k is pass k's robust (MAD) residual against the current estimate.
-  - Per-pixel Tukey biweight `m_kp` with c = 4.685 σ_k. Pixels where one pass disagrees with the consensus get weight 0: moving sand, new tracks, the rover, dust-devil streaks.
+- **Weighting (our addition, not in GPT).**
+  - **Per-pass weight** `w_k = (n_min / n_k)²`, where `n_k` is pass k's white-noise level measured from its own finest-scale pixel differences: the Immerkær (1996) Laplacian-difference kernel with a robust MAD (`pde_tv.pass_noise`, `pass_weights="noise"`).
+  - **Rejected first version** (`pass_weights="residual"`): `w_k = (σ_min/σ_k)²` from each pass's robust residual against the current estimate. It works in simulation, but on real HiRISE it reads the illumination and season differences between passes as noise and collapses onto one pass. On the 8-pass site, one pass got weight 1.00 and the rest 0.10–0.23; the noise-based weights are 0.20–1.00, most 0.4–0.7. It is kept as an ablation (benchmark `full-resw`).
+  - **Per-pixel Tukey biweight** `m_kp` with c = 4.685 σ_k, where σ_k is the pass's robust residual, re-estimated every 20 iterations. Pixels where one pass disagrees with the consensus get weight 0: moving sand, new tracks, the rover, dust-devil streaks.
   - `weighted=False` gives the original, unweighted GPT data term.
 - **Validation (simulation).**
   - Setup: fractal terrain, 8 passes, measured blur σ = 1.07 px, 3% noise, 0.03 px registration error.
@@ -241,6 +242,28 @@ HiRISE sharpness varies between passes: spacecraft jitter, viewing angle and foc
   - Shadows add almost nothing over blob strength once the restoration is good. This matches Section 4: clutter, not noise, is the limit.
 - **Limits.** The calibration is only as good as the simulation's realism: fractal ground, idealised rock photometry, Gaussian blur. The real-data positional check (7a) is consistent with it but cannot confirm it.
 
-## 8–9
+## 8. Hazard maps (`pipeline/hazard.py`, written by `scripts/confidence_fill.py`)
 
-These sections are filled in as each component lands: per-pass blur from the rover, shadow evidence, uncertainty, confidence fill, rover-anchored calibration, hazard maps, and the benchmark.
+- **Per cell** (default 1 m), from the calibrated rocks of Section 6:
+  - `p_hazard = 1 − Π_i (1 − P_i)` over rocks with `D_i ≥ d_hazard` (default 40 cm). This is the probability that at least one hazard rock is in the cell, treating rock calls as independent.
+  - `expected_rocks = Σ_i P_i`.
+  - `status`:
+    - `unknown` where less than half of the cell is trusted base (Section 5);
+    - `hazard` where `p_hazard ≥ p_alarm` (default 0.5), or where slope ≥ 15° if a slope map is supplied;
+    - otherwise `clear`.
+- **Outputs.** `hazard.png` (probability map and status map over the restoration) and `hazard.csv` (one row per cell).
+- **Options.** `--d-hazard`, `--p-alarm` and `--cell` change the defaults.
+- **Caveat.** Probabilities for rocks under about 60 cm rest on the simulation calibration only (Section 7). The status map does not separate a confidently clear cell from one whose rocks are too small to see; the `unknown` class covers only base trust.
+
+## 9. Benchmark and paper (`benchmark/run_benchmark.py`, `scripts/make_paper.py`)
+
+- **Methods.**
+  - raw;
+  - previous pipeline;
+  - our GPT re-implementation;
+  - ablations: GPT + noise weighting, GPT + measured blur, full with residual weights;
+  - full;
+  - oracle motion (simulation only).
+- **Tests.** Simulation with exact truth (5 scenes), real split-half consistency (8 passes), and the real rover edge with ringing. Each part is saved on its own as it finishes and merged into `benchmark/results/benchmark_results.json`.
+- **Results.** `python scripts/make_paper.py` fills `docs/paper/paper_template.md` from the result files, writing `docs/paper/PAPER.md`. `python benchmark/update_readme.py` refreshes the README table. Any missing result shows as **[pending]**.
+

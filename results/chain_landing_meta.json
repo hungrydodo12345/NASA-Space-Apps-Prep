@@ -1,0 +1,68 @@
+{
+ "site": "/tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/rover_target",
+ "reference": "ESP_068294_1985",
+ "tile_native_px": 128,
+ "y0": 0,
+ "x0": 0,
+ "origin_global": [
+  -4371755,
+  -23476249
+ ],
+ "scale": 4,
+ "passes_used": [
+  "ESP_068294_1985",
+  "ESP_068360_1985",
+  "ESP_068426_1985"
+ ],
+ "pass_sigma_hr": [
+  3.5572791479895662,
+  2.3482955288980483,
+  3.310509728229459
+ ],
+ "gotcha": {
+  "ESP_068294_1985": {
+   "n_matched": null,
+   "radiometric_gain": 0.9999999998848488,
+   "radiometric_offset": 1.289500450862846e-11
+  },
+  "ESP_068360_1985": {
+   "n_seeds": 80,
+   "n_matched": 929,
+   "n_grid": 1089,
+   "median_quality": 0.9210603802817865,
+   "mean_dx": 0.3232993794958154,
+   "mean_dy": -0.4964199731460167,
+   "radiometric_gain": 1.2420264249567163,
+   "radiometric_offset": -0.023963314966301844
+  },
+  "ESP_068426_1985": {
+   "n_seeds": 60,
+   "n_matched": 814,
+   "n_grid": 1089,
+   "median_quality": 0.9188296714010207,
+   "mean_dx": 0.19035525666928507,
+   "mean_dy": -0.4105668661120277,
+   "radiometric_gain": 1.219590575782786,
+   "radiometric_offset": -0.02285097989224301
+  }
+ },
+ "pass_weights": [
+  0.014766818730186568,
+  1.0,
+  0.014189997457080694
+ ],
+ "lam": 0.005,
+ "iters": 200,
+ "bootstrap": {
+  "B": 8,
+  "kappa": 2.1074910353433496,
+  "median_sigma_native_pct_of_scene_std": 8.057662844657898,
+  "p90_sigma_native_pct_of_scene_std": 19.475306570529938
+ },
+ "exclude_rover": true,
+ "seconds": {
+  "align": 15.314428091049194,
+  "restore": 31.192516088485718,
+  "bootstrap": 232.73930287361145
+ }
+}
