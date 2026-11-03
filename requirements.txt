@@ -4,6 +4,10 @@ opencv-python-headless>=4.10
 glymur>=0.13
 pillow>=10
 scikit-learn>=1.5
+matplotlib>=3.8
+# CPU build is enough (recogniser inference and training run on CPU):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.2
 remotezip>=0.12
 requests>=2.31
 pytest>=8

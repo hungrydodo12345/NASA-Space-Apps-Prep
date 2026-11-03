@@ -11,7 +11,8 @@ from multiprocessing import Pool
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."); sys.path.insert(0, ROOT)
 from pipeline import confidence as cf, pde_tv
 CH, OUT = sys.argv[1:3]
-GRID = list(itertools.product([0.03, 0.1, 0.2, 0.35], [0.0, 0.1, 0.25]))
+GRID = list(itertools.product([0.03, 0.1, 0.2, 0.35, 0.5], [0.0, 0.1, 0.25, 0.4, 0.6]))
+if os.environ.get("TUNE_GRID"): GRID = [tuple(map(float, g.split(":"))) for g in os.environ["TUNE_GRID"].split(",")]
 
 
 def real():
@@ -30,10 +31,12 @@ def sim(p):
 
 
 if __name__ == "__main__":
-    with Pool(4) as pool:
+    prev = json.load(open(OUT))["grid"] if os.path.exists(OUT) else []
+    with Pool(int(os.environ.get("PROCS", 4))) as pool:
         rj = pool.apply_async(real); sims = pool.map(sim, GRID); R = rj.get()
-    rows = []
+    rows = [r for r in prev if (r["noise"], r["light"]) not in set(GRID)]
     for (n, l), D in sims:
+        D = {int(k): v for k, v in D.items()}; R = {int(k): v for k, v in R.items()}
         cost = float(np.mean([(np.log(D[k]) - np.log(R[k])) ** 2 for k in R])); rows.append(dict(noise=n, light=l, disagreement=D, cost=cost))
         print(f"noise {n:.2f} light {l:.2f} cost {cost:.3f} " + " ".join(f"{k}:{v:.3f}" for k, v in D.items()), flush=True)
     best = min(rows, key=lambda r: r["cost"])
