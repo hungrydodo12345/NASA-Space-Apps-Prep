@@ -1,0 +1,45 @@
+{
+ "ESP_068294_1985": {
+  "sigma_px": 0.8893197869973916,
+  "sigma_spread_px": 0.06168663792744807,
+  "profiles": 7,
+  "method": "rover edge fit (absolute)"
+ },
+ "ESP_068360_1985": {
+  "sigma_px": 0.5870738822245121,
+  "sigma_spread_px": 0.09968304586960569,
+  "profiles": 7,
+  "method": "rover edge fit (absolute)"
+ },
+ "ESP_068426_1985": {
+  "sigma_px": 0.8276274320573648,
+  "sigma_spread_px": 0.11214967340541496,
+  "profiles": 7,
+  "method": "rover edge fit (absolute)"
+ },
+ "ESP_045994_1985": {
+  "sigma_px": 1.3359100805032353,
+  "method": "relative to ESP_068360_1985 on static ground (Gotcha-aligned)",
+  "matched_points": 16.0
+ },
+ "ESP_046060_1985": {
+  "sigma_px": 1.4264135947158385,
+  "method": "relative to ESP_068360_1985 on static ground (Gotcha-aligned)",
+  "matched_points": 8.0
+ },
+ "ESP_068822_1985": {
+  "sigma_px": 1.3809980967366176,
+  "method": "relative to ESP_068360_1985 on static ground (Gotcha-aligned)",
+  "matched_points": 79.0
+ },
+ "ESP_073068_1985": {
+  "sigma_px": 1.159592921326342,
+  "method": "relative to ESP_068360_1985 on static ground (Gotcha-aligned)",
+  "matched_points": 32.0
+ },
+ "PSP_002387_1985": {
+  "sigma_px": 1.2029778647964227,
+  "method": "relative to ESP_068360_1985 on static ground (Gotcha-aligned)",
+  "matched_points": 18.0
+ }
+}

@@ -68,7 +68,21 @@ def seeds_msa_sift(ref, img, exclude=None, max_seeds=300, ratio=0.75):
     return out[:max_seeds]
 
 
-def gotcha(ref, img, exclude=None, step=4, half=7, ncc_min=0.6, max_jump=0.5, seeds=None):
+def seeds_phase(ref, img, exclude=None, spacing=24, half=7):
+    """Fallback seeds when SIFT finds too few matches (e.g. passes years apart under different sun angles): one global
+    shift from phase correlation of high-passed images, then a regular grid of seeds carrying that shift (ALSC refines
+    each one, including gain/offset)."""
+    hp = lambda a: (a - ndi.gaussian_filter(a, 6)).astype(np.float32)
+    win = cv2.createHanningWindow(ref.shape[::-1], cv2.CV_32F)
+    (sx, sy), resp = cv2.phaseCorrelate(hp(ref), hp(img), win)        # img(x) ~= ref(x - s)  =>  ref(p) ~= img(p + s)
+    H, W = ref.shape; m = half + 4 + int(max(abs(sx), abs(sy))) + 1; out = []
+    for y in range(m, H - m, spacing):
+        for x in range(m, W - m, spacing):
+            if exclude is None or not exclude[y, x]: out.append((y, x, [1.0, 0.0, 0.0, 1.0, sy, sx]))
+    return out
+
+
+def gotcha(ref, img, exclude=None, step=4, half=7, ncc_min=0.6, max_jump=0.5, seeds=None, min_sift_seeds=10):
     """Dense Gotcha matching. Returns dx, dy (pass(x) ~= ref(x + d)), quality (ncc), valid mask, number of seeds."""
     ref = ref.astype(np.float64); img = img.astype(np.float64)
     gy, gx = np.gradient(img)
@@ -77,7 +91,9 @@ def gotcha(ref, img, exclude=None, step=4, half=7, ncc_min=0.6, max_jump=0.5, se
     gi = {(y, x): (i, j) for i, y in enumerate(ys) for j, x in enumerate(xs)}
     P = np.full((len(ys), len(xs), 6), np.nan); Q = np.full((len(ys), len(xs)), -1.0)
     ex = np.zeros((H, W), bool) if exclude is None else exclude
-    seeds = seeds if seeds is not None else seeds_msa_sift(ref, img, exclude)
+    if seeds is None:
+        seeds = seeds_msa_sift(ref, img, exclude)
+        if len(seeds) < min_sift_seeds: seeds = seeds + seeds_phase(ref, img, exclude, half=half)
     heap = []
     for y, x, A0 in seeds:                                   # snap seeds to the grid and refine them by ALSC
         i, j = int(np.argmin(np.abs(ys - y))), int(np.argmin(np.abs(xs - x)))

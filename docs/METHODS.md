@@ -78,6 +78,35 @@ Re-implemented from the paper's text (Sec. 3.2, Eq. 10, MSA-SIFT steps i–vi); 
   - The weighted version gives the changed pixels of that pass weight 0.0, so the artefact returns to the single-pass level; the unweighted version adds it to the restoration.
 - **Not yet reproduced:** the paper's tiled segmentation by motion-vector spread (Eqs. 13–14) and its per-segment blur. Their thresholds are not given in the paper. Per-pass blur is handled by measurement instead (Section 3).
 
-## 3–9
+## 3. Per-pass blur from the parked rover (`scripts/calibrate_pass_blur.py` → `data_products/pass_blur.json`)
+
+HiRISE sharpness varies between passes: spacecraft jitter, viewing angle and focus all change. A single assumed point-spread function (GPT assumes a Gaussian with σ = 1) is replaced by one measured value per pass.
+
+- **Absolute: on the rover.** In ESP_068294, ESP_068360 and ESP_068426 (sols 1–11), Perseverance is parked at the landing site and visible as a bright, roughly 12-pixel object.
+  - Seven parallel brightness profiles are taken across its short axis, on native pixels with cubic interpolation at 0.1 px.
+  - Each is fitted with a blurred bright bar on a linear background: `f(t) = b₀ + b₁t + a[Φ((t−t₁)/s) − Φ((t−t₂)/s)]`. The linear background absorbs the shadow.
+  - The pixel's box integration is removed: `σ_psf = sqrt(s² − 1/12)`.
+- **Relative: on static ground.** Every other pass is aligned to the sharpest rover-calibrated pass with Gotcha, on a 48 m window at the no-rover site (18.4472 N, 77.4127 E).
+  - The extra Gaussian blur `d` (0–1.5 px, least squares with gain and offset) that makes the sharper of the two match the other gives `σ² = σ_ref² ± d²`.
+  - Gotcha's SIFT seeding finds no matches between passes years apart under different sun angles. A phase-correlation seed grid is used as a fallback (`gotcha.seeds_phase`).
+- **Results (σ in HiRISE pixels):**
+
+  | Pass | Date | σ | Method | Note |
+  |---|---|---|---|---|
+  | ESP_068360 | 2021, sol 6 | 0.59 ± 0.10 | rover edge | sharpest |
+  | ESP_068426 | 2021, sol 11 | 0.83 ± 0.11 | rover edge | |
+  | ESP_068294 | 2021, sol 1 | 0.89 ± 0.06 | rover edge | |
+  | ESP_073068 | 2022 | 1.16 | relative | 32 matched points |
+  | PSP_002387 | 2007 | 1.20 | relative | 18 matched points |
+  | ESP_045994 | 2016 | 1.34 | relative | 16 matched points |
+  | ESP_068822 | 2021, sol 41 | 1.38 | relative | 79 matched points |
+  | ESP_046060 | 2016 | 1.43 | relative | 8 matched points |
+
+- **Caveats.**
+  - The rover is not an ideal sharp edge (wheels, deck edges), so the absolute values are upper bounds on the true point-spread function.
+  - The relative values rest on few matched points, and residual misalignment inflates apparent blur, so they may be biased high.
+  - Blur varies by about a factor of 2.4 between passes, which supports using per-pass values rather than one assumed value.
+
+## 4–9
 
 These sections are filled in as each component lands: per-pass blur from the rover, shadow evidence, uncertainty, confidence fill, rover-anchored calibration, hazard maps, and the benchmark.
