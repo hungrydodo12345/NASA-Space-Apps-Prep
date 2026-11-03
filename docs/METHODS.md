@@ -107,6 +107,34 @@ HiRISE sharpness varies between passes: spacecraft jitter, viewing angle and foc
   - The relative values rest on few matched points, and residual misalignment inflates apparent blur, so they may be biased high.
   - Blur varies by about a factor of 2.4 between passes, which supports using per-pass values rather than one assumed value.
 
-## 4–9
+## 4. Multi-illumination shadow evidence (`pipeline/shadow_evidence.py`, test: `experiments/exp5_shadow_evidence.py`)
+
+- **Model.** A rock of diameter D in pass k gives:
+  - a bright sunlit disc;
+  - a dark shadow displaced away from the sun, with length `L = h · tan(incidence_k)` and height `h = D/2`.
+
+  The sun azimuth is HiRISE `SUB_SOLAR_AZIMUTH`, measured clockwise from image-right with north up (`NORTH_AZIMUTH = 270`). The shadow vector is `(dy, dx) = (−sin a, −cos a)`. The template is rendered at 1/8 px, integrated over 25 cm pixels, and blurred by the pass's measured σ (Section 3).
+- **Per-pass evidence.** `z_k(p, D)` is the local normalised correlation of the high-passed, aligned pass with that template.
+- **Combination.** Matched-filter weights `w_k ∝ (template energy after blur) / (pass noise)`, and `S = Σ w_k z_k / sqrt(Σ w_k²)`. The per-pass agreement (the share of passes with `z_k > 0`) is kept for the confidence model.
+- **Sun geometry available.** The 8 restoration passes all have sun azimuth 165–178° (chosen for consistent shading), with incidence 46–59°. Two passes with different azimuths were added for diversity: ESP_084883 (about 137°) and ESP_071077 (about 196°).
+- **Validation (simulation).**
+  - Fractal background.
+  - 18 real rocks and 18 decoys per size. Decoys are bright discs with no height, so no shadow.
+  - Every pass is rendered with its own sun geometry, its measured σ and 6% noise.
+  - The scores below are AUCs: real rock against decoy, and real rock against random ground.
+
+  | Setup | 40 cm | 60 cm | 100 cm | 150 cm |
+  |---|---|---|---|---|
+  | 1 pass (σ = 0.89) | 0.52 / 0.71 | 0.48 / 0.82 | 0.86 / 0.98 | 0.88 / 0.99 |
+  | 8 same-sun passes | 0.56 / 0.62 | 0.53 / 0.78 | 0.90 / 0.99 | 0.86 / 0.99 |
+  | 10 passes incl. 2 different azimuths | 0.55 / 0.65 | 0.52 / 0.80 | 0.90 / 0.99 | 0.86 / 0.99 |
+
+- **Findings.**
+  - **About 1 m and up:** shadows separate rocks from flat bright patches (AUC 0.86–0.90). Combining passes adds a modest gain at 1 m.
+  - **Below about 60 cm:** shadows are about 1 px long at 25 cm per pixel, and rock and decoy are indistinguishable (AUC about 0.5).
+  - **Why combining passes does not help small rocks.** The limiting factor is background clutter, which is the same ground texture in every pass, not independent noise. Stacking passes cannot average it away, and blurrier passes add little.
+- **Use.** In the confidence model (Section 6), shadow evidence raises confidence only for rocks of 100 cm and above, where it is informative. It is not credited below that.
+
+## 5–9
 
 These sections are filled in as each component lands: per-pass blur from the rover, shadow evidence, uncertainty, confidence fill, rover-anchored calibration, hazard maps, and the benchmark.

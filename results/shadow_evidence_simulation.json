@@ -1,0 +1,56 @@
+{
+ "1 pass": {
+  "40": {
+   "rock_vs_decoy": 0.5185185185185185,
+   "rock_vs_ground": 0.7101388888888889
+  },
+  "60": {
+   "rock_vs_decoy": 0.47530864197530864,
+   "rock_vs_ground": 0.8213888888888888
+  },
+  "100": {
+   "rock_vs_decoy": 0.8611111111111112,
+   "rock_vs_ground": 0.9801388888888889
+  },
+  "150": {
+   "rock_vs_decoy": 0.8765432098765432,
+   "rock_vs_ground": 0.9929166666666667
+  }
+ },
+ "8 same-sun passes": {
+  "40": {
+   "rock_vs_decoy": 0.5617283950617284,
+   "rock_vs_ground": 0.6169444444444444
+  },
+  "60": {
+   "rock_vs_decoy": 0.5277777777777778,
+   "rock_vs_ground": 0.7780555555555555
+  },
+  "100": {
+   "rock_vs_decoy": 0.8950617283950617,
+   "rock_vs_ground": 0.9875
+  },
+  "150": {
+   "rock_vs_decoy": 0.8580246913580247,
+   "rock_vs_ground": 0.9881944444444445
+  }
+ },
+ "10 passes incl. 2 different sun angles": {
+  "40": {
+   "rock_vs_decoy": 0.5524691358024691,
+   "rock_vs_ground": 0.6525
+  },
+  "60": {
+   "rock_vs_decoy": 0.5185185185185185,
+   "rock_vs_ground": 0.7981944444444444
+  },
+  "100": {
+   "rock_vs_decoy": 0.8981481481481481,
+   "rock_vs_ground": 0.9897222222222222
+  },
+  "150": {
+   "rock_vs_decoy": 0.8580246913580247,
+   "rock_vs_ground": 0.9933333333333333
+  }
+ }
+}
