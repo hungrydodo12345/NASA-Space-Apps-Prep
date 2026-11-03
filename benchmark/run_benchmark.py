@@ -6,7 +6,8 @@ Methods
   gpt       our re-implementation of Tao & Muller 2016: Gotcha alignment + unweighted PDE-TV, assumed Gaussian blur 1 px
   gpt+weights  ablation: gpt with our pass/pixel weighting only
   gpt+blur     ablation: gpt with our measured per-pass blur only
-  full      this work: Gotcha + quality-weighted, change-masked PDE-TV with each pass's measured blur
+  full-resw    ablation: full with residual-based pass weights (the first version; collapses onto one pass on real data)
+  full      this work: Gotcha + noise-weighted, change-masked PDE-TV with each pass's measured blur
   (oracle   full with the true motion; simulation only, an upper bound for alignment)
 
 Tests
@@ -38,8 +39,8 @@ ap.add_argument("--parts", default="A,B,C", help="which tests to run; each part 
 a = ap.parse_args()
 SC = 4; SIG = [0.889, 0.587, 0.828, 1.336, 1.426, 1.381, 1.16, 1.203]; N_LR = 48 if a.quick else 80; ITERS = 60 if a.quick else 300
 LAM = 0.005
-METHODS_SIM = ("raw", "current", "gpt", "gpt+weights", "gpt+blur", "full", "oracle")
-METHODS_REAL = ("raw", "current", "gpt", "gpt+weights", "gpt+blur", "full")
+METHODS_SIM = ("raw", "current", "gpt", "gpt+weights", "gpt+blur", "full-resw", "full", "oracle")
+METHODS_REAL = ("raw", "current", "gpt", "gpt+weights", "gpt+blur", "full-resw", "full")
 
 
 def align_current(frames):
@@ -58,9 +59,10 @@ def restore(method, frames, flows, sig_lr):
     if method == "raw": return ndi.zoom(frames[0], SC, order=3, grid_mode=True, mode="nearest")
     if method == "current": return fuse_flow.fuse_flow(frames, flows, scale=SC, psf_sigma=1.07 * SC, mu=0.3, iters=60)[0]
     if method == "gpt": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=LAM, iters=ITERS, weighted=False)[0]
-    if method == "gpt+weights": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=LAM, iters=ITERS, weighted=True)[0]
+    if method == "gpt+weights": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=LAM, iters=ITERS, weighted=True, pass_weights="noise")[0]
     if method == "gpt+blur": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=LAM, iters=ITERS, weighted=False)[0]
-    if method in ("full", "oracle"): return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=LAM, iters=ITERS)[0]
+    if method == "full-resw": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=LAM, iters=ITERS, pass_weights="residual")[0]
+    if method in ("full", "oracle"): return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=LAM, iters=ITERS, pass_weights="noise")[0]
 
 
 def resolved_cm(a_, b_, px_cm=6.25):
