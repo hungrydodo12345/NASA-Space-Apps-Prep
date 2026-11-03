@@ -1,21 +1,21 @@
 {
  "rock": {
   "coef": [
-   0.9409567473131808,
-   -0.2483161330328342,
-   1.3958844150667096,
-   -0.7215301865925318
+   0.14634551292967307,
+   -0.38144085985184056,
+   1.7191188317937562,
+   0.9086890841594154
   ],
-  "intercept": -4.2965776160357105,
+  "intercept": -3.521475975747159,
   "features": [
-   "blob z (restoration)",
+   "blob repeatability z (split-half noise units)",
    "log(D / 25 cm)",
    "shadow evidence S (D >= 100 cm only)",
    "D >= 100 cm"
   ]
  },
+ "z_kind": "repeatability",
  "texture_confidence": 0.266,
- "sigma_limit_rel": null,
- "note": "P(rock) = logistic(coef . [z, log(D/25), S*(D>=100), D>=100] + intercept); fitted on simulations (experiments/exp7_confidence_calibration.py)",
- "texture_confidence_source": "recogniser top-class accuracy on 50 held-out rover stops (results/recogniser_reliability_traverse.json); texture is shown only at thresholds <= this"
+ "texture_confidence_source": "recogniser top-class accuracy on 50 held-out rover stops (results/recogniser_reliability_traverse.json); texture is shown only at thresholds <= this",
+ "note": "P(rock) = logistic(coef . [z, log(D/25), S*(D>=100), D>=100] + intercept); fitted on simulations (experiments/exp7_confidence_calibration.py)"
 }

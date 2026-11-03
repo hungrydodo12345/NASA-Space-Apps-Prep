@@ -53,7 +53,7 @@ if A:
     if mean("oracle", "err_25cm") is not None:
         t.append(f"- **Alignment headroom.** With exact motion the full chain reaches {mean('oracle', 'err_25cm'):.2f}%, so alignment leaves little to gain.")
     V["sim_ablation_text"] = "\n".join(t)
-    V["repeat_limit"] = f"{mean('full', 'resolved_cm'):.0f}"
+    V["sim_resolved"] = f"{mean('full', 'resolved_cm'):.0f}"
 Bs, Cr = B.get("B_split_half_real"), B.get("C_rover_edge_real")
 bandcm = lambda k: 6.25 * 32 / (k + 1)
 if Bs:
@@ -64,6 +64,9 @@ if Bs:
             rows.append(f"| {NAMES[m]} | {('%.0f cm' % rc) if rc else 'n/a'} | {c[1]:.2f} / {c[2]:.2f} / {c[3]:.2f} | {np.mean(c[1:8]):.3f} |")
     V["table_split"] = f"**Split-half consistency** (8 real passes; halves {', '.join(x.replace('_1985', '') for x in Bs['half_A'])} vs {', '.join(x.replace('_1985', '') for x in Bs['half_B'])}). Higher is better. Coherence above 0.5 at fine scales for the previous pipeline is a reconstruction-grid artefact shared by both halves, not detail.\n\n" + "\n".join(rows)
 else: V["table_split"] = "**Split-half consistency:** " + PEND
+if Bs and "full" in Bs:
+    c = Bs["full"]["coherence_by_band"]; k = next((i for i in range(1, len(c)) if c[i] < 0.5), None)
+    V["repeat_limit"] = f"{bandcm(k - 1):.0f}" if k else PEND          # finest band (half-period) with coherence >= 0.5
 if Cr:
     rows = ["| Method | Edge σ (cm) | Ringing, RMS (% of step) | Largest undershoot (% of step) |", "|---|---|---|---|"]
     for m in ORDER:
@@ -85,8 +88,13 @@ def realtext():
     if "full-resw" in Bs:
         s.append(f"- **Residual weights.** The residual-weighted variant reaches {np.mean(Bs['full-resw']['coherence_by_band'][1:8]):.3f} on split halves.")
         s.append("  Residual weights read illumination differences between passes as noise and collapse onto one pass, so each half is effectively a single image.")
-    ab = ("On real data the full chain is more self-consistent than GPT" if cf > cg else "On real data GPT's halves agree more than ours") + \
-         (" and its rover edge rings less." if rf["ringing_rms_of_amplitude"] < rg["ringing_rms_of_amplitude"] else " and its rover edge rings more.")
+    split = (f"the full chain's independent pass halves agree slightly more than GPT's" if cf > cg else
+             f"GPT's independent pass halves agree slightly more than ours (mean coherence {cg:.3f} vs {cf:.3f}, 25–100 cm)")
+    edge = (f"our restoration of the parked rover rings less than GPT's ({100 * rf['ringing_rms_of_amplitude']:.1f}% vs {100 * rg['ringing_rms_of_amplitude']:.1f}% RMS; "
+            f"undershoot {100 * rf['max_undershoot_of_amplitude']:.0f}% vs {100 * rg['max_undershoot_of_amplitude']:.0f}%), at the cost of a wider edge "
+            f"({rf['edge_sigma_cm']:.1f} vs {rg['edge_sigma_cm']:.1f} cm)") if rf["ringing_rms_of_amplitude"] < rg["ringing_rms_of_amplitude"] else \
+           f"GPT's rover edge rings less than ours ({100 * rg['ringing_rms_of_amplitude']:.1f}% vs {100 * rf['ringing_rms_of_amplitude']:.1f}%)"
+    ab = f"On real HiRISE the picture is mixed: {split}, while {edge}."
     return "\n".join(s), ab
 
 

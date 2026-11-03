@@ -1,5 +1,5 @@
 {
- "chain": "/tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/chain_site1",
+ "chain": "/tmp/claude-0/-home-user-NASA-Space-Apps-Prep/cf465299-de44-52a7-a971-51aa5ef73f3b/scratchpad/chain_site1_v2",
  "passes": [
   "PSP_002387_1985",
   "ESP_073068_1985",
@@ -13,86 +13,86 @@
  "psf_hr_px": 4.811911459185691,
  "texture_confidence": 0.266,
  "sigma_limit_rel": 0.5,
- "trusted_area_pct": 68.60733032226562,
- "candidates": 1220,
+ "trusted_area_pct": 86.28578186035156,
+ "candidates": 905,
  "class_share_pct": {
-  "soil": 58.35762023925781,
-  "bedrock": 33.9813232421875,
-  "sand": 6.746673583984375,
-  "big rock": 0.9143829345703125
+  "soil": 56.03294372558594,
+  "bedrock": 39.02091979980469,
+  "sand": 4.732513427734375,
+  "big rock": 0.213623046875
  },
  "renders": [
   {
    "threshold": 0.1,
-   "rocks_shown": 1105,
+   "rocks_shown": 105,
    "texture_shown": true,
-   "lock_residual_rel": 0.003133091050782451,
+   "lock_residual_rel": 0.0024603423051290296,
    "synthetic": true
   },
   {
    "threshold": 0.2,
-   "rocks_shown": 771,
+   "rocks_shown": 20,
    "texture_shown": true,
-   "lock_residual_rel": 0.0018730368403870855,
+   "lock_residual_rel": 0.0014895814701050272,
    "synthetic": true
   },
   {
    "threshold": 0.3,
-   "rocks_shown": 588,
+   "rocks_shown": 5,
    "texture_shown": false,
-   "lock_residual_rel": 0.0011058064180809821,
+   "lock_residual_rel": 0.00012647324938664737,
    "synthetic": true
   },
   {
    "threshold": 0.4,
-   "rocks_shown": 463,
+   "rocks_shown": 2,
    "texture_shown": false,
-   "lock_residual_rel": 0.0011719292427964257,
+   "lock_residual_rel": 8.694927764886013e-05,
    "synthetic": true
   },
   {
    "threshold": 0.5,
-   "rocks_shown": 358,
+   "rocks_shown": 1,
    "texture_shown": false,
-   "lock_residual_rel": 0.0010332542816886895,
+   "lock_residual_rel": 6.825778768640323e-05,
    "synthetic": true
   },
   {
    "threshold": 0.6,
-   "rocks_shown": 268,
+   "rocks_shown": 1,
    "texture_shown": false,
-   "lock_residual_rel": 0.0006987083140579016,
+   "lock_residual_rel": 6.825778768640323e-05,
    "synthetic": true
   },
   {
    "threshold": 0.7,
-   "rocks_shown": 179,
+   "rocks_shown": 0,
    "texture_shown": false,
-   "lock_residual_rel": 0.0004748313078198542,
+   "lock_residual_rel": 0.0,
    "synthetic": true
   },
   {
    "threshold": 0.8,
-   "rocks_shown": 103,
+   "rocks_shown": 0,
    "texture_shown": false,
-   "lock_residual_rel": 0.00038627024918932296,
+   "lock_residual_rel": 0.0,
    "synthetic": true
   },
   {
    "threshold": 0.9,
-   "rocks_shown": 53,
+   "rocks_shown": 0,
    "texture_shown": false,
-   "lock_residual_rel": 0.00022823611403170247,
+   "lock_residual_rel": 0.0,
    "synthetic": true
   }
  ],
  "calibrator": "/home/user/NASA-Space-Apps-Prep/scripts/../data_products/confidence_calibrator.json",
  "hazard": {
   "cells": 1024,
-  "hazard_pct": 0.0,
-  "clear_pct": 81.4453125,
-  "unknown_pct": 18.5546875,
-  "expected_hazard_rocks": 3.4527695135737986,
+  "hazard_pct": 0.09765625,
+  "clear_pct": 93.359375,
+  "unknown_pct": 6.54296875,
+  "expected_hazard_rocks": 23.142976613147432,
   "cell_m": 1.0,
   "d_hazard_cm": 40,
   "p_alarm": 0.5

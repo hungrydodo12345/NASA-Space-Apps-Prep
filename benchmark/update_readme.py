@@ -11,8 +11,8 @@ RES = os.path.join(ROOT, "benchmark", "results", "benchmark_results.json"); READ
 NAMES = {"raw": "Raw HiRISE, one pass (bicubic)", "current": "Our previous pipeline (ECC + CG Tikhonov)",
          "gpt": "**UCL pipeline** (our re-implementation of Tao & Muller 2016: Gotcha + PDE-TV, assumed blur)",
          "gpt+weights": "UCL + our weighting only", "gpt+blur": "UCL + our measured per-pass blur only",
-         "full": "**This work** (Gotcha + weighted, change-masked PDE-TV + measured per-pass blur)", "oracle": "This work with exact motion (upper bound)"}
-ORDER = ["raw", "current", "gpt", "gpt+weights", "gpt+blur", "full", "oracle"]
+         "full-resw": "This work with residual-based pass weights (rejected first version)", "full": "**This work** (Gotcha + noise-weighted, change-masked PDE-TV + measured per-pass blur)", "oracle": "This work with exact motion (upper bound)"}
+ORDER = ["raw", "current", "gpt", "gpt+weights", "gpt+blur", "full-resw", "full", "oracle"]
 
 if os.path.exists(RES) and not a.log:
     R = json.load(open(RES)); A = R["A_simulation"]; partial = False
@@ -76,7 +76,7 @@ if C and "full" in C:
     L.append("")
 L.append("**What this does and does not show.**\n")
 L.append("- **Gain at 25 cm.** It comes from two measured inputs, per-pass blur calibrated on the parked rover and per-pass/per-pixel weighting, added to UCL's method.")
-L.append("- **No 5 cm claim.** Detail that repeats between independent sets of passes stops at roughly 30–40 cm. We do not claim the 5 cm resolution reported by UCL.")
+L.append("- **No 5 cm claim.** On real HiRISE, detail that repeats between independent sets of passes stops at about 67 cm; in simulation with exact truth, at about 33 cm. We do not claim the 5 cm resolution reported by UCL.")
 L.append("- **Unverified confidences.** The confidence-scored fill is calibrated in simulation. The rover answer key is misregistered by metres at most stops, so it cannot verify sub-metre confidences; see METHODS Section 7.\n")
 block = "<!-- BENCHMARK:START -->\n" + "\n".join(L) + "\n<!-- BENCHMARK:END -->"
 s = open(README).read()

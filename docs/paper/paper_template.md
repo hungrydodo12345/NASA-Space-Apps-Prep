@@ -20,7 +20,7 @@ The bootstrap uncertainty is honest at the native 25 cm scale: held-out ±1σ co
 
 We also report negative results:
 
-- Detail that repeats between independent pass subsets stops at about {{repeat_limit}} cm.
+- On real HiRISE, detail that repeats between independent pass subsets stops at about {{repeat_limit}} cm. In simulation with exact truth, the finest resolved scale is about {{sim_resolved}} cm.
 - Rover ground truth along the traverse is too poorly registered to verify sub-metre confidences: every score ranks candidates at chance there (AUC {{anch_auc_phys}}–{{anch_auc_reco}}).
 - Confidences are therefore calibrated in a simulation tuned to the measured pass-to-pass disagreement of real HiRISE. There they are reliable to within {{cal_ece}}% (expected calibration error).
 
@@ -202,7 +202,7 @@ Paired against GPT, by scene:
   It does not come from a stronger prior.
 - **Assumed blur sharpens and rings.** GPT's assumed blur is larger than the rover-measured blur of the sharp passes, so on real data it deconvolves harder. That sharpens edges and produces ringing (Section 6.2). Edge sharpness alone therefore rewards a wrong blur model, and ringing should be reported with it.
 - **Residual weighting collapses on real data.** Weights based on residuals work in simulation but collapse onto a single pass on real data. Real passes differ by illumination and season far more than by noise. Noise must be measured from the pass itself.
-- **No 5 cm claim.** Detail that repeats in independent passes stops at about {{repeat_limit}} cm. Below that, a restoration's content comes from the prior. We do not claim the 5 cm resolution reported for GPT.
+- **No 5 cm claim.** On real HiRISE, detail that repeats in independent passes stops at about {{repeat_limit}} cm; even in simulation with exact truth, the finest resolved scale is about {{sim_resolved}} cm. Below that, a restoration's content comes from the prior. We do not claim the 5 cm resolution reported for GPT.
 - **Where confidence is limited.** Confidence below about 60 cm cannot be verified with current rover truth. Our confidences are therefore simulation-calibrated, with a simulation whose disagreement is tuned to real data. The real-data check confirms positional signal but cannot confirm the probabilities.
 - **What would close the gap.** Better-registered truth would: rover hardware and tracks as tie points, or stereo from rover-mast cameras.
 

@@ -73,7 +73,7 @@ foot = (f"{used[0][:3]} tile {H * px_m:.0f} m wide, {len(used)} passes ({', '.jo
         "Every panel: 1 image pixel = 6.25 cm, shown 1:1; one shared contrast stretch; lossless PNG.")
 sheet(imgs, a.title, foot, 1 / px_m).save(f"{a.out}/{a.name}_comparison.png", optimize=True)
 z = int(round(a.zoom_m / px_m)); cy, cx = H // 2, W // 2; f = a.zoom_factor
-zt = [(lb, np.kron(im[cy - z // 2:cy + z // 2, cx - z // 2:cx + z // 2], np.ones((f, f), np.uint8))) for lb, im in imgs]
+zt = [(lb.replace("shown as 4×4 blocks", f"shown as {f * SC}×{f * SC} blocks"), np.kron(im[cy - z // 2:cy + z // 2, cx - z // 2:cx + z // 2], np.ones((f, f), np.uint8))) for lb, im in imgs]
 sheet(zt, (a.title + f" — central {a.zoom_m:.0f} m, enlarged {f}× (nearest-neighbour, no smoothing)").strip(" —"),
       f"Each 6.25 cm pixel is shown as a {f}×{f} block (raw HiRISE 25 cm pixels as {f * SC}×{f * SC}); nothing is interpolated.", f / px_m).save(f"{a.out}/{a.name}_zoom.png", optimize=True)
 print("wrote", f"{a.out}/{a.name}_comparison.png", f"{a.out}/{a.name}_zoom.png")

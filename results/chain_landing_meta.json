@@ -47,22 +47,22 @@
   }
  },
  "pass_weights": [
-  0.014766818730186568,
+  0.9473579707383701,
   1.0,
-  0.014189997457080694
+  0.7671479604769263
  ],
  "lam": 0.005,
  "iters": 200,
  "bootstrap": {
   "B": 8,
   "kappa": 2.1074910353433496,
-  "median_sigma_native_pct_of_scene_std": 8.057662844657898,
-  "p90_sigma_native_pct_of_scene_std": 19.475306570529938
+  "median_sigma_native_pct_of_scene_std": 5.307987704873085,
+  "p90_sigma_native_pct_of_scene_std": 12.0395727455616
  },
  "exclude_rover": true,
  "seconds": {
-  "align": 15.314428091049194,
-  "restore": 31.192516088485718,
-  "bootstrap": 232.73930287361145
+  "align": 14.565909147262573,
+  "restore": 30.74981427192688,
+  "bootstrap": 246.28585147857666
  }
 }

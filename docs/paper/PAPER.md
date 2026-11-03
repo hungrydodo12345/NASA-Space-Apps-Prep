@@ -12,17 +12,17 @@ We re-implement the Gotcha-PDE-TV (GPT) pipeline of Tao & Muller (2016) and exte
 - **Noise-weighted, change-masked fusion.** Each pass is weighted by its own white-noise level, and pixels that changed between passes are masked out.
 - **A calibrated per-pixel uncertainty** from a pass-subset bootstrap.
 
-On top of the measured restoration we add a confidence-scored detail layer. Rover-photo texture and rock exemplars are shown only above a threshold the user chooses, and are locked so that the result, seen through HiRISE's blur, is unchanged (lock residual ≤ 0.31%).
+On top of the measured restoration we add a confidence-scored detail layer. Rover-photo texture and rock exemplars are shown only above a threshold the user chooses, and are locked so that the result, seen through HiRISE's blur, is unchanged (lock residual ≤ 0.25%).
 
-In simulation with exact truth (**[pending]** scenes), the extended pipeline lowers the 25 cm error from **[pending]**% to **[pending]**% of scene contrast against our GPT re-implementation (**[pending]**% relative). It also reduces artefacts at changed ground from **[pending]** to **[pending]**. **[pending]**
+In simulation with exact truth (5 scenes), the extended pipeline lowers the 25 cm error from 3.55% to 1.43% of scene contrast against our GPT re-implementation (-60% relative). It also reduces artefacts at changed ground from 1.43 to 1.01. On real HiRISE the picture is mixed: GPT's independent pass halves agree slightly more than ours (mean coherence 0.237 vs 0.216, 25–100 cm), while our restoration of the parked rover rings less than GPT's (13.3% vs 17.8% RMS; undershoot 25% vs 51%), at the cost of a wider edge (15.9 vs 12.4 cm).
 
 The bootstrap uncertainty is honest at the native 25 cm scale: held-out ±1σ coverage is 86%, against a target of 68%. It is not honest at the 6.25 cm output pixel.
 
 We also report negative results:
 
-- Detail that repeats between independent pass subsets stops at about **[pending]** cm.
+- On real HiRISE, detail that repeats between independent pass subsets stops at about 67 cm. In simulation with exact truth, the finest resolved scale is about 33 cm.
 - Rover ground truth along the traverse is too poorly registered to verify sub-metre confidences: every score ranks candidates at chance there (AUC 0.43–0.46).
-- Confidences are therefore calibrated in a simulation tuned to the measured pass-to-pass disagreement of real HiRISE. There they are reliable to within 1.5% (expected calibration error).
+- Confidences are therefore calibrated in a simulation tuned to the measured pass-to-pass disagreement of real HiRISE. There they are reliable to within 0.4% (expected calibration error).
 
 Everything runs on a 4-core CPU.
 
@@ -138,7 +138,7 @@ All experiments run on a 4-core CPU (`benchmark/run_benchmark.py`).
 ### 5.2 Tests
 
 - **A. Simulation with exact truth.**
-  - **[pending]** scenes of fractal ground.
+  - 5 scenes of fractal ground.
   - 8 passes with the measured blurs, a random offset plus 0.3 px sinusoidal jitter, 3% noise, and a 2 m change planted in one pass.
   - Every method estimates its own motion.
 - **B. Real split-half consistency.** The 8 real passes are split into disjoint halves, each restored independently. Fourier-ring coherence between the halves measures detail that repeats in independent data.
@@ -153,23 +153,60 @@ All experiments run on a 4-core CPU (`benchmark/run_benchmark.py`).
 
 ### 6.1 Simulation (test A)
 
-**[pending]**
+| Method | Error, 25 cm (%) | Error, 6.25 cm (%) | Artefact at change (× std) | Resolved (cm) |
+|---|---|---|---|---|
+| Raw (1 pass, bicubic) | 12.82 | 38.71 | 1.26 | 40 |
+| Previous (ECC + CG Tikhonov) | 5.16 | 34.83 | 1.48 | 40 |
+| **GPT** (our re-implementation) | 3.55 | 30.20 | 1.43 | 33 |
+| GPT + noise weighting | 4.68 | 32.58 | 1.09 | 33 |
+| GPT + measured per-pass blur | 2.60 | 27.64 | 1.29 | 29 |
+| Full, residual weights (ablation) | 1.44 | 29.86 | 1.03 | 33 |
+| **Full (this work)** | 1.43 | 29.78 | 1.01 | 33 |
+| Full, exact motion (upper bound) | 1.25 | 29.81 | 1.00 | 33 |
 
 Paired against GPT, by scene:
 
-- **25 cm:** **[pending]**.
-- **Artefact at the planted change:** **[pending]**.
-- **6.25 cm:** **[pending]**.
+- **25 cm:** -2.13 (95% CI -2.21 to -2.02), better in 5/5 scenes.
+- **Artefact at the planted change:** -0.42 (95% CI -0.50 to -0.34), better in 5/5 scenes.
+- **6.25 cm:** -0.42 (95% CI -0.53 to -0.29), better in 5/5 scenes.
 
-**[pending]**
+- **Measured blur.** Measured per-pass blur alone moves GPT from 3.55% to 2.60% at 25 cm.
+- **Noise weighting.** Noise weighting alone gives 4.68%.
+- **Residual weights.** The residual-weighted variant reaches 1.44% in simulation; see 6.2 for why it is rejected.
+- **Alignment headroom.** With exact motion the full chain reaches 1.25%, so alignment leaves little to gain.
 
 ### 6.2 Real HiRISE (tests B and C)
 
-**Split-half consistency:** **[pending]**
+**Split-half consistency** (8 real passes; halves PSP_002387, ESP_045994, ESP_046060, ESP_068426 vs ESP_073068, ESP_068294, ESP_068360, ESP_068822). Higher is better. Coherence above 0.5 at fine scales for the previous pipeline is a reconstruction-grid artefact shared by both halves, not detail.
 
-**Rover edge:** **[pending]**
+| Method | Halves agree down to | Coherence at 100 / 67 / 50 cm | Mean coherence, 25–100 cm |
+|---|---|---|---|
+| Raw (1 pass, bicubic) | 100 cm | 0.75 / 0.44 / 0.07 | 0.183 |
+| Previous (ECC + CG Tikhonov) | 67 cm | 0.87 / 0.70 / 0.26 | 0.425 |
+| **GPT** (our re-implementation) | 67 cm | 0.86 / 0.62 / 0.16 | 0.237 |
+| GPT + noise weighting | 67 cm | 0.84 / 0.61 / 0.16 | 0.232 |
+| GPT + measured per-pass blur | 67 cm | 0.86 / 0.58 / 0.09 | 0.220 |
+| Full, residual weights (ablation) | 100 cm | 0.73 / 0.35 / 0.03 | 0.158 |
+| **Full (this work)** | 67 cm | 0.82 / 0.59 / 0.10 | 0.216 |
 
-**[pending]**
+**Rover edge** (landing site, 3 passes, sols 1–11). A narrower edge is sharper. Lower ringing and undershoot are cleaner.
+
+| Method | Edge σ (cm) | Ringing, RMS (% of step) | Largest undershoot (% of step) |
+|---|---|---|---|
+| Raw (1 pass, bicubic) | 23.3 | 9.2 | 18.1 |
+| Previous (ECC + CG Tikhonov) | 20.6 | 10.4 | 20.9 |
+| **GPT** (our re-implementation) | 12.4 | 17.8 | 51.2 |
+| GPT + noise weighting | 12.3 | 19.6 | 50.9 |
+| GPT + measured per-pass blur | 13.1 | 12.7 | 37.3 |
+| Full, residual weights (ablation) | 15.9 | 12.2 | 23.7 |
+| **Full (this work)** | 15.9 | 13.3 | 25.2 |
+
+- **Split-half consistency.** Mean coherence over 25–100 cm is 0.216 for the full chain and 0.237 for GPT (GPT ahead).
+- **Rover edge.** The edge is 15.9 cm (full) against 12.4 cm (GPT).
+  - Ringing: 13.3% against 17.8%.
+  - Undershoot: 25.2% against 51.2%.
+- **Residual weights.** The residual-weighted variant reaches 0.158 on split halves.
+  Residual weights read illumination differences between passes as noise and collapse onto one pass, so each half is effectively a single image.
 
 ### 6.3 Uncertainty (test D)
 
@@ -181,21 +218,20 @@ Paired against GPT, by scene:
 
 ### 6.4 Confidence (test E)
 
-- **Held out (1924 candidates, 648 real rocks):** AUC 0.72, ECE 1.5%.
-- **Without the shadow feature:** AUC 0.72.
-- **AUC by size:** 25 cm 0.69, 40 cm 0.60, 60 cm 0.87, 100 cm 0.79, 150 cm 0.77.
+- **Held out (3692 candidates, 648 real rocks):** AUC 0.70, ECE 0.4%.
+- **Without the shadow feature:** AUC 0.71.
+- **AUC by size:** 25 cm 0.61, 60 cm 0.76, 100 cm 0.55, 150 cm 0.71.
 
 | Threshold | Shown | Precision | Recall | Recall by size (25/40/60/100/150 cm) |
 |---|---|---|---|---|
-| 0.1 | 1396 | 22% | 41.4% | 8 / 32 / 82 / 80 / 96 |
-| 0.2 | 518 | 36% | 26.9% | 2 / 13 / 65 / 53 / 75 |
-| 0.3 | 265 | 47% | 18.8% | 0 / 7 / 51 / 40 / 50 |
-| 0.4 | 141 | 55% | 11.7% | 0 / 2 / 34 / 30 / 27 |
-| 0.5 | 91 | 56% | 7.9% | 0 / 1 / 24 / 15 / 21 |
-| 0.6 | 53 | 64% | 5.2% | 0 / 1 / 17 / 7 / 15 |
-| 0.7 | 28 | 61% | 2.6% | 0 / 0 / 8 / 2 / 12 |
-| 0.8 | 11 | 64% | 1.1% | 0 / 0 / 3 / 2 / 4 |
-| 0.9 | 2 | 100% | 0.3% | 0 / 0 / 2 / 0 / 0 |
+| 0.1 | 554 | 19% | 16.0% | 1 / 2 / 15 / 60 / 92 |
+| 0.2 | 157 | 30% | 7.3% | 0 / 0 / 2 / 22 / 65 |
+| 0.3 | 67 | 42% | 4.3% | 0 / 0 / 2 / 13 / 38 |
+| 0.4 | 31 | 55% | 2.6% | 0 / 0 / 1 / 5 / 27 |
+| 0.5 | 19 | 53% | 1.5% | 0 / 0 / 1 / 0 / 19 |
+| 0.6 | 8 | 50% | 0.6% | 0 / 0 / 0 / 0 / 8 |
+| 0.7 | 3 | 67% | 0.3% | 0 / 0 / 0 / 0 / 4 |
+| 0.8 | 2 | 50% | 0.2% | 0 / 0 / 0 / 0 / 2 |
 
 **Real-data check.**
 
@@ -224,7 +260,7 @@ AUC for rock against decoy (a flat bright patch) / rock against ground:
   It does not come from a stronger prior.
 - **Assumed blur sharpens and rings.** GPT's assumed blur is larger than the rover-measured blur of the sharp passes, so on real data it deconvolves harder. That sharpens edges and produces ringing (Section 6.2). Edge sharpness alone therefore rewards a wrong blur model, and ringing should be reported with it.
 - **Residual weighting collapses on real data.** Weights based on residuals work in simulation but collapse onto a single pass on real data. Real passes differ by illumination and season far more than by noise. Noise must be measured from the pass itself.
-- **No 5 cm claim.** Detail that repeats in independent passes stops at about **[pending]** cm. Below that, a restoration's content comes from the prior. We do not claim the 5 cm resolution reported for GPT.
+- **No 5 cm claim.** On real HiRISE, detail that repeats in independent passes stops at about 67 cm; even in simulation with exact truth, the finest resolved scale is about 33 cm. Below that, a restoration's content comes from the prior. We do not claim the 5 cm resolution reported for GPT.
 - **Where confidence is limited.** Confidence below about 60 cm cannot be verified with current rover truth. Our confidences are therefore simulation-calibrated, with a simulation whose disagreement is tuned to real data. The real-data check confirms positional signal but cannot confirm the probabilities.
 - **What would close the gap.** Better-registered truth would: rover hardware and tracks as tie points, or stereo from rover-mast cameras.
 
@@ -236,10 +272,10 @@ Measuring a known object's blur, weighting passes by their own noise, and maskin
 
 - **Code and tests.** All code, tests (`pytest`, run on GitHub CI) and result files are in this repository. Raw data (about 12 GB) is listed with URLs in `benchmark/data_manifest.json`.
 - **CPU time (4 cores).**
-  - Benchmark part A: **[pending]** s.
-  - Part B: **[pending]** s.
-  - Part C: **[pending]** s.
-  - Bootstrap on a 32 m tile with 8 passes: 711 s.
+  - Benchmark part A: 1208 s.
+  - Part B: 604 s.
+  - Part C: 215 s.
+  - Bootstrap on a 32 m tile with 8 passes: 697 s.
 
 ## References
 
