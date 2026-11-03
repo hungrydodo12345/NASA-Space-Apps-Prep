@@ -4,6 +4,8 @@ Methods
   raw       one HiRISE pass, bicubic x4
   current   previous pipeline: tile-wise ECC alignment + CG Tikhonov fusion, one assumed blur (1.07 px)
   gpt       our re-implementation of Tao & Muller 2016: Gotcha alignment + unweighted PDE-TV, assumed Gaussian blur 1 px
+  gpt+weights  ablation: gpt with our pass/pixel weighting only
+  gpt+blur     ablation: gpt with our measured per-pass blur only
   full      this work: Gotcha + quality-weighted, change-masked PDE-TV with each pass's measured blur
   (oracle   full with the true motion; simulation only, an upper bound for alignment)
 
@@ -18,7 +20,9 @@ Tests
      coherence) gives the finest scale both halves agree on: detail that repeats across independent passes is
      measured, not invented. ('raw' compares two different single passes.)
   C. Real HiRISE, rover edge. On the landing tile (rover parked, sols 1-11), the width of the rover's edge in each
-     method's restoration (blurred-bar fit, as Section 3): a sharper real edge without ringing.
+     method's restoration (blurred-bar fit, as Section 3), together with the ringing it costs (RMS residual of the
+     bar fit and the largest undershoot beside the edge, both as a share of the rover's brightness step). Edge width
+     alone rewards over-deconvolution (assuming more blur than the data has), so both are reported.
 Usage: python benchmark/run_benchmark.py <out_json> [--site-chain DIR] [--landing-chain DIR] [--scenes 3] [--quick]
 """
 import sys, os, json, time, argparse, math, numpy as np
@@ -33,6 +37,8 @@ ap.add_argument("--scenes", type=int, default=3); ap.add_argument("--quick", act
 a = ap.parse_args()
 SC = 4; SIG = [0.889, 0.587, 0.828, 1.336, 1.426, 1.381, 1.16, 1.203]; N_LR = 48 if a.quick else 80; ITERS = 60 if a.quick else 300
 LAM = 0.005
+METHODS_SIM = ("raw", "current", "gpt", "gpt+weights", "gpt+blur", "full", "oracle")
+METHODS_REAL = ("raw", "current", "gpt", "gpt+weights", "gpt+blur", "full")
 
 
 def align_current(frames):
@@ -51,6 +57,8 @@ def restore(method, frames, flows, sig_lr):
     if method == "raw": return ndi.zoom(frames[0], SC, order=3, grid_mode=True, mode="nearest")
     if method == "current": return fuse_flow.fuse_flow(frames, flows, scale=SC, psf_sigma=1.07 * SC, mu=0.3, iters=60)[0]
     if method == "gpt": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=LAM, iters=ITERS, weighted=False)[0]
+    if method == "gpt+weights": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=LAM, iters=ITERS, weighted=True)[0]
+    if method == "gpt+blur": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=LAM, iters=ITERS, weighted=False)[0]
     if method in ("full", "oracle"): return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=LAM, iters=ITERS)[0]
 
 
@@ -80,12 +88,13 @@ def sim_scene(seed):
 
 
 def test_sim():
-    res = {m: dict(err_6cm=[], err_25cm=[], artefact=[], resolved_cm=[], seconds=[]) for m in ("raw", "current", "gpt", "full", "oracle")}
+    res = {m: dict(err_6cm=[], err_25cm=[], artefact=[], resolved_cm=[], seconds=[]) for m in METHODS_SIM}
     for sd in range(a.scenes):
         truth, frames, tf, (cy, cx) = sim_scene(sd); s0 = truth.std(); m = 8 * SC; c = (slice(m, -m), slice(m, -m))
         t = time.time(); fc = align_current(frames); t_cur = time.time() - t
         t = time.time(); fg = align_gotcha(frames); t_got = time.time() - t
-        for meth, fl, ta in (("raw", tf, 0.0), ("current", fc, t_cur), ("gpt", fg, t_got), ("full", fg, t_got), ("oracle", tf, 0.0)):
+        for meth in METHODS_SIM:
+            fl, ta = {"raw": (tf, 0.0), "current": (fc, t_cur), "oracle": (tf, 0.0)}.get(meth, (fg, t_got))
             t = time.time(); X = restore(meth, frames, fl, SIG); el = time.time() - t + ta
             e6 = 100 * float(np.sqrt(np.mean((X - truth)[c] ** 2)) / s0)
             g = lambda z: ndi.gaussian_filter(z, SC); e25 = 100 * float(np.sqrt(np.mean((g(X) - g(truth))[c] ** 2)) / s0)
@@ -93,7 +102,16 @@ def test_sim():
             rc, _ = resolved_cm(X[c], truth[c])
             for k, v in (("err_6cm", e6), ("err_25cm", e25), ("artefact", art), ("resolved_cm", rc), ("seconds", el)): res[meth][k].append(v)
             print(f"scene {sd} {meth:8s} err6 {e6:5.1f}% err25 {e25:5.1f}% artefact {art:.2f} resolved {rc} cm  {el:.0f}s", flush=True)
-    return {m: {k: dict(mean=float(np.mean([x for x in v if x is not None])) if any(x is not None for x in v) else None, values=v) for k, v in r.items()} for m, r in res.items()}
+    out = {m: {k: dict(mean=float(np.mean([x for x in v if x is not None])) if any(x is not None for x in v) else None, values=v) for k, v in r.items()} for m, r in res.items()}
+    # paired differences vs the UCL re-implementation (per scene), with a bootstrap 95 % interval over scenes
+    rng = np.random.default_rng(0); out["paired_vs_gpt"] = {}
+    for m in METHODS_SIM:
+        if m == "gpt": continue
+        for k in ("err_6cm", "err_25cm", "artefact"):
+            dlt = np.array(res[m][k]) - np.array(res["gpt"][k]); bs = [dlt[rng.integers(0, len(dlt), len(dlt))].mean() for _ in range(4000)]
+            out["paired_vs_gpt"][f"{m} - gpt, {k}"] = dict(mean=float(dlt.mean()), ci95=[float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))], per_scene=dlt.tolist(),
+                                                         scenes_better=int((dlt < 0).sum()), scenes=len(dlt))
+    return out
 
 
 # ---------------- B. split-half on real data
@@ -106,7 +124,8 @@ def test_split(chain_dir):
     A, B = list(range(0, len(frames), 2)), list(range(1, len(frames), 2))
     out = dict(passes=used, half_A=[used[i] for i in A], half_B=[used[i] for i in B])
     m = 8 * SC; c = (slice(m, -m), slice(m, -m))
-    for meth, fl in (("raw", fg), ("current", fc), ("gpt", fg), ("full", fg)):
+    for meth in METHODS_REAL:
+        fl = fc if meth == "current" else fg
         pick = lambda idx: ([frames[i] for i in idx], [fl[i] for i in idx], [sig[i] for i in idx])
         if meth == "raw":                                      # two different single passes, both brought onto the reference grid
             from pipeline.confidence import align_passes
@@ -128,14 +147,20 @@ def edge_sigma_cm(img, px_cm):
     y0, x0 = np.unravel_index(np.argmax(sm[c - h:c + h, c - h:c + h]), (2 * h, 2 * h)); y0 += c - h; x0 += c - h
     bg = np.median(img); pk = sm[y0, x0]; lab, _ = ndi.label(sm > bg + 0.5 * (pk - bg)); obj = lab == lab[y0, x0]
     yy, xx = np.nonzero(obj); cy, cx = yy.mean(), xx.mean(); ev, evec = np.linalg.eigh(np.cov(np.stack([yy - cy, xx - cx])))
-    u, v = evec[:, 0], evec[:, 1]; L = 200 / px_cm; sig = []
+    u, v = evec[:, 0], evec[:, 1]; L = 200 / px_cm; sig, ring, under = [], [], []
     for off in np.linspace(-37.5, 37.5, 7) / px_cm:
         t = np.arange(-L, L + 1e-9, 2.5 / px_cm); p = ndi.map_coordinates(img, [cy + off * v[0] + t * u[0], cx + off * v[1] + t * u[1]], order=3)
         try:
             pr, _ = optimize.curve_fit(bar, t, p, p0=[bg, 0, pk - bg, -60 / px_cm, 60 / px_cm, 25 / px_cm], maxfev=20000)
-            if pr[4] - pr[3] > 50 / px_cm and pr[5] > 0: sig.append(abs(pr[5]) * px_cm)
+            if pr[4] - pr[3] > 50 / px_cm and pr[5] > 0:
+                sig.append(abs(pr[5]) * px_cm); res = p - bar(t, *pr)
+                ring.append(float(np.sqrt(np.mean(res ** 2)) / abs(pr[2])))          # ringing / artefacts around the edge
+                out_ = (t < pr[3] - 2 * abs(pr[5])) | (t > pr[4] + 2 * abs(pr[5]))
+                under.append(float(max(0.0, (pr[0] + pr[1] * t[out_] - p[out_]).max()) / abs(pr[2])) if out_.any() else 0.0)
         except Exception: pass
-    return (float(np.median(sig)), float(np.std(sig)), len(sig)) if sig else (None, None, 0)
+    if not sig: return dict(edge_sigma_cm=None, profiles=0)
+    return dict(edge_sigma_cm=float(np.median(sig)), spread_cm=float(np.std(sig)), profiles=len(sig),
+                ringing_rms_of_amplitude=float(np.median(ring)), max_undershoot_of_amplitude=float(np.median(under)))
 
 
 def test_rover(chain_dir):
@@ -145,9 +170,9 @@ def test_rover(chain_dir):
     fg = list(zip(d["flows_dx"].astype(float), d["flows_dy"].astype(float))); fc = align_current(frames)
     out = dict(passes=used, note="rover masked out of alignment and of the weighted restoration's data term in run_chain; "
                                  "here every method restores the rover itself so its edge can be measured")
-    for meth, fl in (("raw", fg), ("current", fc), ("gpt", fg), ("full", fg)):
-        X = restore(meth, frames, fl, sig); s, e, k = edge_sigma_cm(X, 6.25)
-        out[meth] = dict(edge_sigma_cm=s, spread_cm=e, profiles=k); print("rover edge", meth, s, e, k, flush=True)
+    for meth in METHODS_REAL:
+        fl = fc if meth == "current" else fg
+        X = restore(meth, frames, fl, sig); out[meth] = edge_sigma_cm(X, 6.25); print("rover edge", meth, out[meth], flush=True)
     return out
 
 
