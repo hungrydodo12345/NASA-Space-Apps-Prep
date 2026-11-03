@@ -34,6 +34,7 @@ from pipeline import fuse_flow, pde_tv, gotcha, metrics
 
 ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("--site-chain"); ap.add_argument("--landing-chain")
 ap.add_argument("--scenes", type=int, default=3); ap.add_argument("--quick", action="store_true")
+ap.add_argument("--parts", default="A,B,C", help="which tests to run; each part is saved as it finishes and merged into <out>")
 a = ap.parse_args()
 SC = 4; SIG = [0.889, 0.587, 0.828, 1.336, 1.426, 1.381, 1.16, 1.203]; N_LR = 48 if a.quick else 80; ITERS = 60 if a.quick else 300
 LAM = 0.005
@@ -177,9 +178,16 @@ def test_rover(chain_dir):
 
 
 if __name__ == "__main__":
-    t0 = time.time(); R = dict(setup=dict(cpu_count=os.cpu_count(), n_lr=N_LR, iters=ITERS, scenes=a.scenes, lam=LAM, per_pass_sigma_lr=SIG, quick=a.quick))
-    R["A_simulation"] = test_sim()
-    if a.site_chain: R["B_split_half_real"] = test_split(a.site_chain)
-    if a.landing_chain: R["C_rover_edge_real"] = test_rover(a.landing_chain)
-    R["total_cpu_seconds"] = time.time() - t0
-    os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True); json.dump(R, open(a.out, "w"), indent=1); print("wrote", a.out)
+    # each part is written to <out>.<part>.json as soon as it finishes, then all available parts are merged into <out>,
+    # so parts can run as separate processes and a restart loses at most the part in progress
+    parts = a.parts.split(","); os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
+    jobs = {"A": ("A_simulation", lambda: test_sim()), "B": ("B_split_half_real", lambda: test_split(a.site_chain) if a.site_chain else None),
+            "C": ("C_rover_edge_real", lambda: test_rover(a.landing_chain) if a.landing_chain else None)}
+    for p_ in parts:
+        key, fn = jobs[p_]; t0 = time.time(); r = fn()
+        if r is not None: json.dump({key: r, "seconds": time.time() - t0}, open(f"{a.out}.{p_}.json", "w"), indent=1); print("wrote part", p_, flush=True)
+    R = dict(setup=dict(cpu_count=os.cpu_count(), n_lr=N_LR, iters=ITERS, scenes=a.scenes, lam=LAM, per_pass_sigma_lr=SIG, quick=a.quick), cpu_seconds_by_part={})
+    for p_, (key, _) in jobs.items():
+        f = f"{a.out}.{p_}.json"
+        if os.path.exists(f): d = json.load(open(f)); R[key] = d[key]; R["cpu_seconds_by_part"][p_] = d["seconds"]
+    json.dump(R, open(a.out, "w"), indent=1); print("wrote", a.out)
