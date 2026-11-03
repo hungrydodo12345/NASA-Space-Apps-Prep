@@ -41,6 +41,7 @@ def pde_tv(frames, flows, scale=4, psf_sigma=4.28, lam=0.02, mu=None, iters=300,
     wk = np.ones(n); M = [np.ones_like(Y[0]) for _ in range(n)]
     nz = np.array([pass_noise(y) for y in Y]); wk_noise = (nz.min() / nz) ** 2                # inverse noise variance, max 1
     if weighted and pass_weights == "noise": wk = wk_noise.copy()
+    if pass_weights == "equal": wk_noise = np.ones(n)                                       # change masks only
     if exclude is not None: M = [mm * (~exclude) for mm in M]
     # Lipschitz-safe step, measured rather than assumed: the largest eigenvalue of A^T A is found by power iteration
     # (it depends on the blur and sampling, e.g. 0.69 for sigma = 4.28 HR px at scale 4); regulariser: |lap|^2 <= 64, slope s0/mu
