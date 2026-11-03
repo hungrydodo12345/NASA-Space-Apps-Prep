@@ -1,0 +1,80 @@
+{
+ "setup": {
+  "cpu_count": 4,
+  "n_lr": 80,
+  "iters": 300,
+  "scenes": 5,
+  "lam": 0.005,
+  "per_pass_sigma_lr": [
+   0.889,
+   0.587,
+   0.828,
+   1.336,
+   1.426,
+   1.381,
+   1.16,
+   1.203
+  ],
+  "quick": false
+ },
+ "cpu_seconds_by_part": {
+  "C": 215.22628831863403
+ },
+ "C_rover_edge_real": {
+  "passes": [
+   "ESP_068294_1985",
+   "ESP_068360_1985",
+   "ESP_068426_1985"
+  ],
+  "note": "rover masked out of alignment and of the weighted restoration's data term in run_chain; here every method restores the rover itself so its edge can be measured",
+  "raw": {
+   "edge_sigma_cm": 23.291264553332663,
+   "spread_cm": 1.509127969816535,
+   "profiles": 7,
+   "ringing_rms_of_amplitude": 0.09197679694948625,
+   "max_undershoot_of_amplitude": 0.1812509752115673
+  },
+  "current": {
+   "edge_sigma_cm": 20.60799437999744,
+   "spread_cm": 1.289614530447095,
+   "profiles": 7,
+   "ringing_rms_of_amplitude": 0.10379952502270313,
+   "max_undershoot_of_amplitude": 0.20930563593685902
+  },
+  "gpt": {
+   "edge_sigma_cm": 12.433099881537245,
+   "spread_cm": 1.0050871975215259,
+   "profiles": 7,
+   "ringing_rms_of_amplitude": 0.17820926778664425,
+   "max_undershoot_of_amplitude": 0.5115930743012989
+  },
+  "gpt+weights": {
+   "edge_sigma_cm": 12.279907417883324,
+   "spread_cm": 1.4100442406660907,
+   "profiles": 7,
+   "ringing_rms_of_amplitude": 0.19570424143911036,
+   "max_undershoot_of_amplitude": 0.5090738659442148
+  },
+  "gpt+blur": {
+   "edge_sigma_cm": 13.100886958046331,
+   "spread_cm": 2.334437240825942,
+   "profiles": 7,
+   "ringing_rms_of_amplitude": 0.12723363989040473,
+   "max_undershoot_of_amplitude": 0.3732234054605481
+  },
+  "full-resw": {
+   "edge_sigma_cm": 15.85180127436093,
+   "spread_cm": 1.2968525689528922,
+   "profiles": 7,
+   "ringing_rms_of_amplitude": 0.12210500428884094,
+   "max_undershoot_of_amplitude": 0.23654624133712815
+  },
+  "full": {
+   "edge_sigma_cm": 15.894671729724047,
+   "spread_cm": 1.3999298294726625,
+   "profiles": 7,
+   "ringing_rms_of_amplitude": 0.13273974931156676,
+   "max_undershoot_of_amplitude": 0.2519585214078928
+  }
+ }
+}
