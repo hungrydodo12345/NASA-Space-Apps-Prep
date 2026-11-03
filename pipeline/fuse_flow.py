@@ -56,18 +56,20 @@ def _warp_matrix(dx_lr, dy_lr, scale):
 
 class FlowModel:
     def __init__(self, shape_lr, flows, scale, psf_sigma):
-        self.s, self.lr, self.sig = scale, shape_lr, psf_sigma
+        """psf_sigma: one value (HR px) for every pass, or a list with one value per pass (per-pass blur)."""
+        self.s, self.lr = scale, shape_lr
+        self.sigs = list(psf_sigma) if np.ndim(psf_sigma) else [float(psf_sigma)] * len(flows); self.sig = self.sigs[0]
         self.hr = (shape_lr[0] * scale, shape_lr[1] * scale)
         self.W = [_warp_matrix(dx, dy, scale) for dx, dy in flows]
         self.WT = [w.T.tocsr() for w in self.W]
 
     def forward(self, x, k):
         z = (self.W[k] @ x.ravel()).reshape(self.hr)
-        return ndi.gaussian_filter(z, self.sig, mode="nearest")[::self.s, ::self.s]
+        return ndi.gaussian_filter(z, self.sigs[k], mode="nearest")[::self.s, ::self.s]
 
     def adjoint(self, r, k):
         up = np.zeros(self.hr); up[::self.s, ::self.s] = r
-        return (self.WT[k] @ ndi.gaussian_filter(up, self.sig, mode="nearest").ravel()).reshape(self.hr)
+        return (self.WT[k] @ ndi.gaussian_filter(up, self.sigs[k], mode="nearest").ravel()).reshape(self.hr)
 
 
 def _grad(v):
