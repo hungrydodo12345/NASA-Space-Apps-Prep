@@ -160,7 +160,7 @@ if IT and IH and IR:
 if A:
     for m, k in (("raw", "raw"), ("gpt", "gpt"), ("gpt+weights", "gptw"), ("gpt+blur", "gptb"), ("full", "full"), ("oracle", "oracle")):
         if m in A: V[f"e25_{k}"], V[f"e6_{k}"] = f2(mean(m, "err_25cm")), f1(mean(m, "err_6cm"))
-    NM = {"raw": "Raw HiRISE, one pass", "gpt": "GPT (simplified re-implementation)", "gpt+weights": "GPT + noise weighting", "gpt+blur": "GPT + measured blur", "full": "**This work** (measured blur + noise weighting)", "oracle": "This work with exact motion (upper bound)"}
+    NM = {"raw": "Raw HiRISE, one pass", "gpt": "GPT (simplified re-implementation), assumed blur 1 px", "gpt-s0.75": "GPT, assumed blur 0.75 px", "gpt-s0.5": "GPT, assumed blur 0.5 px", "gpt+weights": "GPT + noise weighting", "gpt+blur": "GPT + measured blur", "full": "**This work** (measured blur + noise weighting)", "oracle": "This work with exact motion (upper bound)"}
     rows = ["| Method | Error at 25 cm (%) | Error at 6.25 cm (%) | Largest error at planted change (× std) |", "|---|---|---|---|"]
     for m in NM:
         if m in A: rows.append(f"| {NM[m]} | {mean(m, 'err_25cm'):.2f} | {mean(m, 'err_6cm'):.1f} | {mean(m, 'artefact'):.2f} |")
@@ -193,7 +193,8 @@ if _IT and _IH and _IR:
         V[f"held_{k}"] = f"{_IH[b]['full']['heldout'] - _IH[b]['gpt']['heldout']:+.3f}"
         V[f"place_{k}"] = f"{100 * _IR['summary'][b]['vs_gpt']['full']['frac_better']:.0f}"
     rows = ["| Method | Error, λ = 0.04 (50–25 cm) | Error at own best λ (50–25 cm) | Error, λ = 0.04 (1 m–50 cm) | Error at own best λ (1 m–50 cm) |", "|---|---|---|---|---|"]
-    for f, n_ in (("raw", "Raw HiRISE, one pass"), ("gpt", "GPT (simplified re-implementation)"), ("gpt+blur", "GPT + measured blur"), ("full", "**This work**")):
+    for f, n_ in (("raw", "Raw HiRISE, one pass"), ("gpt", "GPT, assumed blur 1 px"), ("gpt-s0.75", "GPT, assumed blur 0.75 px"), ("gpt-s0.5", "GPT, assumed blur 0.5 px"), ("gpt+blur", "GPT + measured blur"), ("full", "**This work**")):
+        if f not in cv["50-25 cm"]: continue
         if f == "raw": rows.append(f"| {n_} | {1 - cv['50-25 cm']['raw']['0.0']:.3f} | – | {1 - cv['1 m-50 cm']['raw']['0.0']:.3f} | – |")
         else: rows.append(f"| {n_} | {1 - cv['50-25 cm'][f]['0.04']:.3f} | {1 - bst['50-25 cm'][f][1]:.3f} (λ = {bst['50-25 cm'][f][0]}) | {1 - cv['1 m-50 cm'][f]['0.04']:.3f} | {1 - bst['1 m-50 cm'][f][1]:.3f} (λ = {bst['1 m-50 cm'][f][0]}) |")
     V["table_truth2"] = "\n".join(rows)

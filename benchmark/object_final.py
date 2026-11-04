@@ -12,7 +12,7 @@ def corr(a, b, m): a = a[m] - a[m].mean(); b = b[m] - b[m].mean(); return float(
 XB = {(k, b): band(V[k].astype(np.float64), *BANDS[b]) for k in V for b in BANDS}; TB = {b: band(Tn, *BANDS[b]) for b in BANDS}
 shifted = {(b, s): (np.roll(np.roll(TB[b], s[0], 0), s[1], 1), disc & np.roll(np.roll(disc, s[0], 0), s[1], 1)) for b in BANDS for s in SH}
 def best_shift(k, b): return max(SH, key=lambda s: corr(XB[(k, b)], shifted[(b, s)][0], shifted[(b, s)][1]))
-fam = lambda k: k.split("__")[0]; lam = lambda k: float(k.split("__")[1]) if "__" in k else 0.0; FAMS = ["raw", "gpt", "gpt+blur", "full-equal", "full", "full-b0.8", "full-b1.2"]
+fam = lambda k: k.split("__")[0]; lam = lambda k: float(k.split("__")[1]) if "__" in k else 0.0; FAMS = ["raw", "gpt", "gpt-s0.5", "gpt-s0.75", "gpt+blur", "full-equal", "full", "full-b0.8", "full-b1.2"]
 out = dict(radius_m=RAD, curves={}, best={}, bootstrap={}); sh_used = {}
 for b in BANDS:
     out["curves"][b] = {}
@@ -24,7 +24,10 @@ for b in BANDS:
 # block bootstrap on the disc
 bl = 10; blocks = [(y, x) for y in range(0, N, bl) for x in range(0, N, bl) if disc[y:y + bl, x:x + bl].mean() > 0.5]; rng = np.random.default_rng(1); B = 800
 for b in BANDS:
-    keys = {f: (f"{f}__{out['best'][b][f][0]}" if f != "raw" else "raw") for f in out["best"][b]}; shs = {f: best_shift(keys[f], b) for f in keys}
+    keys = {f: (f"{f}__{out['best'][b][f][0]}" if f != "raw" else "raw") for f in out["best"][b]}
+    ga = [f for f in ("gpt", "gpt-s0.5", "gpt-s0.75") if f in out["best"][b]]                     # GPT with its assumed blur tuned too
+    if len(ga) > 1: fb = max(ga, key=lambda f: out["best"][b][f][1]); keys["gpt-any"] = keys[fb]; out.setdefault("best_gpt_any", {})[b] = dict(family=fb, lam=out["best"][b][fb][0], corr=out["best"][b][fb][1])
+    shs = {f: best_shift(keys[f], b) for f in keys}
     # use the shift that is best for the pair (the UCL best shift for all, to apply the placement tolerance equally): the shift chosen once, on the whole disc, per method; reported as given
     def stat(f, sel):
         m = np.zeros((N, N), bool)
@@ -35,6 +38,8 @@ for b in BANDS:
         sel = [blocks[i] for i in rng.integers(0, len(blocks), len(blocks))]; ref = stat("gpt", sel)
         for f in diffs: diffs[f].append(stat(f, sel) - ref)
     out["bootstrap"][b] = {f: dict(setting=keys[f], mean=float(np.mean(d)), ci95=[float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))], frac_positive=float((np.array(d) > 0).mean())) for f, d in diffs.items()}
+    if "gpt-any" in diffs:
+        d = np.array(diffs["full"]) - np.array(diffs["gpt-any"]); out["bootstrap"][b]["full_minus_gpt_any"] = dict(setting=[keys["full"], keys["gpt-any"]], mean=float(d.mean()), ci95=[float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))], frac_positive=float((d > 0).mean()))
     print(f"\n{b}: best setting per method (corr with truth, +-0.25 m tolerance): " + ", ".join(f"{f} {out['best'][b][f][1]:.3f} [lam {out['best'][b][f][0]}]" for f in out["best"][b]))
     for f, d in out["bootstrap"][b].items(): print(f"   {f:11s} minus UCL(best): {d['mean']:+.3f}  95% CI [{d['ci95'][0]:+.3f}, {d['ci95'][1]:+.3f}]  better in {100*d['frac_positive']:.0f}% of resamples")
 print("\nerror (1 - correlation) versus lambda, 50-25 cm band:")

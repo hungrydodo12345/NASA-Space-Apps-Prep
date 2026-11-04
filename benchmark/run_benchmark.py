@@ -40,7 +40,7 @@ a = ap.parse_args()
 SC = 4; SIG = [0.889, 0.587, 0.828, 1.336, 1.426, 1.381, 1.16, 1.203]; N_LR = 48 if a.quick else 80; ITERS = 60 if a.quick else 300
 LAM = 0.005                                                  # simulation (tuned there)
 LAM_REAL = float(os.environ.get("LAM_REAL", 0.04))           # real HiRISE: chosen on three independent real datasets (tuning tile split-half, leave-one-pass-out, Ingenuity truth)
-METHODS_SIM = ("raw", "current", "gpt", "gpt+weights", "gpt+blur", "full-resw", "full", "oracle")
+METHODS_SIM = tuple(os.environ.get("METHODS_SIM", "raw,current,gpt,gpt-s0.5,gpt-s0.75,gpt+weights,gpt+blur,full-resw,full,oracle").split(","))
 METHODS_REAL = ("raw", "current", "gpt", "gpt+weights", "gpt+blur", "full-resw", "full")
 
 
@@ -61,6 +61,7 @@ def restore(method, frames, flows, sig_lr, lam=None):
     if method == "raw": return ndi.zoom(frames[0], SC, order=3, grid_mode=True, mode="nearest")
     if method == "current": return fuse_flow.fuse_flow(frames, flows, scale=SC, psf_sigma=1.07 * SC, mu=0.3, iters=60)[0]
     if method == "gpt": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=lam, iters=ITERS, weighted=False)[0]
+    if method.startswith("gpt-s"): return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=float(method[5:]) * SC, lam=lam, iters=ITERS, weighted=False)[0]   # GPT with a smaller assumed blur (the paper allows 0-1 px)
     if method == "gpt+weights": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=lam, iters=ITERS, weighted=True, pass_weights="noise")[0]
     if method == "gpt+blur": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=lam, iters=ITERS, weighted=False)[0]
     if method == "full-resw": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=lam, iters=ITERS, pass_weights="residual")[0]

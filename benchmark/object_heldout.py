@@ -1,5 +1,5 @@
 """Out-of-sample check of the object-centred truth result: the setting (lambda) of every method is chosen on one half of the 4 m disc around the backshell and scored on the other half
-(both directions, split by x and by y), with the same +-0.25 m placement tolerance for all. Usage: python benchmark/object_heldout.py <variants_npz,...> <truth_npz> <out_json>"""
+(both directions, split by x and by y), with the same +-0.25 m placement tolerance for all. gpt-any tunes GPT's assumed blur (0.5/0.75/1 px) together with lambda. Usage: python benchmark/object_heldout.py <variants_npz,...> <truth_npz> <out_json>"""
 import sys, json, numpy as np
 from scipy import ndimage as ndi
 VARS, TR, OUT = sys.argv[1].split(","), sys.argv[2], sys.argv[3]; HR = 0.2524 / 4; RAD = 4.0
@@ -9,14 +9,15 @@ band = lambda a, lo, hi: ndi.gaussian_filter(a, lo) - ndi.gaussian_filter(a, hi)
 def corr(a, b, m): a = a[m] - a[m].mean(); b = b[m] - b[m].mean(); return float((a * b).sum() / (np.sqrt((a * a).sum() * (b * b).sum()) + 1e-12))
 XB = {(k, b): band(V[k].astype(np.float64), *BANDS[b]) for k in V for b in BANDS}; TB = {b: band(Tn, *BANDS[b]) for b in BANDS}
 def sc(k, b, m): return max(corr(XB[(k, b)], np.roll(np.roll(TB[b], s[0], 0), s[1], 1), m & np.roll(np.roll(disc, s[0], 0), s[1], 1)) for s in SH)
-fam = lambda k: k.split("__")[0]; FAMS = ["raw", "gpt", "gpt+blur", "full-equal", "full"]; cx_, cy_ = bs
+fam = lambda k: k.split("__")[0]; FAMS = [f for f in ["raw", "gpt", "gpt-s0.5", "gpt-s0.75", "gpt-any", "gpt+blur", "full-equal", "full"] if f == "gpt-any" or any(fam(k) == f for k in V)]; cx_, cy_ = bs
+member = lambda k, f: (fam(k).startswith("gpt") and not fam(k).startswith("gpt+")) if f == "gpt-any" else fam(k) == f    # gpt-any: GPT with its assumed blur (0.5, 0.75 or 1 px) tuned as well as lambda
 halves = {"x": (disc & (xx < cx_), disc & (xx >= cx_)), "y": (disc & (yy < cy_), disc & (yy >= cy_))}; out = {}
 for b in BANDS:
     out[b] = {}
     for f in FAMS:
-        ks = [k for k in V if fam(k) == f]; r = []
+        ks = [k for k in V if member(k, f)]; r = []
         for ax, (A, B) in halves.items():
             for a_, b_ in ((A, B), (B, A)): kb = max(ks, key=lambda k: sc(k, b, a_)); r.append((sc(kb, b, b_), kb))
         out[b][f] = dict(heldout=float(np.mean([x for x, _ in r])), chosen=[k for _, k in r])
-    print(f"{b}: held-out correlation (setting chosen on the other half, 4 splits): " + ", ".join(f"{f} {out[b][f]['heldout']:.3f}" for f in FAMS) + f"  | full minus UCL {out[b]['full']['heldout']-out[b]['gpt']['heldout']:+.3f}")
+    print(f"{b}: held-out correlation (setting chosen on the other half, 4 splits): " + ", ".join(f"{f} {out[b][f]['heldout']:.3f}" for f in FAMS) + f"  | full minus GPT {out[b]['full']['heldout']-out[b]['gpt']['heldout']:+.3f}")
 json.dump(out, open(OUT, "w"), indent=1)

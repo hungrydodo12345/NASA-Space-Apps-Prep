@@ -1,6 +1,6 @@
 """Restore one chain tile with a grid of methods and settings (CPU, multiprocessing) for the truth-based parameter search.
 Usage: python benchmark/restore_variants.py <chain_dir> <out_npz> [iters]
-Methods: gpt (assumed blur 1 px, unweighted) | gpt+blur (measured per-pass blur, unweighted) | full (measured blur, noise weights, change masks) |
+Methods: gpt (assumed blur 1 px, unweighted) | gpt-s0.5 / gpt-s0.75 (assumed blur 0.5 / 0.75 px) | gpt+blur (measured per-pass blur, unweighted) | full (measured blur, noise weights, change masks) |
          full-equal (measured blur, equal pass weights, change masks) | full-b0.8 / full-b1.2 (measured blur x0.8 / x1.2).  lambda in LAMS."""
 import sys, os, json, numpy as np
 from multiprocessing import Pool
@@ -13,6 +13,7 @@ METHODS = os.environ.get("METHODS", "gpt,gpt+blur,full,full-equal,full-b0.8,full
 def job(a):
     m, lam = a
     if m == "gpt": X = pde_tv.pde_tv(FR, FL, scale=SC, psf_sigma=1.0 * SC, lam=lam, iters=ITERS, weighted=False)[0]
+    elif m.startswith("gpt-s"): X = pde_tv.pde_tv(FR, FL, scale=SC, psf_sigma=float(m[5:]) * SC, lam=lam, iters=ITERS, weighted=False)[0]
     elif m == "gpt+blur": X = pde_tv.pde_tv(FR, FL, scale=SC, psf_sigma=SIG, lam=lam, iters=ITERS, weighted=False)[0]
     elif m == "full": X = pde_tv.pde_tv(FR, FL, scale=SC, psf_sigma=SIG, lam=lam, iters=ITERS, pass_weights="noise")[0]
     elif m == "full-equal": X = pde_tv.pde_tv(FR, FL, scale=SC, psf_sigma=SIG, lam=lam, iters=ITERS, pass_weights="equal")[0]
