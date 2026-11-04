@@ -30,7 +30,7 @@ def pass_noise(f):
 
 
 def pde_tv(frames, flows, scale=4, psf_sigma=4.28, lam=0.02, mu=None, iters=300, step=0.9, weighted=True, reweight_every=20,
-           tukey_c=4.685, exclude=None, pass_weights="noise", init="ref"):
+           tukey_c=4.685, exclude=None, pass_weights="noise", init="ref", mask_mode="tukey", consensus_c=3.0, consensus_smooth=1.0):
     """frames: list of LR passes (pass 0 = reference); flows: per-pass (dx, dy) in LR px (pass(x) ~= ref(x + d)).
     psf_sigma: HR px, scalar or per-pass list. exclude: optional LR mask of pixels to ignore in every pass (e.g. the rover).
     Returns (X, info) with per-pass weights and per-pixel weight maps."""
@@ -47,6 +47,17 @@ def pde_tv(frames, flows, scale=4, psf_sigma=4.28, lam=0.02, mu=None, iters=300,
     if weighted and pass_weights == "noise": wk = wk_noise.copy()
     if pass_weights == "equal": wk_noise = np.ones(n)                                       # change masks only
     if exclude is not None: M = [mm * (~exclude) for mm in M]
+    if weighted and mask_mode == "consensus":
+        # change masks fixed once against the per-pixel median of ALL passes (majority vote, no feedback through X).
+        # The difference is smoothed before thresholding: real changes are spatially coherent, white noise is not.
+        h, w_ = Y[0].shape; yy, xx = np.mgrid[0:h, 0:w_].astype(float)
+        al = [ndi.map_coordinates(Y[k], [yy - flows[k][1], xx - flows[k][0]], order=3, mode="nearest") for k in range(n)]
+        med = np.median(al, 0)
+        for k in range(n):
+            mk = ndi.map_coordinates(med, [yy + flows[k][1], xx + flows[k][0]], order=3, mode="nearest")   # median seen on pass k's own grid
+            dsm = ndi.gaussian_filter(Y[k] - mk, consensus_smooth); sc = 1.4826 * np.median(np.abs(dsm - np.median(dsm))) + 1e-12
+            u = dsm / (consensus_c * sc); M[k] = np.where(np.abs(u) < 1, (1 - u * u) ** 2, 0.0)
+            if exclude is not None: M[k] = M[k] * (~exclude)
     # Lipschitz-safe step, measured rather than assumed: the largest eigenvalue of A^T A is found by power iteration
     # (it depends on the blur and sampling, e.g. 0.69 for sigma = 4.28 HR px at scale 4); regulariser: |lap|^2 <= 64, slope s0/mu
     v = np.random.default_rng(0).standard_normal((HH, WW)); Ld = 0.0
@@ -54,7 +65,7 @@ def pde_tv(frames, flows, scale=4, psf_sigma=4.28, lam=0.02, mu=None, iters=300,
         u = sum(m.adjoint(m.forward(v, k), k) for k in range(n)) / n; Ld = float(np.linalg.norm(u) / np.linalg.norm(v)); v = u / (np.linalg.norm(u) + 1e-30)
     gamma = step / (2.0 * Ld * 1.1 + lam * s0 * 64.0 / mu)
     for it in range(iters):
-        if weighted and it % reweight_every == 0 and it > 0:
+        if weighted and mask_mode == "tukey" and it % reweight_every == 0 and it > 0:
             R = [m.forward(X, k) - Y[k] for k in range(n)]
             sig = np.array([1.4826 * np.median(np.abs(r - np.median(r))) + 1e-9 for r in R])
             if pass_weights == "residual": wk = (sig.min() / sig) ** 2         # original variant: lighting differences count as noise

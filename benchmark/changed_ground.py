@@ -26,6 +26,7 @@ def run(a):
     meth, npres, nabs = a; idx = PRESENT[:npres] + ABSENT[:nabs]; fr = [FR[i] for i in idx]; fl = [FL[i] for i in idx]; sg = [SIG[i] for i in idx]
     if meth == "gpt": X = pde_tv.pde_tv(fr, fl, scale=SC, psf_sigma=1.0 * SC, lam=LAM, iters=ITERS, weighted=False)[0]
     elif meth == "gpt+blur": X = pde_tv.pde_tv(fr, fl, scale=SC, psf_sigma=sg, lam=LAM, iters=ITERS, weighted=False)[0]
+    elif meth == "full-consensus": X, info = pde_tv.pde_tv(fr, fl, scale=SC, psf_sigma=sg, lam=LAM, iters=ITERS, mask_mode="consensus"); WTS[a] = info["pass_weights"]
     elif meth == "full-median": X, info = pde_tv.pde_tv(fr, fl, scale=SC, psf_sigma=sg, lam=LAM, iters=ITERS, init="median"); WTS[a] = info["pass_weights"]
     elif meth == "full-nomask": X, info = pde_tv.pde_tv(fr, fl, scale=SC, psf_sigma=sg, lam=LAM, iters=ITERS, tukey_c=1e9); WTS[a] = info["pass_weights"]
     elif meth == "full-equal": X, info = pde_tv.pde_tv(fr, fl, scale=SC, psf_sigma=sg, lam=LAM, iters=ITERS, pass_weights="equal"); WTS[a] = info["pass_weights"]
