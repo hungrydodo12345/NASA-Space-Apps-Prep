@@ -74,6 +74,14 @@ Contributions:
 - **Rover ground truth.** Perseverance Navcam photos projected to the ground at 50 traverse stops, plus AI4Mars classes.
 - **Ingenuity truth.** 190 downward navigation frames (3 cm per pixel from 8 m) of flight 26 (sol 414) over the parachute and backshell, 1.1 km west of the landing spot (Section 6.5).
 
+![Figure 1](../../results/paper/fig1_static_boulder.png)
+
+**Figure 1.** The blur and edge target: a compact bright boulder visible in all 8 passes from 2007 to 2022 (arrow), on the reference grid after Gotcha alignment. 32 m tile, 25 cm pixels, each panel stretched separately.
+
+![Figure 2](../../results/paper/fig2_hardware_alignment.png)
+
+**Figure 2.** Alignment check over 15 years. The parachute (top) and backshell (bottom) are absent in the 2007 and 2016 passes and present from sol 1, at the same position in every pass. 40 m crops; the parachute's change of shape after March 2021 is visible.
+
 ## 4. Method
 
 ### 4.1 Alignment (Gotcha)
@@ -155,6 +163,10 @@ All experiments run on a 4-core CPU (`benchmark/run_benchmark.py`).
 
 {{table_sim}}
 
+![Figure 3](../../results/paper/fig3_simulation.png)
+
+**Figure 3.** Test A, simulation with exact truth. (a) RMS error at the native 25 cm scale; (b) at the 6.25 cm output pixel; (c) the largest error at a change planted in one pass. Bars are means over scenes and dots are individual scenes; lower is better.
+
 Paired against GPT, by scene:
 
 - **25 cm:** {{pair_e25}}.
@@ -169,11 +181,27 @@ Paired against GPT, by scene:
 
 {{table_rover}}
 
+![Figure 4](../../results/paper/fig4_split_half.png)
+
+**Figure 4.** Test B, real HiRISE. Coherence between restorations made from two disjoint sets of 4 passes, against scale. Detail is treated as repeatable where coherence is at least 0.5 (dashed line).
+
+![Figure 5](../../results/paper/fig5_boulder_edge.png)
+
+**Figure 5.** Test C, real HiRISE, the bright boulder's edge. (a) Fitted edge width; (b) RMS ringing; (c) largest undershoot, both as a share of the edge's brightness step.
+
+![Figure 6](../../results/comparison/site_8pass_comparison.png)
+
+**Figure 6.** Real HiRISE, 8 passes. (a) One raw pass with its 25 cm pixels shown as blocks; (b) GPT (simplified re-implementation); (c) GPT with measured per-pass blur; (d) this work. 6.25 cm output pixels shown 1:1, with one shared contrast stretch.
+
 {{real_text}}
 
 ### 6.3 Uncertainty (test D)
 
 {{table_boot}}
+
+![Figure 7](../../results/paper/fig6_uncertainty.png)
+
+**Figure 7.** Test D. Held-out coverage of the calibrated bootstrap uncertainty at three scales; dashed lines are the nominal 68% and 95%.
 
 ### 6.4 Confidence (test E)
 
@@ -194,7 +222,13 @@ Paired against GPT, by scene:
 
 {{table_truth}}
 
-![backshell comparison](../../results/ingenuity/truth_test_backshell_comparison.png)
+![Figure 8](../../results/ingenuity/truth_test_error_vs_lambda.png)
+
+**Figure 8.** Backshell truth test: error against Ingenuity's view within 4 m of the backshell, versus regularisation strength, in (a) the 1 m–50 cm band and (b) the 50–25 cm band. Stars mark each method's minimum; the dashed line is raw HiRISE.
+
+![Figure 9](../../results/ingenuity/truth_test_backshell_comparison.png)
+
+**Figure 9.** The backshell neighbourhood: (a) Ingenuity truth beside (b) raw HiRISE and (c–f) restorations at each method's truth-optimal and typical λ. The bottom row is band-passed to 25 cm–1 m, the scales the test scores.
 
 ### 6.6 Shadow evidence
 

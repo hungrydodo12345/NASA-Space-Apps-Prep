@@ -3,8 +3,8 @@
 For a chain tile (scripts/run_chain.py) it restores the same passes with:
   1. Raw HiRISE, the reference pass at its native 25 cm. Each HiRISE pixel is shown as a 4 x 4 block
      (nearest-neighbour), so its real pixels are visible rather than interpolated.
-  2. The UCL pipeline (our re-implementation of Tao & Muller 2016: Gotcha + unweighted PDE-TV, assumed blur 1 px).
-  3. UCL + our measured per-pass blur.
+  2. GPT, our simplified re-implementation of Tao & Muller 2016 (Gotcha + unweighted PDE-TV, assumed blur 1 px).
+  3. GPT + our measured per-pass blur.
   4. This work (Gotcha + noise-weighted, change-masked PDE-TV + measured per-pass blur).
   5. Optional: this work + confidence-scored fill at threshold t (pass --fill-png from scripts/confidence_fill.py).
 Every restoration is shown at its own 6.25 cm pixel, 1 image pixel = 1 screen pixel. One contrast stretch (0.5-99.5 %
@@ -29,11 +29,11 @@ blur = json.load(open(os.path.join(ROOT, "data_products", "pass_blur.json")))
 frames = list(d["frames"].astype(float)); flows = list(zip(d["flows_dx"].astype(float), d["flows_dy"].astype(float)))
 used = meta["passes_used"]; sig = [blur[o]["sigma_px"] * SC for o in used]; LAM = a.lam
 
-panels = [("raw", f"Raw HiRISE {used[0].replace('_1985', '')}\n1 pass, native 25 cm pixels (shown as 4×4 blocks)", np.kron(frames[0], np.ones((SC, SC))))]
-panels.append(("ucl", "UCL pipeline\n(our re-implementation: Gotcha + PDE-TV, assumed blur)",
+panels = [("raw", f"(a) Raw HiRISE {used[0].replace('_1985', '')}\n1 pass, native 25 cm pixels (shown as 4×4 blocks)", np.kron(frames[0], np.ones((SC, SC))))]
+panels.append(("ucl", "(b) GPT (simplified re-implementation)\nGotcha + PDE-TV, assumed blur 1 px",
                pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=LAM, iters=a.iters, weighted=False)[0]))
-panels.append(("ucl_blur", "UCL + our measured per-pass blur", pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=sig, lam=LAM, iters=a.iters, weighted=False)[0]))
-panels.append(("ours", "This work\n(noise-weighted, change-masked, measured blur)", pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=sig, lam=LAM, iters=a.iters)[0]))
+panels.append(("ucl_blur", "(c) GPT + measured per-pass blur\n(otherwise as b)", pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=sig, lam=LAM, iters=a.iters, weighted=False)[0]))
+panels.append(("ours", "(d) This work\nnoise-weighted passes, measured blur", pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=sig, lam=LAM, iters=a.iters)[0]))
 if a.fill_png: panels.append(("fill", a.fill_label + "\n(added detail is simulated, locked to HiRISE)", None))
 
 lo, hi = np.percentile(frames[0], [0.5, 99.5])
@@ -69,7 +69,7 @@ def sheet(tiles, title, foot, scale_px_per_m):
     return out
 
 
-foot = (f"{used[0][:3]} tile {H * px_m:.0f} m wide, {len(used)} passes ({', '.join(u.replace('_1985', '') for u in used)}). "
+foot = (f"Tile {H * px_m:.0f} m wide, {len(used)} passes ({', '.join(u.replace('_1985', '') for u in used)}). "
         "Every panel: 1 image pixel = 6.25 cm, shown 1:1; one shared contrast stretch; lossless PNG.")
 sheet(imgs, a.title, foot, 1 / px_m).save(f"{a.out}/{a.name}_comparison.png", optimize=True)
 z = int(round(a.zoom_m / px_m)); cy, cx = H // 2, W // 2; f = a.zoom_factor
