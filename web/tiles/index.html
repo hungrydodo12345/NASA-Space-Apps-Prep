@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jezero Terrain Tiles</title>
+<style>
+  :root { --bg: #14110f; --panel: rgba(20, 17, 15, 0.82); --ink: #f0ebe4; --ink2: #b9b0a5; --accent: #e8934a; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 13px/1.4 system-ui, -apple-system, Segoe UI, sans-serif; overflow: hidden; }
+  #hud { position: absolute; top: 12px; left: 12px; background: var(--panel); padding: 10px 12px; border-radius: 8px; max-width: min(360px, calc(100vw - 48px)); }
+  #hud h1 { font-size: 14px; margin: 0 0 6px; }
+  #hud p { margin: 4px 0; color: var(--ink2); }
+  #hud label { display: block; margin: 4px 0; cursor: pointer; }
+  #stats { font-variant-numeric: tabular-nums; }
+  kbd { background: #2b2520; border-radius: 3px; padding: 0 4px; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <h1>Jezero terrain tiles</h1>
+  <p>HiRISE DTM on the curved Mars surface. Textures: orthoimage, 6 cm restoration, Ingenuity mosaic, optional simulated detail.</p>
+  <label><input type="checkbox" id="prov"> Show provenance (red = measured, green = simulated)</label>
+  <label><input type="checkbox" id="wire"> Wireframe</label>
+  <p>Drag to orbit, scroll to zoom, <kbd>G</kbd> rover eye height at the target, <kbd>R</kbd> reset.</p>
+  <p id="stats"></p>
+</div>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+               "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+<script type="module" src="./viewer.js"></script>
+</body>
+</html>
