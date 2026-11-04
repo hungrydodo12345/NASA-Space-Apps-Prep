@@ -257,6 +257,24 @@ Error = 1 - correlation with the truth in the 25-50 cm band, within 4 m of the b
 
 ![backshell comparison](../../results/ingenuity/truth_test_backshell_comparison.png)
 
+### 6.5b Changed ground: the parked rover (negative result)
+
+At the landing spot Perseverance is parked in three HiRISE passes (sols 1, 7, 11) and absent from five (2016, 2021-04 onward). The background is the per-pixel median of the five aligned rover-free passes; the rover footprint is 2.0 m2 (31 native pixels) and its contrast is only 1.5 times the pass noise. Ghost fraction = how much of the rover survives in the restoration (0 = rejected, 1 = kept; a single rover-present pass gives 0.99). With all three rover passes and five rover-free passes, the GPT re-implementation leaves 0.17 and this work leaves 0.86. This is the opposite of the simulation result, where change masking helps. Diagnosis: with equal pass weights the ghost is still 0.82; with the robust masks switched off it is 0.50; starting from the median of the passes instead of the reference pass changes nothing (0.86). The robust masks therefore cause the leak. Inside the footprint they give weight 0.82-0.92 to the three same-season rover passes but only 0.25-0.59 to the five rover-free passes (0.88-0.92 everywhere else): the five rover-free passes differ from each other in season and lighting, so the mask trusts the three that agree with each other. The change mask measures self-consistency, not the majority. This test does not support the claim that our masking handles changed ground on real HiRISE; the simulated planted-change result stands only for a change that is large compared with the noise and visible in a single pass.
+
+Ghost fraction of the parked rover in the restoration (0 = rover rejected, 1 = rover kept):
+
+| Passes (rover / rover-free) | UCL re-implementation | UCL + measured blur | This work | This work, equal weights | This work, no robust mask |
+|---|---|---|---|---|---|
+| 3 / 5 | 0.17 | 0.15 | 0.86 | 0.82 | 0.50 |
+| 2 / 5 | 0.09 | 0.01 | 0.87 | 0.82 | 0.42 |
+| 1 / 5 | -0.04 | -0.30 | 0.70 | 0.67 | 0.17 |
+| 3 / 1 | 0.91 | 0.98 | 1.02 | 1.00 | 0.97 |
+| 3 / 2 | 0.47 | 0.55 | 0.98 | 0.92 | 0.81 |
+| 3 / 3 | 0.15 | 0.22 | 0.90 | 0.85 | 0.59 |
+| 3 / 4 | 0.06 | 0.09 | 0.86 | 0.82 | 0.47 |
+
+![rover ghost](../../results/changed_ground/rover_ghost.png)
+
 ### 6.6 Shadow evidence
 
 AUC for rock against decoy (a flat bright patch) / rock against ground:
@@ -280,6 +298,7 @@ AUC for rock against decoy (a flat bright patch) / rock against ground:
 - **No 5 cm claim.** On real HiRISE, detail that repeats in independent passes stops at about 67 cm; even in simulation with exact truth, the finest resolved scale is about 33 cm. Below that, a restoration's content comes from the prior. We do not claim the 5 cm resolution reported for GPT.
 - **Where confidence is limited.** Confidence below about 60 cm cannot be verified with current rover truth. Our confidences are therefore simulation-calibrated, with a simulation whose disagreement is tuned to real data. The real-data check confirms positional signal but cannot confirm the probabilities.
 - **A physical truth at one object.** Ingenuity's images, placed in HiRISE by two independent methods (a sun-and-shadow compass and image correlation on three passes), give a centimetre-scale truth for the backshell. It supports a clear advantage over the GPT re-implementation at any fixed regularisation and a small advantage once each is tuned (Section 6.5), but it is a single object. A wider validation needs truth with several metre-scale shared structures.
+- **Changed ground is not handled on real data.** The per-pixel robust mask follows the most self-consistent group of passes, which on real HiRISE is the same-season group, not the majority (Section 6.5b). The plain GPT average rejects the parked rover better than our masked fusion. A fix would need a mask that compares each pass to the median of all passes after lighting is matched; we have not shown one works.
 - **What would close the gap.** Better-registered truth would: more shared hardware or tracks as tie points, or stereo from rover-mast cameras.
 
 ## 8. Conclusion

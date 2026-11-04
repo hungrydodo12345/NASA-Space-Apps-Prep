@@ -154,6 +154,19 @@ if IT and IH and IR:
         rows.append(f"| {n_} | {e('50-25 cm', f):.3f} | {b['50-25 cm'][f][0]} | {1 - cv['50-25 cm'][f]['0.005']:.3f} | {1 - cv['50-25 cm'][f]['0.04']:.3f} |")
     rows.append(f"| raw HiRISE | {e('50-25 cm', 'raw'):.3f} | none | none | none |")
     V["table_truth"] = "Error = 1 - correlation with the truth in the 25-50 cm band, within 4 m of the backshell, with a +-0.25 m placement tolerance applied equally to all methods.\n\n" + "\n".join(rows)
+CG = J("benchmark", "results", "changed_ground.json")
+if CG:
+    cf = CG["configs"]; g = lambda k, m: cf[k][m]["ghost"]
+    V["changed_text"] = (f"At the landing spot Perseverance is parked in three HiRISE passes (sols 1, 7, 11) and absent from five (2016, 2021-04 onward). The background is the per-pixel median of the five aligned rover-free passes; the rover footprint is {CG['footprint_m2']:.1f} m2 "
+                         f"(31 native pixels) and its contrast is only {CG['rover_contrast_over_noise']:.1f} times the pass noise. Ghost fraction = how much of the rover survives in the restoration (0 = rejected, 1 = kept; a single rover-present pass gives {CG['raw_rover_pass_ghost']:.2f}). "
+                         f"With all three rover passes and five rover-free passes, the GPT re-implementation leaves {g('3present_5free', 'gpt'):.2f} and this work leaves {g('3present_5free', 'full'):.2f}. This is the opposite of the simulation result, where change masking helps. "
+                         f"Diagnosis: with equal pass weights the ghost is still {g('3present_5free', 'full-equal'):.2f}; with the robust masks switched off it is {g('3present_5free', 'full-nomask'):.2f}; starting from the median of the passes instead of the reference pass changes nothing ({g('3present_5free', 'full-median'):.2f}). "
+                         "The robust masks therefore cause the leak. Inside the footprint they give weight 0.82-0.92 to the three same-season rover passes but only 0.25-0.59 to the five rover-free passes (0.88-0.92 everywhere else): the five rover-free passes differ from each other in season and lighting, so the mask trusts the three that agree with each other. "
+                         "The change mask measures self-consistency, not the majority. This test does not support the claim that our masking handles changed ground on real HiRISE; the simulated planted-change result stands only for a change that is large compared with the noise and visible in a single pass.")
+    rows = ["| Passes (rover / rover-free) | UCL re-implementation | UCL + measured blur | This work | This work, equal weights | This work, no robust mask |", "|---|---|---|---|---|---|"]
+    for k, r in cf.items():
+        a_, b_ = k.split("present_"); rows.append(f"| {a_} / {b_.replace('free', '')} | " + " | ".join(f"{r[m]['ghost']:.2f}" for m in ("gpt", "gpt+blur", "full", "full-equal", "full-nomask")) + " |")
+    V["table_changed"] = "Ghost fraction of the parked rover in the restoration (0 = rover rejected, 1 = rover kept):\n\n" + "\n".join(rows)
 tpl = open(os.path.join(ROOT, "docs", "paper", "paper_template.md")).read()
 missing = sorted(set(re.findall(r"\{\{(\w+)\}\}", tpl)) - set(V))
 out = re.sub(r"\{\{(\w+)\}\}", lambda m: str(V.get(m.group(1), PEND)), tpl)

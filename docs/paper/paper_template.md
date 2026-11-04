@@ -197,6 +197,14 @@ Paired against GPT, by scene:
 
 ![backshell comparison](../../results/ingenuity/truth_test_backshell_comparison.png)
 
+### 6.5b Changed ground: the parked rover (negative result)
+
+{{changed_text}}
+
+{{table_changed}}
+
+![rover ghost](../../results/changed_ground/rover_ghost.png)
+
 ### 6.6 Shadow evidence
 
 {{table_shadow}}
@@ -214,6 +222,7 @@ Paired against GPT, by scene:
 - **No 5 cm claim.** On real HiRISE, detail that repeats in independent passes stops at about {{repeat_limit}} cm; even in simulation with exact truth, the finest resolved scale is about {{sim_resolved}} cm. Below that, a restoration's content comes from the prior. We do not claim the 5 cm resolution reported for GPT.
 - **Where confidence is limited.** Confidence below about 60 cm cannot be verified with current rover truth. Our confidences are therefore simulation-calibrated, with a simulation whose disagreement is tuned to real data. The real-data check confirms positional signal but cannot confirm the probabilities.
 - **A physical truth at one object.** Ingenuity's images, placed in HiRISE by two independent methods (a sun-and-shadow compass and image correlation on three passes), give a centimetre-scale truth for the backshell. It supports a clear advantage over the GPT re-implementation at any fixed regularisation and a small advantage once each is tuned (Section 6.5), but it is a single object. A wider validation needs truth with several metre-scale shared structures.
+- **Changed ground is not handled on real data.** The per-pixel robust mask follows the most self-consistent group of passes, which on real HiRISE is the same-season group, not the majority (Section 6.5b). The plain GPT average rejects the parked rover better than our masked fusion. A fix would need a mask that compares each pass to the median of all passes after lighting is matched; we have not shown one works.
 - **What would close the gap.** Better-registered truth would: more shared hardware or tracks as tie points, or stereo from rover-mast cameras.
 
 ## 8. Conclusion

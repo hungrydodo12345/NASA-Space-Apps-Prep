@@ -292,6 +292,13 @@ This took several rounds. The earlier rounds failed for reasons that are listed 
 - **Measuring the HiRISE blur shape against the truth: negative.** Fitting an isotropic, an anisotropic and a generalised Gaussian kernel per pass to the truth (with free gain, offset and translation; `scripts/ingenuity/fit_psf.py`) gives 2.0–2.5 native pixels for all five passes, three to four times the rover-edge values (0.6–0.9). The cause is the lighting mismatch (midday truth, afternoon HiRISE): shading differences are absorbed as blur. The kernel fit is therefore not used. The rover-edge calibration (Section 3) stays the blur measurement, because the object and the blur come from the same image.
 - **Registration summary:** `results/ingenuity/registration_attempt.json`. Placement files: `benchmark/results/ingenuity_truth/`.
 
+### 7d. Changed ground: the parked rover (`benchmark/changed_ground.py`, negative result)
+
+- **Setup.** Perseverance is in 3 HiRISE passes at the landing spot (sols 1, 7, 11) and absent from 5 (2016, 2021-04 onward). Background = per-pixel median of the aligned rover-free passes; footprint = 31 native pixels (2.0 m2); rover contrast is only 1.5x the pass noise. Ghost fraction = mean over the footprint of (result - background) / (rover-present mean - background); 0 = rejected, 1 = kept. Results: `benchmark/results/changed_ground.json`, figure `results/changed_ground/rover_ghost.png`.
+- **Result.** With 3 rover + 5 rover-free passes: GPT re-implementation 0.17, GPT + blur 0.15, this work 0.86 (equal weights 0.82, no robust mask 0.50, median-initialised 0.86). With only 1 rover-present pass: GPT -0.04, this work 0.70. Away from the rover, background RMS is 0.002-0.004 for all methods.
+- **Diagnosis.** Pass weights are not the cause (equal weights still 0.82), and neither is the start point. Switching the Tukey masks off drops the ghost from 0.86 to 0.50. Inside the footprint the masks give 0.82-0.92 weight to the three rover passes and 0.25-0.59 to the five rover-free passes (0.88-0.92 elsewhere): the rover-free passes differ from each other in season and lighting, so the mask trusts the group that is mutually consistent, not the majority.
+- **Honest status.** This contradicts the claim that change masking helps on real data. The simulated planted-change gain holds only for a change large against the noise in a single pass. Not tried: masks against the all-pass median after lighting matching. Note the GPT figure below the plain-average expectation (3/8 = 0.38) was not fully explained.
+
 ## 8. Hazard maps (`pipeline/hazard.py`, written by `scripts/confidence_fill.py`)
 
 - **Per cell** (default 1 m), from the calibrated rocks of Section 6:

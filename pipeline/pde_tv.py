@@ -30,14 +30,18 @@ def pass_noise(f):
 
 
 def pde_tv(frames, flows, scale=4, psf_sigma=4.28, lam=0.02, mu=None, iters=300, step=0.9, weighted=True, reweight_every=20,
-           tukey_c=4.685, exclude=None, pass_weights="noise"):
+           tukey_c=4.685, exclude=None, pass_weights="noise", init="ref"):
     """frames: list of LR passes (pass 0 = reference); flows: per-pass (dx, dy) in LR px (pass(x) ~= ref(x + d)).
     psf_sigma: HR px, scalar or per-pass list. exclude: optional LR mask of pixels to ignore in every pass (e.g. the rover).
     Returns (X, info) with per-pass weights and per-pixel weight maps."""
     n = len(frames); m = FlowModel(frames[0].shape, flows, scale, psf_sigma); HH, WW = m.hr
     Y = [f.astype(np.float64) for f in frames]; s0 = float(np.std(Y[0])) + 1e-12
     mu = 0.2 * s0 if mu is None else mu
-    X = ndi.zoom(Y[0], scale, order=3, grid_mode=True, mode="nearest"); Xp = X.copy()
+    if init == "median":                                       # robust start: per-pixel median of all passes on the reference grid (a rover present in a minority of passes is not the start point)
+        yy, xx = np.mgrid[0:Y[0].shape[0], 0:Y[0].shape[1]].astype(float)
+        base = np.median([ndi.map_coordinates(Y[k], [yy - flows[k][1], xx - flows[k][0]], order=3, mode="nearest") for k in range(n)], 0)
+    else: base = Y[0]
+    X = ndi.zoom(base, scale, order=3, grid_mode=True, mode="nearest"); Xp = X.copy()
     wk = np.ones(n); M = [np.ones_like(Y[0]) for _ in range(n)]
     nz = np.array([pass_noise(y) for y in Y]); wk_noise = (nz.min() / nz) ** 2                # inverse noise variance, max 1
     if weighted and pass_weights == "noise": wk = wk_noise.copy()
