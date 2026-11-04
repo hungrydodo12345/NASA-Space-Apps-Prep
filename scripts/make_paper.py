@@ -163,6 +163,7 @@ if CG:
                          f"Diagnosis: with equal pass weights the ghost is still {g('3present_5free', 'full-equal'):.2f}; with the robust masks switched off it is {g('3present_5free', 'full-nomask'):.2f}; starting from the median of the passes instead of the reference pass changes nothing ({g('3present_5free', 'full-median'):.2f}). "
                          "The robust masks therefore cause the leak. Inside the footprint they give weight 0.82-0.92 to the three same-season rover passes but only 0.25-0.59 to the five rover-free passes (0.88-0.92 everywhere else): the five rover-free passes differ from each other in season and lighting, so the mask trusts the three that agree with each other. "
                          "The change mask measures self-consistency, not the majority. This test does not support the claim that our masking handles changed ground on real HiRISE; the simulated planted-change result stands only for a change that is large compared with the noise and visible in a single pass.")
+    V["ghost_full"] = f"{100 * g('3present_5free', 'full'):.0f}%"; V["ghost_gpt"] = f"{100 * g('3present_5free', 'gpt'):.0f}%"
     rows = ["| Passes (rover / rover-free) | UCL re-implementation | UCL + measured blur | This work | This work, equal weights | This work, no robust mask |", "|---|---|---|---|---|---|"]
     for k, r in cf.items():
         a_, b_ = k.split("present_"); rows.append(f"| {a_} / {b_.replace('free', '')} | " + " | ".join(f"{r[m]['ghost']:.2f}" for m in ("gpt", "gpt+blur", "full", "full-equal", "full-nomask")) + " |")

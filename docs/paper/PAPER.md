@@ -14,12 +14,13 @@ We re-implement the Gotcha-PDE-TV (GPT) pipeline of Tao & Muller (2016) and exte
 
 On top of the measured restoration we add a confidence-scored detail layer. Rover-photo texture and rock exemplars are shown only above a threshold the user chooses, and are locked so that the result, seen through HiRISE's blur, is unchanged (lock residual ≤ 0.25%).
 
-In simulation with exact truth (5 scenes), the extended pipeline lowers the 25 cm error from 3.55% to 1.43% of scene contrast against our GPT re-implementation (-60% relative). It also reduces artefacts at changed ground from 1.43 to 1.01. On real HiRISE the picture is mixed: GPT's independent pass halves agree slightly more than ours (mean coherence 0.263 vs 0.230, 25–100 cm), while our restoration of the parked rover rings less than GPT's (11.7% vs 16.2% RMS; undershoot 26% vs 42%), at the cost of a wider edge (16.7 vs 14.1 cm). A centimetre-scale physical truth (Ingenuity's view of the parachute and backshell, placed in HiRISE by two independent methods) shows that, at any fixed regularisation, our restoration is much closer to the truth than the GPT re-implementation (50-25 cm error 0.206 against 0.333 at lambda = 0.04), and that with each method tuned to its own minimum the advantage is small (+0.023 in correlation in-sample, +0.009 out of sample), on one object.
+In simulation with exact truth (5 scenes), the extended pipeline lowers the 25 cm error from 3.55% to 1.43% of scene contrast against our GPT re-implementation (-60% relative). In simulation it also reduces the artefact at a planted change from 1.43 to 1.01, but this did not carry over to real changed ground (below). On real HiRISE the picture is mixed: GPT's independent pass halves agree slightly more than ours (mean coherence 0.263 vs 0.230, 25–100 cm), while our restoration of the parked rover rings less than GPT's (11.7% vs 16.2% RMS; undershoot 26% vs 42%), at the cost of a wider edge (16.7 vs 14.1 cm). A centimetre-scale physical truth (Ingenuity's view of the parachute and backshell, placed in HiRISE by two independent methods) shows that, at any fixed regularisation, our restoration is much closer to the truth than the GPT re-implementation (50-25 cm error 0.206 against 0.333 at lambda = 0.04), and that with each method tuned to its own minimum the advantage is small (+0.023 in correlation in-sample, +0.009 out of sample), on one object.
 
 The bootstrap uncertainty is honest at the native 25 cm scale: held-out ±1σ coverage is 86%, against a target of 68%. It is not honest at the 6.25 cm output pixel.
 
 We also report negative results:
 
+- On real changed ground (the parked Perseverance rover, present in 3 HiRISE passes and absent from 5), our change masks keep 86% of the rover in the fused image, against 17% for the GPT re-implementation. The masks follow the most self-consistent passes, not the majority (Section 6.5b).
 - On real HiRISE, detail that repeats between independent pass subsets stops at about 67 cm. In simulation with exact truth, the finest resolved scale is about 33 cm.
 - Rover ground truth along the traverse is too poorly registered to verify sub-metre confidences: every score ranks candidates at chance there (AUC 0.43–0.46).
 - Confidences are therefore calibrated in a simulation tuned to the measured pass-to-pass disagreement of real HiRISE. There they are reliable to within 0.4% (expected calibration error).
@@ -295,7 +296,7 @@ AUC for rock against decoy (a flat bright patch) / rock against ground:
   It does not come from a stronger prior.
 - **Assumed blur sharpens and rings.** GPT's assumed blur is larger than the rover-measured blur of the sharp passes, so on real data it deconvolves harder. That sharpens edges and produces ringing (Section 6.2). Edge sharpness alone therefore rewards a wrong blur model, and ringing should be reported with it.
 - **Residual weighting collapses on real data.** Weights based on residuals work in simulation but collapse onto a single pass on real data. Real passes differ by illumination and season far more than by noise. Noise must be measured from the pass itself.
-- **No 5 cm claim.** On real HiRISE, detail that repeats in independent passes stops at about 67 cm; even in simulation with exact truth, the finest resolved scale is about 33 cm. Below that, a restoration's content comes from the prior. We do not claim the 5 cm resolution reported for GPT.
+- **No 5 cm claim.** On real HiRISE, detail that repeats in independent passes stops at about 67 cm; even in simulation with exact truth, the finest resolved scale is about 33 cm. Below that, a restoration's content comes from the prior. Tao & Muller (2016) report 5 cm on eight passes over the Gusev crater traverse; we did not test that site, and our evidence is limited to the sites and passes above. We do not claim 5 cm, and we do not claim to refute it.
 - **Where confidence is limited.** Confidence below about 60 cm cannot be verified with current rover truth. Our confidences are therefore simulation-calibrated, with a simulation whose disagreement is tuned to real data. The real-data check confirms positional signal but cannot confirm the probabilities.
 - **A physical truth at one object.** Ingenuity's images, placed in HiRISE by two independent methods (a sun-and-shadow compass and image correlation on three passes), give a centimetre-scale truth for the backshell. It supports a clear advantage over the GPT re-implementation at any fixed regularisation and a small advantage once each is tuned (Section 6.5), but it is a single object. A wider validation needs truth with several metre-scale shared structures.
 - **Changed ground is not handled on real data.** The per-pixel robust mask follows the most self-consistent group of passes, which on real HiRISE is the same-season group, not the majority (Section 6.5b). The plain GPT average rejects the parked rover better than our masked fusion. A fix would need a mask that compares each pass to the median of all passes after lighting is matched; we have not shown one works.
@@ -303,7 +304,7 @@ AUC for rock against decoy (a flat bright patch) / rock against ground:
 
 ## 8. Conclusion
 
-Measuring a known object's blur, weighting passes by their own noise, and masking changes gives a measurable gain over GPT, which we report on simulation and on real HiRISE. A confidence-scored, measurement-locked detail layer lets users decide how much unverified detail to see, with probabilities that are calibrated where truth exists and labelled where it does not.
+Measuring a known object's blur, weighting passes by their own noise, and masking changes gives a measurable gain over GPT at the native 25 cm scale in simulation and on real HiRISE, and a small gain at one physical object. The change masking, however, helped only in simulation: on real changed ground it did worse than plain GPT. A confidence-scored, measurement-locked detail layer lets users decide how much unverified detail to see, with probabilities that are calibrated where truth exists and labelled where it does not.
 
 ## Reproducibility
 
@@ -316,7 +317,7 @@ Measuring a known object's blur, weighting passes by their own noise, and maskin
 
 ## References
 
-*To verify before submission.*
+*Checked against publisher or repository records: Tao & Muller (2016), Tao et al. (2021), Maki et al. (2020), Swan et al. (2021). The remaining entries are standard references cited from memory with volume and page numbers that we believe correct; confirm them against the publishers before submission.*
 
 - Efron, B. (1979). Bootstrap methods: another look at the jackknife. *Ann. Statist.* 7, 1–26.
 - Fischler, M. A., Bolles, R. C. (1981). Random sample consensus. *Commun. ACM* 24, 381–395.
@@ -324,11 +325,11 @@ Measuring a known object's blur, weighting passes by their own noise, and maskin
 - Guo, C., Pleiss, G., Sun, Y., Weinberger, K. Q. (2017). On calibration of modern neural networks. *ICML*.
 - Immerkær, J. (1996). Fast noise variance estimation. *Comput. Vis. Image Underst.* 64, 300–302.
 - Lowe, D. G. (2004). Distinctive image features from scale-invariant keypoints. *IJCV* 60, 91–110.
-- Maki, J. N., et al. (2020). The Mars 2020 Engineering Cameras and Microphone on the Perseverance Rover. *Space Sci. Rev.* 216, 137.
+- Maki, J. N., et al. (2020). The Mars 2020 Engineering Cameras and Microphone on the Perseverance Rover: A Next-Generation Imaging System for Mars Exploration. *Space Sci. Rev.* 216, 137. doi:10.1007/s11214-020-00765-9
 - McEwen, A. S., et al. (2007). Mars Reconnaissance Orbiter's High Resolution Imaging Science Experiment (HiRISE). *J. Geophys. Res.* 112, E05S02.
 - Otto, G. P., Chau, T. K. W. (1989). 'Region-growing' algorithm for matching of terrain images. *Image Vis. Comput.* 7, 83–94.
-- Swan, R. M., et al. (2021). AI4MARS: A dataset for terrain-aware autonomous driving on Mars. *CVPR Workshops*.
-- Tao, Y., Muller, J.-P. (2016). A novel method for surface exploration: super-resolution restoration of Mars repeat-pass orbital imagery. *Planet. Space Sci.* 121, 103–114.
-- Tao, Y., Conway, S. J., Muller, J.-P., et al. (2021). Single image super-resolution restoration of TGO CaSSIS colour images: demonstration with Perseverance rover landing site and Mars science targets. *Remote Sens.* 13, 1777.
+- Swan, R. M., et al. (2021). AI4MARS: A dataset for terrain-aware autonomous driving on Mars. *CVPR Workshops*, 1982–1991. doi:10.1109/CVPRW53098.2021.00226
+- Tao, Y., Muller, J.-P. (2016). A novel method for surface exploration: super-resolution restoration of Mars repeat-pass orbital imagery. *Planet. Space Sci.* 121, 103–114 (GPT; 5 cm demonstrated on eight HiRISE passes over the Spirit traverse in Gusev crater).
+- Tao, Y., Conway, S. J., Muller, J.-P., Putri, A. R. D., Thomas, N., Cremonese, G. (2021). Single image super-resolution restoration of TGO CaSSIS colour images: demonstration with Perseverance rover landing site and Mars science targets (MARSGAN). *Remote Sens.* 13(9), 1777. doi:10.3390/rs13091777
 - You, Y.-L., Kaveh, M. (2000). Fourth-order partial differential equations for noise removal. *IEEE Trans. Image Process.* 9, 1723–1730.
 - Zadrozny, B., Elkan, C. (2002). Transforming classifier scores into accurate multiclass probability estimates. *KDD*.
