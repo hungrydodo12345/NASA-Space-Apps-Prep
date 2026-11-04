@@ -177,6 +177,7 @@ if Bs and Cr:
         V[f"coh_{k}"] = f"{np.mean(Bs[m]['coherence_by_band'][1:8]):.3f}"; V[f"edge_{k}"] = f1(Cr[m]["edge_sigma_cm"])
         V[f"ring_{k}"] = f1(100 * Cr[m]["ringing_rms_of_amplitude"]); V[f"under_{k}"] = f"{100 * Cr[m]['max_undershoot_of_amplitude']:.0f}"
 if sig:
+    V["n_blur_gt1"], V["n_blur"] = sum(v > 1.0 for v in sig.values()), len(sig)
     V["blur_min"], V["blur_max"] = f"{min(sig.values()):.2f}", f"{max(sig.values()):.2f}"
 BU = J("results", "bootstrap_uncertainty_simulation.json")
 if BU:

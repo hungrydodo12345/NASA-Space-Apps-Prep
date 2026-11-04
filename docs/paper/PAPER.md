@@ -1,25 +1,37 @@
-# How much detail can repeat-pass super-resolution recover from HiRISE? Measuring each pass's blur and noise, and testing against Ingenuity's view of the ground
+# Revisiting repeat-pass super-resolution of HiRISE: measured blur, measured noise and centimetre-scale truth from Ingenuity
 
 ## Abstract
 
-Orbital images of Mars at 25 cm per pixel are routinely sharpened by combining several passes over the same ground, and resolutions as fine as 5 cm have been reported. Such results have mostly been judged by eye, because independent truth at the centimetre scale has rarely been available. We revisit repeat-pass super-resolution of HiRISE at the Perseverance landing area, where two things are now possible. First, each pass's blur can be measured instead of assumed. On a compact bright boulder visible in every pass, the blur differs by a factor of 2.4 between passes. Second, the Ingenuity helicopter photographed the descent backshell from 8 m at about 3 cm per pixel, which gives centimetre-scale truth that no orbital method has seen. Starting from the Gotcha–PDE-TV (GPT) method of Tao & Muller (2016), we model each pass with its own measured blur and weight it by its own measured noise. In simulation with exact truth, this lowers the error at the native 25 cm scale from 3.55% to 1.43% of scene contrast. Against the Ingenuity truth, it is clearly closer to the ground at a fixed regularisation strength, and slightly closer once each method is tuned. On real HiRISE, detail that two independent sets of passes agree on extends to about 67 cm, against 33 cm in simulation. These scales, not the output pixel size, describe what multi-pass restoration recovers. A pass-subset bootstrap gives uncertainties that are conservative at 25 cm.
+Tao & Muller (2016) showed that eight repeat passes of the 25 cm HiRISE camera can be combined into a restored image on a 5 cm grid. Their Gotcha–PDE-TV (GPT) method has since become the reference for multi-pass super-resolution of Mars. They left three questions open in their paper: the point-spread function of each pass was assumed, the 5 cm figure was, in their words, set "heuristically", and how many images yield what resolution was not yet known. Data from the Perseverance landing area at Jezero crater now let us address all three.
+
+First, we measure each pass's blur on a compact bright boulder visible in every pass. The blur differs by a factor of 2.4 between passes, and 5 of 8 passes are blurrier than the largest value GPT assumes. Second, we test restorations against centimetre-scale truth: Ingenuity photographed the descent backshell from 8 m at about 3 cm per pixel. Third, we measure the scale down to which detail is recovered, using independent sets of passes.
+
+Replacing GPT's assumed blur with the measured one, and weighting each pass by its measured noise, lowers the error at the native 25 cm scale from 3.55% to 1.43% in simulation. The result is also closer to the Ingenuity truth: clearly so at a fixed regularisation strength, and slightly once each method is tuned. With eight passes, detail that independent passes agree on reaches about 67 cm on real HiRISE and about 33 cm in simulation. The 5 cm grid is therefore a sampling choice. The resolution actually recovered is set by the data, and can now be measured.
 
 ## 1. Introduction
 
-The High Resolution Imaging Science Experiment (HiRISE) on Mars Reconnaissance Orbiter images the surface at about 25 cm per pixel (McEwen et al., 2007). That is enough to see boulders a metre across, but not the smaller rocks, ripples and fractures that matter for rover traverses and for picking targets on the ground. Many sites, among them Jezero crater, have been imaged many times. Each pass samples the ground on a slightly different grid, so a stack of passes contains information that no single image has. Multi-image super-resolution restoration uses this to estimate a finer image.
+The HiRISE camera on Mars Reconnaissance Orbiter images the surface at about 25 cm per pixel (McEwen et al., 2007). That is enough to see boulders a metre across, but not the smaller rocks, ripples and fractures that matter for rover traverses and for choosing targets on the ground. Many sites have been imaged repeatedly, and each pass samples the ground on a slightly different grid. A stack of passes therefore holds information that no single image has, which multi-image super-resolution restoration can recover.
 
-For Mars, the reference method is Gotcha–PDE-TV (GPT; Tao & Muller, 2016). GPT aligns each pass to a reference with the Gotcha matcher, then solves for a fine image whose blurred and down-sampled copies match every pass, with a fourth-order regulariser that keeps edges. Applied to eight HiRISE passes over the Spirit traverse in Gusev crater, GPT produced images on a 5 cm grid. The authors checked rover wheel-track spacing against the rover's own Navcam images (to within 8 cm) and counted many more rocks than in the original image. They also note that the 5 cm figure was set heuristically.
+**The GPT result.** Tao & Muller (2016) developed Gotcha–PDE-TV (GPT) for exactly this purpose. Each pass is aligned to a reference image to sub-pixel accuracy with the Gotcha matcher (Otto & Chau, 1989). The method then solves for a fine image whose blurred and down-sampled copies match every pass, with a fourth-order regulariser that keeps edges (You & Kaveh, 2000). Applied to eight HiRISE passes over the Spirit rover's traverse at Home Plate, Gusev crater, GPT produced a mosaic on a 5 cm grid, described as a 5 times higher resolution. They supported it in three ways:
+- the spacing of the rover's wheel tracks in the restored image matched the rover's own Navcam mosaic to within 8 cm (1.6 restored pixels);
+- automatic detection found 153 rocks of 30 cm or more, against 23 in the original image;
+- side-by-side views showed rocks, edges and tracks far more clearly than in the 25 cm input.
 
-Two questions remain open. **Which inputs matter?** GPT assumes a single, small Gaussian blur, while real HiRISE passes differ in focus, spacecraft jitter and noise. **How much of the restored detail is real?** Visual comparison and edge sharpness reward a restoration that looks crisp, and they cannot separate recovered detail from detail supplied by the regulariser.
+The same group later moved to learned single-image methods, such as MARSGAN, and judged those by the sharpness of high-contrast edges (Tao et al., 2021).
 
-Jezero now makes both questions answerable. A bright, compact boulder visible in every pass from 2007 to 2022 lets us measure each pass's blur. Ingenuity's flight 26 photographed the Perseverance backshell from 8 m, at about 3 cm per pixel, which gives an independent view of the ground at a scale far finer than HiRISE.
+**What was left open.** Tao & Muller are explicit about three limits of their study:
+1. **The blur.** The point-spread function was "assumed to be a small Gaussian kernel with standard deviation σ 0 to 1", chosen by region. It was not measured.
+2. **The resolution.** Of the output grid, they write that they "determined this heuristically at the 5 cm shown for the 8 input 25 cm images". They wrote that they did "not yet know, and are not able to test, owing to the huge computational time, how many images yield what resolution".
+3. **The validation.** The wheel-track check and the rock counts confirm where edges lie and how many objects are detected, but there was no independent image of the ground at centimetre scale. Neither check can show whether the 5 cm detail between those edges is real.
 
-This paper makes four contributions:
+**What has changed.** The Perseverance landing area at Jezero now has many HiRISE passes, taken from 2007 to 2024. Among them is a compact bright boulder that is unchanged in every pass, a natural target for measuring each pass's blur. On its 26th flight, the Ingenuity helicopter photographed the descent backshell from 8 m at about 3 cm per pixel: an independent, centimetre-scale view of the ground.
 
-1. **Measured blur and noise per pass.** We measure each pass's blur on the boulder and its noise from the image itself, and use both in a GPT-style restoration.
-2. **Tests against exact and independent truth.** Simulation with known ground, the Ingenuity truth, agreement between independent sets of real passes, and the sharpness and ringing of a real edge.
-3. **A measured resolution scale.** We report the finest scale at which detail is recovered, in simulation and on real data, as an alternative to the output pixel size.
-4. **Calibrated uncertainty.** A bootstrap over passes gives a per-pixel uncertainty, calibrated in simulation and reported at the scale where it holds.
+**This paper.** We revisit GPT on each of the three open points:
+1. **Blur.** We measure each pass's blur on the boulder and its noise from the image, and use both in place of GPT's assumed blur (Sections 3–4).
+2. **Validation.** We test against exact truth in simulation and against the Ingenuity truth on real data (Sections 6.1–6.2).
+3. **Resolution.** We measure, on real HiRISE, the finest scale at which two independent sets of passes agree. This is a direct answer, for eight passes, to "what resolution" (Section 6.3).
+
+We also give a per-pixel uncertainty from a bootstrap over passes (Section 6.4). Throughout, our baseline is GPT as described in the 2016 paper, with its assumed blur. The code is not public, so we re-implemented it from the paper; it differs only where stated (Section 4).
 
 ## 2. Background
 
@@ -151,7 +163,17 @@ After calibration on one simulated scene, the bootstrap uncertainty covers the t
 
 ## 7. Discussion
 
-**What the gain is.** The improvement over the GPT baseline comes from measuring two things the baseline assumes: how blurred each pass is, and how noisy. It does not come from a stronger prior. In simulation the measured blur provides most of the gain at 25 cm, and noise weighting adds to it once the blur is right. Against the Ingenuity truth the gain is largest when both methods use the same regularisation, and small once each is tuned. That is what one would expect if the measured blur mainly removes over-sharpening.
+### 7.1 Tao & Muller's three open points, revisited
+
+**The blur.** GPT assumes a Gaussian blur of 0 to 1 pixel. On the boulder, the measured blur of the eight passes ranges from 0.59 to 1.43 HiRISE pixels, and 5 of 8 passes are blurrier than 1 pixel (if GPT's σ is in HiRISE pixels, as its forward model suggests). A single assumed value is therefore too sharp for some passes and too soft for others. In simulation, correcting it alone accounts for about half of our gain at 25 cm (3.55% to 2.60%), and noise weighting provides the rest (Section 6.1). It also explains why GPT's restored edges are crisp: the method deconvolves too hard, which shows up as ringing beside edges (Section 6.3).
+
+**The resolution.** For eight passes, independent halves of the data agree on detail down to about 67 cm on real HiRISE, and simulation with exact truth gives about 33 cm. Both are far coarser than the 5 cm grid. This does not contradict the 2016 results: wheel-track spacing to within 8 cm tests where edges lie, and a fine grid with an edge-preserving prior places edges very precisely. It does mean that "5 cm" describes the sampling of the output, not the size of the smallest real detail it contains. Our numbers come from near-repeat passes at Jezero. Tao & Muller used passes with larger differences in view angle, which may carry more sub-pixel information, so their limit at Gusev could be somewhat finer.
+
+**The validation.** Ingenuity's view of the backshell is, to our knowledge, the first centimetre-scale truth against which a HiRISE restoration has been scored. Against it, the measured-blur restoration is clearly closer to the ground than the GPT baseline at the same regularisation strength. Once each method is tuned, the advantage is small but consistent at 1 m–50 cm. Rock counts and edge sharpness, the two other measures used for Mars super-resolution, both reward a sharper image, which our boulder-edge result shows is not always a more accurate one.
+
+### 7.2 Further discussion
+
+**What the gain is.** The improvement over the GPT baseline comes from measuring two things the baseline assumes: how blurred each pass is, and how noisy. It does not come from a stronger prior. In simulation the measured blur and the noise weighting each provide about half of the gain at 25 cm, and the weighting helps only once the blur is right. Against the Ingenuity truth the gain is largest when both methods use the same regularisation, and small once each is tuned. That is what one would expect if the measured blur mainly removes over-sharpening.
 
 **What multi-pass restoration recovers.** On real HiRISE, detail that independent passes agree on reaches about 67 cm, and in simulation with exact truth about 33 cm. Both are well above the 6.3 cm output pixel. The output grid is a sampling choice that lets edges be placed precisely. It is not the resolution of the result, and finer structure in a restored image comes mostly from the regulariser. We suggest that resolution claims for multi-pass restoration be stated as a scale validated against independent passes or independent truth, alongside the output pixel size.
 
@@ -167,7 +189,7 @@ After calibration on one simulated scene, the bootstrap uncertainty covers the t
 
 ## 8. Conclusion
 
-Measuring each HiRISE pass's blur on a static target, and weighting each pass by its own noise, makes repeat-pass super-resolution measurably more accurate: 60% lower error at the native 25 cm scale in simulation, and closer to Ingenuity's centimetre-scale view of the ground. Independent passes agree on detail down to about 67 cm. That is the scale such restorations recover, and we suggest it be reported alongside the output pixel size.
+Tao & Muller (2016) showed that repeat HiRISE passes can be combined into much sharper images of Mars, and left open how blurred each pass is, what resolution the result really has, and how to validate it at centimetre scale. At Jezero, all three can now be measured. Replacing GPT's assumed blur with each pass's measured blur, and weighting passes by their measured noise, gives a restoration that is 60% more accurate at 25 cm in simulation and closer to Ingenuity's centimetre-scale view of the ground. With eight passes, real detail reaches about 67 cm. We suggest that future multi-pass restorations report such a measured scale alongside the output grid, and validate against independent truth wherever it exists.
 
 ## Data and code availability
 
