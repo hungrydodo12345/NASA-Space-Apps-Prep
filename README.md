@@ -103,7 +103,7 @@ UCL did not release code or products. "UCL pipeline" is our re-implementation fr
 | **UCL pipeline** (our re-implementation of Tao & Muller 2016: Gotcha + PDE-TV, assumed blur) | 66.7 cm |
 | UCL + our weighting only | 66.7 cm |
 | UCL + our measured per-pass blur only | 66.7 cm |
-| This work with residual-based pass weights (rejected first version) | 100.0 cm |
+| This work with residual-based pass weights (rejected first version) | 66.7 cm |
 | **This work** (Gotcha + noise-weighted, change-masked PDE-TV + measured per-pass blur) | 66.7 cm |
 
 **C. Real HiRISE, the parked rover's edge.** At the landing site, in 3 passes from sols 1–11, the table gives the width of Perseverance's edge in each restoration, together with the ringing that sharpening costs. Both ringing columns are a share of the rover's brightness step.
@@ -112,11 +112,11 @@ UCL did not release code or products. "UCL pipeline" is our re-implementation fr
 |---|---|---|---|
 | Raw HiRISE, one pass (bicubic) | 23.3 cm | 9.2% | 18.1% |
 | Our previous pipeline (ECC + CG Tikhonov) | 20.6 cm | 10.4% | 20.9% |
-| **UCL pipeline** (our re-implementation of Tao & Muller 2016: Gotcha + PDE-TV, assumed blur) | 12.4 cm | 17.8% | 51.2% |
-| UCL + our weighting only | 12.3 cm | 19.6% | 50.9% |
-| UCL + our measured per-pass blur only | 13.1 cm | 12.7% | 37.3% |
-| This work with residual-based pass weights (rejected first version) | 15.9 cm | 12.2% | 23.7% |
-| **This work** (Gotcha + noise-weighted, change-masked PDE-TV + measured per-pass blur) | 15.9 cm | 13.3% | 25.2% |
+| **UCL pipeline** (our re-implementation of Tao & Muller 2016: Gotcha + PDE-TV, assumed blur) | 14.1 cm | 16.2% | 42.2% |
+| UCL + our weighting only | 15.6 cm | 16.1% | 37.1% |
+| UCL + our measured per-pass blur only | 14.9 cm | 11.6% | 30.0% |
+| This work with residual-based pass weights (rejected first version) | 16.4 cm | 12.6% | 25.2% |
+| **This work** (Gotcha + noise-weighted, change-masked PDE-TV + measured per-pass blur) | 16.7 cm | 11.7% | 25.6% |
 
 **What this does and does not show.**
 

@@ -21,40 +21,40 @@
    "max_undershoot_of_amplitude": 0.20930563593685902
   },
   "gpt": {
-   "edge_sigma_cm": 12.433099881537245,
-   "spread_cm": 1.0050871975215259,
+   "edge_sigma_cm": 14.053317503147758,
+   "spread_cm": 0.8655585456988624,
    "profiles": 7,
-   "ringing_rms_of_amplitude": 0.17820926778664425,
-   "max_undershoot_of_amplitude": 0.5115930743012989
+   "ringing_rms_of_amplitude": 0.1624517541164281,
+   "max_undershoot_of_amplitude": 0.42248113165966844
   },
   "gpt+weights": {
-   "edge_sigma_cm": 12.279907417883324,
-   "spread_cm": 1.4100442406660907,
+   "edge_sigma_cm": 15.63015097353123,
+   "spread_cm": 0.41675222370797543,
    "profiles": 7,
-   "ringing_rms_of_amplitude": 0.19570424143911036,
-   "max_undershoot_of_amplitude": 0.5090738659442148
+   "ringing_rms_of_amplitude": 0.16070017406640202,
+   "max_undershoot_of_amplitude": 0.3710165790358211
   },
   "gpt+blur": {
-   "edge_sigma_cm": 13.100886958046331,
-   "spread_cm": 2.334437240825942,
+   "edge_sigma_cm": 14.88533245382764,
+   "spread_cm": 1.7356905759619827,
    "profiles": 7,
-   "ringing_rms_of_amplitude": 0.12723363989040473,
-   "max_undershoot_of_amplitude": 0.3732234054605481
+   "ringing_rms_of_amplitude": 0.11617568839906507,
+   "max_undershoot_of_amplitude": 0.30013775780295443
   },
   "full-resw": {
-   "edge_sigma_cm": 15.85180127436093,
-   "spread_cm": 1.2968525689528922,
+   "edge_sigma_cm": 16.382571645363832,
+   "spread_cm": 0.7796985356874939,
    "profiles": 7,
-   "ringing_rms_of_amplitude": 0.12210500428884094,
-   "max_undershoot_of_amplitude": 0.23654624133712815
+   "ringing_rms_of_amplitude": 0.12580467818862676,
+   "max_undershoot_of_amplitude": 0.2523299995711194
   },
   "full": {
-   "edge_sigma_cm": 15.894671729724047,
-   "spread_cm": 1.3999298294726625,
+   "edge_sigma_cm": 16.724216897204304,
+   "spread_cm": 0.7004624895861981,
    "profiles": 7,
-   "ringing_rms_of_amplitude": 0.13273974931156676,
-   "max_undershoot_of_amplitude": 0.2519585214078928
+   "ringing_rms_of_amplitude": 0.1168460775596781,
+   "max_undershoot_of_amplitude": 0.2557376391970697
   }
  },
- "seconds": 215.22628831863403
+ "seconds": 148.29628658294678
 }

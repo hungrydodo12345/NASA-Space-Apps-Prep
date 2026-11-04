@@ -38,7 +38,8 @@ ap.add_argument("--scenes", type=int, default=3); ap.add_argument("--quick", act
 ap.add_argument("--parts", default="A,B,C", help="which tests to run; each part is saved as it finishes and merged into <out>")
 a = ap.parse_args()
 SC = 4; SIG = [0.889, 0.587, 0.828, 1.336, 1.426, 1.381, 1.16, 1.203]; N_LR = 48 if a.quick else 80; ITERS = 60 if a.quick else 300
-LAM = 0.005
+LAM = 0.005                                                  # simulation (tuned there)
+LAM_REAL = float(os.environ.get("LAM_REAL", 0.04))           # real HiRISE: chosen on three independent real datasets (tuning tile split-half, leave-one-pass-out, Ingenuity truth)
 METHODS_SIM = ("raw", "current", "gpt", "gpt+weights", "gpt+blur", "full-resw", "full", "oracle")
 METHODS_REAL = ("raw", "current", "gpt", "gpt+weights", "gpt+blur", "full-resw", "full")
 
@@ -55,14 +56,15 @@ def align_gotcha(frames):
     return out
 
 
-def restore(method, frames, flows, sig_lr):
+def restore(method, frames, flows, sig_lr, lam=None):
+    lam = LAM if lam is None else lam
     if method == "raw": return ndi.zoom(frames[0], SC, order=3, grid_mode=True, mode="nearest")
     if method == "current": return fuse_flow.fuse_flow(frames, flows, scale=SC, psf_sigma=1.07 * SC, mu=0.3, iters=60)[0]
-    if method == "gpt": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=LAM, iters=ITERS, weighted=False)[0]
-    if method == "gpt+weights": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=LAM, iters=ITERS, weighted=True, pass_weights="noise")[0]
-    if method == "gpt+blur": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=LAM, iters=ITERS, weighted=False)[0]
-    if method == "full-resw": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=LAM, iters=ITERS, pass_weights="residual")[0]
-    if method in ("full", "oracle"): return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=LAM, iters=ITERS, pass_weights="noise")[0]
+    if method == "gpt": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=lam, iters=ITERS, weighted=False)[0]
+    if method == "gpt+weights": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=lam, iters=ITERS, weighted=True, pass_weights="noise")[0]
+    if method == "gpt+blur": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=lam, iters=ITERS, weighted=False)[0]
+    if method == "full-resw": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=lam, iters=ITERS, pass_weights="residual")[0]
+    if method in ("full", "oracle"): return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=lam, iters=ITERS, pass_weights="noise")[0]
 
 
 def resolved_cm(a_, b_, px_cm=6.25):
@@ -136,7 +138,7 @@ def test_split(chain_dir):
         else:
             fa, la, sa = pick(A); fb, lb, sb = pick(B)
             # half B has no zero-motion pass; the model handles that (all flows are to the reference grid)
-            XA = restore(meth, fa, la, sa); XB = restore(meth, fb, lb, sb)
+            XA = restore(meth, fa, la, sa, LAM_REAL); XB = restore(meth, fb, lb, sb, LAM_REAL)
         rc, coh = resolved_cm(XA[c], XB[c]); out[meth] = dict(consistent_down_to_cm=rc, coherence_by_band=coh); print("split-half", meth, rc, flush=True)
     return out
 
@@ -175,7 +177,7 @@ def test_rover(chain_dir):
                                  "here every method restores the rover itself so its edge can be measured")
     for meth in METHODS_REAL:
         fl = fc if meth == "current" else fg
-        X = restore(meth, frames, fl, sig); out[meth] = edge_sigma_cm(X, 6.25); print("rover edge", meth, out[meth], flush=True)
+        X = restore(meth, frames, fl, sig, LAM_REAL); out[meth] = edge_sigma_cm(X, 6.25); print("rover edge", meth, out[meth], flush=True)
     return out
 
 
@@ -188,7 +190,7 @@ if __name__ == "__main__":
     for p_ in parts:
         key, fn = jobs[p_]; t0 = time.time(); r = fn()
         if r is not None: json.dump({key: r, "seconds": time.time() - t0}, open(f"{a.out}.{p_}.json", "w"), indent=1); print("wrote part", p_, flush=True)
-    R = dict(setup=dict(cpu_count=os.cpu_count(), n_lr=N_LR, iters=ITERS, scenes=a.scenes, lam=LAM, per_pass_sigma_lr=SIG, quick=a.quick), cpu_seconds_by_part={})
+    R = dict(setup=dict(cpu_count=os.cpu_count(), n_lr=N_LR, iters=ITERS, scenes=a.scenes, lam_sim=LAM, lam_real=LAM_REAL, per_pass_sigma_lr=SIG, quick=a.quick), cpu_seconds_by_part={})
     for p_, (key, _) in jobs.items():
         f = f"{a.out}.{p_}.json"
         if os.path.exists(f): d = json.load(open(f)); R[key] = d[key]; R["cpu_seconds_by_part"][p_] = d["seconds"]

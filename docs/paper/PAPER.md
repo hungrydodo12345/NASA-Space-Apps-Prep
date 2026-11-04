@@ -14,7 +14,7 @@ We re-implement the Gotcha-PDE-TV (GPT) pipeline of Tao & Muller (2016) and exte
 
 On top of the measured restoration we add a confidence-scored detail layer. Rover-photo texture and rock exemplars are shown only above a threshold the user chooses, and are locked so that the result, seen through HiRISE's blur, is unchanged (lock residual ≤ 0.25%).
 
-In simulation with exact truth (5 scenes), the extended pipeline lowers the 25 cm error from 3.55% to 1.43% of scene contrast against our GPT re-implementation (-60% relative). It also reduces artefacts at changed ground from 1.43 to 1.01. On real HiRISE the picture is mixed: GPT's independent pass halves agree slightly more than ours (mean coherence 0.237 vs 0.216, 25–100 cm), while our restoration of the parked rover rings less than GPT's (13.3% vs 17.8% RMS; undershoot 25% vs 51%), at the cost of a wider edge (15.9 vs 12.4 cm). A centimetre-scale physical truth (Ingenuity's view of the parachute and backshell, placed in HiRISE by two independent methods) shows that, at any fixed regularisation, our restoration is much closer to the truth than the GPT re-implementation (50-25 cm error 0.206 against 0.333 at lambda = 0.04), and that with each method tuned to its own minimum the advantage is small (+0.023 in correlation in-sample, +0.009 out of sample), on one object.
+In simulation with exact truth (5 scenes), the extended pipeline lowers the 25 cm error from 3.55% to 1.43% of scene contrast against our GPT re-implementation (-60% relative). It also reduces artefacts at changed ground from 1.43 to 1.01. On real HiRISE the picture is mixed: GPT's independent pass halves agree slightly more than ours (mean coherence 0.263 vs 0.230, 25–100 cm), while our restoration of the parked rover rings less than GPT's (11.7% vs 16.2% RMS; undershoot 26% vs 42%), at the cost of a wider edge (16.7 vs 14.1 cm). A centimetre-scale physical truth (Ingenuity's view of the parachute and backshell, placed in HiRISE by two independent methods) shows that, at any fixed regularisation, our restoration is much closer to the truth than the GPT re-implementation (50-25 cm error 0.206 against 0.333 at lambda = 0.04), and that with each method tuned to its own minimum the advantage is small (+0.023 in correlation in-sample, +0.009 out of sample), on one object.
 
 The bootstrap uncertainty is honest at the native 25 cm scale: held-out ±1σ coverage is 86%, against a target of 68%. It is not honest at the 6.25 cm output pixel.
 
@@ -184,11 +184,11 @@ Paired against GPT, by scene:
 |---|---|---|---|
 | Raw (1 pass, bicubic) | 100 cm | 0.75 / 0.44 / 0.07 | 0.183 |
 | Previous (ECC + CG Tikhonov) | 67 cm | 0.87 / 0.70 / 0.26 | 0.425 |
-| **GPT** (our re-implementation) | 67 cm | 0.86 / 0.62 / 0.16 | 0.237 |
-| GPT + noise weighting | 67 cm | 0.84 / 0.61 / 0.16 | 0.232 |
-| GPT + measured per-pass blur | 67 cm | 0.86 / 0.58 / 0.09 | 0.220 |
-| Full, residual weights (ablation) | 100 cm | 0.73 / 0.35 / 0.03 | 0.158 |
-| **Full (this work)** | 67 cm | 0.82 / 0.59 / 0.10 | 0.216 |
+| **GPT** (our re-implementation) | 67 cm | 0.87 / 0.64 / 0.18 | 0.263 |
+| GPT + noise weighting | 67 cm | 0.84 / 0.62 / 0.18 | 0.271 |
+| GPT + measured per-pass blur | 67 cm | 0.86 / 0.59 / 0.10 | 0.225 |
+| Full, residual weights (ablation) | 67 cm | 0.80 / 0.50 / 0.07 | 0.199 |
+| **Full (this work)** | 67 cm | 0.83 / 0.60 / 0.11 | 0.230 |
 
 **Rover edge** (landing site, 3 passes, sols 1–11). A narrower edge is sharper. Lower ringing and undershoot are cleaner.
 
@@ -196,17 +196,17 @@ Paired against GPT, by scene:
 |---|---|---|---|
 | Raw (1 pass, bicubic) | 23.3 | 9.2 | 18.1 |
 | Previous (ECC + CG Tikhonov) | 20.6 | 10.4 | 20.9 |
-| **GPT** (our re-implementation) | 12.4 | 17.8 | 51.2 |
-| GPT + noise weighting | 12.3 | 19.6 | 50.9 |
-| GPT + measured per-pass blur | 13.1 | 12.7 | 37.3 |
-| Full, residual weights (ablation) | 15.9 | 12.2 | 23.7 |
-| **Full (this work)** | 15.9 | 13.3 | 25.2 |
+| **GPT** (our re-implementation) | 14.1 | 16.2 | 42.2 |
+| GPT + noise weighting | 15.6 | 16.1 | 37.1 |
+| GPT + measured per-pass blur | 14.9 | 11.6 | 30.0 |
+| Full, residual weights (ablation) | 16.4 | 12.6 | 25.2 |
+| **Full (this work)** | 16.7 | 11.7 | 25.6 |
 
-- **Split-half consistency.** Mean coherence over 25–100 cm is 0.216 for the full chain and 0.237 for GPT (GPT ahead).
-- **Rover edge.** The edge is 15.9 cm (full) against 12.4 cm (GPT).
-  - Ringing: 13.3% against 17.8%.
-  - Undershoot: 25.2% against 51.2%.
-- **Residual weights.** The residual-weighted variant reaches 0.158 on split halves.
+- **Split-half consistency.** Mean coherence over 25–100 cm is 0.230 for the full chain and 0.263 for GPT (GPT ahead).
+- **Rover edge.** The edge is 16.7 cm (full) against 14.1 cm (GPT).
+  - Ringing: 11.7% against 16.2%.
+  - Undershoot: 25.6% against 42.2%.
+- **Residual weights.** The residual-weighted variant reaches 0.199 on split halves.
   Residual weights read illumination differences between passes as noise and collapse onto one pass, so each half is effectively a single image.
 
 ### 6.3 Uncertainty (test D)
@@ -291,8 +291,8 @@ Measuring a known object's blur, weighting passes by their own noise, and maskin
 - **Code and tests.** All code, tests (`pytest`, run on GitHub CI) and result files are in this repository. Raw data (about 12 GB) is listed with URLs in `benchmark/data_manifest.json`.
 - **CPU time (4 cores).**
   - Benchmark part A: 1208 s.
-  - Part B: 604 s.
-  - Part C: 215 s.
+  - Part B: 410 s.
+  - Part C: 148 s.
   - Bootstrap on a 32 m tile with 8 passes: 697 s.
 
 ## References

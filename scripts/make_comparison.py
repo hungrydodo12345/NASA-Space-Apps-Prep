@@ -22,12 +22,12 @@ from pipeline import pde_tv
 ap = argparse.ArgumentParser(); ap.add_argument("chain"); ap.add_argument("out"); ap.add_argument("name")
 ap.add_argument("--title", default=""); ap.add_argument("--zoom-m", type=float, default=8.0); ap.add_argument("--zoom-factor", type=int, default=4)
 ap.add_argument("--fill-png"); ap.add_argument("--fill-label", default="This work + confidence fill (P ≥ 0.5)")
-ap.add_argument("--iters", type=int, default=300)
+ap.add_argument("--iters", type=int, default=300); ap.add_argument("--lam", type=float, default=0.04, help="regularisation (real HiRISE default 0.04)")
 a = ap.parse_args(); os.makedirs(a.out, exist_ok=True)
 d = np.load(f"{a.chain}/chain.npz"); meta = json.load(open(f"{a.chain}/chain.json")); SC = meta["scale"]
 blur = json.load(open(os.path.join(ROOT, "data_products", "pass_blur.json")))
 frames = list(d["frames"].astype(float)); flows = list(zip(d["flows_dx"].astype(float), d["flows_dy"].astype(float)))
-used = meta["passes_used"]; sig = [blur[o]["sigma_px"] * SC for o in used]; LAM = 0.005
+used = meta["passes_used"]; sig = [blur[o]["sigma_px"] * SC for o in used]; LAM = a.lam
 
 panels = [("raw", f"Raw HiRISE {used[0].replace('_1985', '')}\n1 pass, native 25 cm pixels (shown as 4×4 blocks)", np.kron(frames[0], np.ones((SC, SC))))]
 panels.append(("ucl", "UCL pipeline\n(our re-implementation: Gotcha + PDE-TV, assumed blur)",
