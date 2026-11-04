@@ -201,6 +201,7 @@ if _IT and _IH and _IR:
 
 # ---------------- GPT blur sweep, blur mis-specification, resolved scales (added for the revision)
 if A:
+    V["blur_share"] = f"{100 * (mean('gpt', 'err_25cm') - mean('gpt+blur', 'err_25cm')) / (mean('gpt', 'err_25cm') - mean('full', 'err_25cm')):.0f}"
     for m, k in (("gpt-s0.5", "gpts05"), ("gpt-s0.75", "gpts075")):
         if m in A: V[f"e25_{k}"] = f2(mean(m, "err_25cm"))
     for m, k in (("full", "full"), ("gpt+blur", "gptb"), ("gpt", "gpt")):

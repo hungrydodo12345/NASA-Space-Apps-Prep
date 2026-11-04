@@ -72,24 +72,24 @@ Method details: [`docs/METHODS.md`](docs/METHODS.md). Code: [`benchmark/run_benc
 
 UCL did not release code or products. "UCL pipeline" is our re-implementation from the paper's equations, run on the same data and CPU.
 
-**A. Simulation with exact truth** (5 scenes). Setup: fractal ground, 8 passes with the measured per-pass blur, non-rigid jitter, 3% noise, and one pass with a planted change. Every method estimates its own motion. The error columns are RMS error as % of the true scene contrast; lower is better.
+**A. Simulation with exact truth** (20 scenes). Setup: fractal ground, 8 passes with the measured per-pass blur, non-rigid jitter, 3% noise, and one pass with a planted change. Every method estimates its own motion. The error columns are RMS error as % of the true scene contrast; lower is better.
 
 | Method | Error at native 25 cm | Error at 6.25 cm output pixel | Artefact at the planted change (× scene std) |
 |---|---|---|---|
-| Raw HiRISE, one pass (bicubic) | 12.8% | 38.7% | 1.26 |
-| Our previous pipeline (ECC + CG Tikhonov) | 5.2% | 34.8% | 1.48 |
-| **UCL pipeline** (our re-implementation of Tao & Muller 2016: Gotcha + PDE-TV, assumed blur) | 3.6% | 30.2% | 1.43 |
-| UCL + our weighting only | 4.7% | 32.6% | 1.09 |
-| UCL + our measured per-pass blur only | 2.6% | 27.6% | 1.29 |
-| This work with residual-based pass weights (rejected first version) | 1.4% | 29.9% | 1.03 |
-| **This work** (Gotcha + noise-weighted, change-masked PDE-TV + measured per-pass blur) | 1.4% | 29.8% | 1.01 |
-| This work with exact motion (upper bound) | 1.2% | 29.8% | 1.00 |
+| Raw HiRISE, one pass (bicubic) | 12.1% | 36.3% | 1.19 |
+| Our previous pipeline (ECC + CG Tikhonov) | 4.9% | 32.7% | 1.36 |
+| **UCL pipeline** (our re-implementation of Tao & Muller 2016: Gotcha + PDE-TV, assumed blur) | 3.5% | 28.4% | 1.38 |
+| UCL + our weighting only | 4.2% | 30.5% | 1.02 |
+| UCL + our measured per-pass blur only | 2.6% | 26.1% | 1.24 |
+| This work with residual-based pass weights (rejected first version) | 1.4% | 28.0% | 0.97 |
+| **This work** (Gotcha + noise-weighted, change-masked PDE-TV + measured per-pass blur) | 1.4% | 27.9% | 0.96 |
+| This work with exact motion (upper bound) | 1.2% | 27.9% | 0.96 |
 
 **This work vs UCL, paired by scene:**
 
-- **25 cm:** -2.13 points (95% CI -2.21 to -2.02), a 60% relative reduction. Better in 5/5 scenes.
-- **Artefact at the planted change:** -0.42 (95% CI -0.50 to -0.34). Better in 5/5 scenes.
-- **6.25 cm:** -0.42 points (95% CI -0.53 to -0.29). Better in 5/5 scenes.
+- **25 cm:** -2.11 points (95% CI -2.16 to -2.06), a 60% relative reduction. Better in 20/20 scenes.
+- **Artefact at the planted change:** -0.41 (95% CI -0.47 to -0.35). Better in 20/20 scenes.
+- **6.25 cm:** -0.52 points (95% CI -0.59 to -0.45). Better in 20/20 scenes.
 
 - **Ablation:** at the 6.25 cm output pixel, adding only our measured blur to UCL does best. The weighting trades a little fine-pixel error for robustness to changes between passes.
 - **Ablation:** weighting without the measured blur makes UCL worse. Its residual-based pass weights are misled by the wrong blur model, so the two changes must go together.
