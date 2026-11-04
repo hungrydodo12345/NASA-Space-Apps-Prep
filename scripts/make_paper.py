@@ -252,6 +252,19 @@ if S2:
         if f == "raw": rows.append(f"| {n_} | {1 - cv2_['50-25 cm']['raw']['0.0']:.3f} | – | {1 - cv2_['1 m-50 cm']['raw']['0.0']:.3f} | – |")
         else: rows.append(f"| {n_} | {1 - cv2_['50-25 cm'][f]['0.04']:.3f} | {1 - b2['50-25 cm'][f][1]:.3f} (λ = {b2['50-25 cm'][f][0]}) | {1 - cv2_['1 m-50 cm'][f]['0.04']:.3f} | {1 - b2['1 m-50 cm'][f][1]:.3f} (λ = {b2['1 m-50 cm'][f][0]}) |")
     V["table_site2"] = "\n".join(rows)
+
+CX = J("benchmark", "results", "ingenuity_truth", "cross_site.json")
+if CX:
+    rows = ["| Band | Settings chosen on | Scored on | GPT (blur and λ chosen) | GPT + measured blur | **This work** | Raw HiRISE |", "|---|---|---|---|---|---|---|"]
+    for b in ("50-25 cm", "1 m-50 cm"):
+        for k, (a_, b_) in (("backshell_to_site2", ("backshell", "site 2")), ("site2_to_backshell", ("site 2", "backshell"))):
+            r = CX[b][k]; c = lambda g: f"{r[g]['corr_at_target']:.3f} ({r[g]['best_possible_at_target']:.3f})"
+            rows.append(f"| {b.replace('-', '–')} | {a_} | {b_} | {c('gpt-any')} | {c('gpt+blur')} | {c('full')} | {r['raw_at_target']:.3f} |")
+    V["table_cross"] = "\n".join(rows)
+    r1, r2 = CX["50-25 cm"]["backshell_to_site2"], CX["50-25 cm"]["site2_to_backshell"]
+    V["cx_full_loss"] = f"{max(r1['full']['best_possible_at_target'] - r1['full']['corr_at_target'], r2['full']['best_possible_at_target'] - r2['full']['corr_at_target']):.3f}"
+    V["cx_gpt_loss"] = f"{min(r1['gpt-any']['best_possible_at_target'] - r1['gpt-any']['corr_at_target'], r2['gpt-any']['best_possible_at_target'] - r2['gpt-any']['corr_at_target']):.3f}–{max(r1['gpt-any']['best_possible_at_target'] - r1['gpt-any']['corr_at_target'], r2['gpt-any']['best_possible_at_target'] - r2['gpt-any']['corr_at_target']):.3f}"
+    V["cx_gpt_bs"], V["cx_raw_bs"], V["cx_full_bs"] = f"{r2['gpt-any']['corr_at_target']:.3f}", f"{r2['raw_at_target']:.3f}", f"{r2['full']['corr_at_target']:.3f}"
 tpl = open(os.path.join(ROOT, "docs", "paper", "paper_template.md")).read()
 missing = sorted(set(re.findall(r"\{\{(\w+)\}\}", tpl)) - set(V))
 out = re.sub(r"\{\{(\w+)\}\}", lambda m: str(V.get(m.group(1), PEND)), tpl)

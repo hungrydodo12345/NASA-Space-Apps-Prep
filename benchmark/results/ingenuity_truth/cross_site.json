@@ -1,0 +1,78 @@
+{
+ "1 m-50 cm": {
+  "backshell_to_site2": {
+   "raw_at_target": 0.7527839092336812,
+   "gpt-any": {
+    "setting": "gpt-s0.5__0.1",
+    "corr_at_target": 0.7467691740404663,
+    "best_possible_at_target": 0.7540469034044665
+   },
+   "full": {
+    "setting": "full__0.1",
+    "corr_at_target": 0.7596959686169689,
+    "best_possible_at_target": 0.7618341624596724
+   },
+   "gpt+blur": {
+    "setting": "gpt+blur__1.0",
+    "corr_at_target": 0.7420110299541637,
+    "best_possible_at_target": 0.7532542847541581
+   }
+  },
+  "site2_to_backshell": {
+   "raw_at_target": 0.8945207857755068,
+   "gpt-any": {
+    "setting": "gpt-s0.5__10.0",
+    "corr_at_target": 0.8987284335222326,
+    "best_possible_at_target": 0.9077843557197819
+   },
+   "full": {
+    "setting": "full__0.4",
+    "corr_at_target": 0.9115997603633852,
+    "best_possible_at_target": 0.9166422135473964
+   },
+   "gpt+blur": {
+    "setting": "gpt+blur__10.0",
+    "corr_at_target": 0.8981658757641646,
+    "best_possible_at_target": 0.9082710162496771
+   }
+  }
+ },
+ "50-25 cm": {
+  "backshell_to_site2": {
+   "raw_at_target": 0.6037262135793581,
+   "gpt-any": {
+    "setting": "gpt__3.0",
+    "corr_at_target": 0.6065613817169642,
+    "best_possible_at_target": 0.6525770017347705
+   },
+   "full": {
+    "setting": "full__0.1",
+    "corr_at_target": 0.6687035962784544,
+    "best_possible_at_target": 0.6695872086274367
+   },
+   "gpt+blur": {
+    "setting": "gpt+blur__3.0",
+    "corr_at_target": 0.6014199306984769,
+    "best_possible_at_target": 0.650409117988226
+   }
+  },
+  "site2_to_backshell": {
+   "raw_at_target": 0.7513232861323946,
+   "gpt-any": {
+    "setting": "gpt-s0.75__0.1",
+    "corr_at_target": 0.7187893999177803,
+    "best_possible_at_target": 0.7711484064193849
+   },
+   "full": {
+    "setting": "full__0.2",
+    "corr_at_target": 0.7856074213103922,
+    "best_possible_at_target": 0.7967220005802459
+   },
+   "gpt+blur": {
+    "setting": "gpt+blur__0.2",
+    "corr_at_target": 0.7410297859850792,
+    "best_possible_at_target": 0.7731529348756866
+   }
+  }
+ }
+}
