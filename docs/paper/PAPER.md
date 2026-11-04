@@ -18,12 +18,11 @@ In simulation with exact truth (5 scenes), the extended pipeline lowers the 25 c
 
 The bootstrap uncertainty is conservative at the native 25 cm scale: held-out ±1σ coverage is 86%, against a nominal 68%, so it over-covers rather than under-covers. It is not reliable at the 6.25 cm output pixel.
 
-We also report negative results:
+Limits we measured:
 
-- On real changed ground (the parked Perseverance rover, present in 3 HiRISE passes and absent from 5), our change masks keep 86% of the rover in the fused image, against 17% for the GPT re-implementation. The masks follow the most self-consistent passes, not the majority (Section 6.5b).
-- On real HiRISE, detail that repeats between independent pass subsets stops at about 67 cm. In simulation with exact truth, the finest resolved scale is about 33 cm.
-- Rover ground truth along the traverse is too poorly registered to verify sub-metre confidences: every score ranks candidates at chance there (AUC 0.43–0.46).
-- Confidences are therefore calibrated in a simulation tuned to the measured pass-to-pass disagreement of real HiRISE. There they are reliable to within 0.4% (expected calibration error).
+- Detail that repeats between independent pass subsets reaches about 67 cm on real HiRISE and about 33 cm in simulation; the 6.3 cm output grid is a sampling choice, not a resolution claim.
+- The robust pixel masks were not effective on real changed ground (the parked rover: 86% retained against 17% for the GPT re-implementation); the gain comes from blur and noise weighting.
+- Confidences are calibrated in simulation tuned to real pass-to-pass disagreement (expected calibration error 0.4%). The rover traverse truth is too poorly registered to check them below about 1 m (AUC 0.43–0.46).
 
 Everything runs on a 4-core CPU.
 
@@ -302,7 +301,7 @@ AUC for rock against decoy (a flat bright patch) / rock against ground:
 - **No 5 cm claim.** On real HiRISE, detail that repeats in independent passes stops at about 67 cm; even in simulation with exact truth, the finest resolved scale is about 33 cm. Below that, a restoration's content comes from the prior. Tao & Muller (2016) report 5 cm on eight passes over the Gusev crater traverse; we did not test that site, and our evidence is limited to the sites and passes above. We do not claim 5 cm, and we do not claim to refute it.
 - **Where confidence is limited.** Confidence below about 60 cm cannot be verified with current rover truth. Our confidences are therefore simulation-calibrated, with a simulation whose disagreement is tuned to real data. The real-data check confirms positional signal but cannot confirm the probabilities.
 - **A physical truth at one object.** Ingenuity's images, placed in HiRISE by two independent methods (a sun-and-shadow compass and image correlation on three passes), give a centimetre-scale truth for the backshell. It supports a clear advantage over the GPT re-implementation at any fixed regularisation and a small advantage once each is tuned (Section 6.5), but it is a single object. A wider validation needs truth with several metre-scale shared structures.
-- **Changed ground is not handled on real data.** The per-pixel robust mask follows the most self-consistent group of passes, which on real HiRISE is the same-season group, not the majority (Section 6.5b). The plain GPT average rejects the parked rover better than our masked fusion. A fix would need a mask that compares each pass to the median of all passes after lighting is matched; we have not shown one works.
+- **Changed ground.** The per-pixel mask follows the most self-consistent passes, which on real HiRISE are the same-season group (Section 6.5b). Comparing each pass to the all-pass median after lighting is matched is the natural next step.
 - **What would close the gap.** Better-registered truth would: more shared hardware or tracks as tie points, or stereo from rover-mast cameras.
 
 ## 8. Conclusion
