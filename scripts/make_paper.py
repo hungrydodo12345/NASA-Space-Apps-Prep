@@ -235,6 +235,23 @@ if _IT2 and "best_gpt_any" in _IT2:
             gv = {f: _IH2[b][f]["heldout"] for f in ("gpt", "gpt-s0.5", "gpt-s0.75") if f in _IH2[b]}; fb = max(gv, key=gv.get)
             V[f"held_full_{k}"], V[f"held_gptbest_{k}"] = f"{_IH2[b]['full']['heldout']:.3f}", f"{gv[fb]:.3f}"
             V[f"held_gptbest_name_{k}"] = {"gpt": "1 px", "gpt-s0.5": "0.5 px", "gpt-s0.75": "0.75 px"}[fb]
+
+# ---------------- second Ingenuity truth site (flights 4-5, sol 76)
+S2 = J("benchmark", "results", "ingenuity_truth", "site2_final.json")
+if S2:
+    cv2_, b2, bs2, h2 = S2["curves"], S2["best"], S2["bootstrap"], S2["heldout"]; GV = ("gpt", "gpt-s0.5", "gpt-s0.75")
+    V["s2_area"] = f"{S2['area_m2']:.0f}"
+    for b, k in (("50-25 cm", "50"), ("1 m-50 cm", "100")):
+        V[f"s2_t04_full_{k}"] = f"{1 - cv2_[b]['full']['0.04']:.3f}"; V[f"s2_t04_gptbest_{k}"] = f"{min(1 - cv2_[b][f]['0.04'] for f in GV):.3f}"
+        d = bs2[b]["full"]; V[f"s2_tuned_{k}"] = f"{d['mean']:+.3f} (95% interval {d['ci95'][0]:+.3f} to {d['ci95'][1]:+.3f})"
+        for f, kk in (("full-b0.8", "b08"), ("full-b1.2", "b12")):
+            d = bs2[b][f]; V[f"s2_{kk}_{k}"] = f"{d['mean']:+.3f} ({d['ci95'][0]:+.3f} to {d['ci95'][1]:+.3f})"
+        V[f"s2_held_full_{k}"] = f"{h2[b]['full']['heldout']:.3f}"; V[f"s2_held_gptbest_{k}"] = f"{max(h2[b][f]['heldout'] for f in GV):.3f}"; V[f"s2_held_raw_{k}"] = f"{h2[b]['raw']['heldout']:.3f}"
+    rows = ["| Method | Error, λ = 0.04 (50–25 cm) | Error at own best λ (50–25 cm) | Error, λ = 0.04 (1 m–50 cm) | Error at own best λ (1 m–50 cm) |", "|---|---|---|---|---|"]
+    for f, n_ in (("raw", "Raw HiRISE, one pass"), ("gpt", "GPT, assumed blur 1 px"), ("gpt-s0.75", "GPT, assumed blur 0.75 px"), ("gpt-s0.5", "GPT, assumed blur 0.5 px"), ("gpt+blur", "GPT + measured blur"), ("full", "**This work**")):
+        if f == "raw": rows.append(f"| {n_} | {1 - cv2_['50-25 cm']['raw']['0.0']:.3f} | – | {1 - cv2_['1 m-50 cm']['raw']['0.0']:.3f} | – |")
+        else: rows.append(f"| {n_} | {1 - cv2_['50-25 cm'][f]['0.04']:.3f} | {1 - b2['50-25 cm'][f][1]:.3f} (λ = {b2['50-25 cm'][f][0]}) | {1 - cv2_['1 m-50 cm'][f]['0.04']:.3f} | {1 - b2['1 m-50 cm'][f][1]:.3f} (λ = {b2['1 m-50 cm'][f][0]}) |")
+    V["table_site2"] = "\n".join(rows)
 tpl = open(os.path.join(ROOT, "docs", "paper", "paper_template.md")).read()
 missing = sorted(set(re.findall(r"\{\{(\w+)\}\}", tpl)) - set(V))
 out = re.sub(r"\{\{(\w+)\}\}", lambda m: str(V.get(m.group(1), PEND)), tpl)

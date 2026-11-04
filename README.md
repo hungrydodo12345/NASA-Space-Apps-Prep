@@ -153,6 +153,8 @@ Ingenuity photographed the debris field from 8 m up (flight 26, sol 414) at abou
 - **Limits:** one 1.5 m object, chosen after a 181 m² rock-field patch proved uninformative (the truth was taken at midday and HiRISE in the afternoon, so rocks look completely different); this cannot establish a general result.
 
 
+
+**Second truth site (flights 4–5, sol 76).** JPL's 1 cm Ingenuity orthomosaic south of the landing spot, placed in HiRISE by a translation (site frame 3 is north-aligned). Over 626 m², this work beats GPT with its blur and λ both tuned by +0.017 in correlation at 50–25 cm (95% interval +0.006 to +0.026). Details: METHODS 7e.
 <!-- TRUTH:END -->
 
 ## How it works
