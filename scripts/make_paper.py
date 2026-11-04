@@ -150,7 +150,7 @@ if IT and IH and IR:
                        f"Out of sample (lambda chosen on one half of the disc, scored on the other): {IH['1 m-50 cm']['full']['heldout'] - IH['1 m-50 cm']['gpt']['heldout']:+.3f} (1 m-50 cm) and {IH['50-25 cm']['full']['heldout'] - IH['50-25 cm']['gpt']['heldout']:+.3f} (50-25 cm). "
                        "The 1 m-50 cm advantage is stable across disc radii of 2.5-8 m (+0.007 to +0.010 in correlation); the 25-50 cm advantage is not (it disappears at 8 m). " f"Over 45 plausible placements the full chain is ahead of GPT in {100 * IR['summary']['50-25 cm']['vs_gpt']['full']['frac_better']:.0f}% of them at 50-25 cm and {100 * IR['summary']['1 m-50 cm']['vs_gpt']['full']['frac_better']:.0f}% at 1 m-50 cm.")
     rows = ["| Method | Error at its minimum (50-25 cm) | at lambda | at lambda = 0.005 | at lambda = 0.04 |", "|---|---|---|---|---|"]
-    for f, n_ in (("gpt", "UCL re-implementation (GPT)"), ("gpt+blur", "GPT + measured blur"), ("full-equal", "this work, equal weights"), ("full", "**this work**")):
+    for f, n_ in (("gpt", "GPT (simplified re-implementation)"), ("gpt+blur", "GPT + measured blur"), ("full-equal", "this work, equal weights"), ("full", "**this work**")):
         rows.append(f"| {n_} | {e('50-25 cm', f):.3f} | {b['50-25 cm'][f][0]} | {1 - cv['50-25 cm'][f]['0.005']:.3f} | {1 - cv['50-25 cm'][f]['0.04']:.3f} |")
     rows.append(f"| raw HiRISE | {e('50-25 cm', 'raw'):.3f} | none | none | none |")
     V["table_truth"] = "Error = 1 - correlation with the truth in the 25-50 cm band, within 4 m of the backshell, with a +-0.25 m placement tolerance applied equally to all methods.\n\n" + "\n".join(rows)
@@ -164,7 +164,7 @@ if CG:
                          "The robust masks therefore cause the leak. Inside the footprint they give weight 0.82-0.92 to the three same-season rover passes but only 0.25-0.59 to the five rover-free passes (0.88-0.92 everywhere else): the five rover-free passes differ from each other in season and lighting, so the mask trusts the three that agree with each other. "
                          "The change mask measures self-consistency, not the majority. This test does not support the claim that our masking handles changed ground on real HiRISE; the simulated planted-change result stands only for a change that is large compared with the noise and visible in a single pass.")
     V["ghost_full"] = f"{100 * g('3present_5free', 'full'):.0f}%"; V["ghost_gpt"] = f"{100 * g('3present_5free', 'gpt'):.0f}%"
-    rows = ["| Passes (rover / rover-free) | UCL re-implementation | UCL + measured blur | This work | This work, equal weights | This work, no robust mask |", "|---|---|---|---|---|---|"]
+    rows = ["| Passes (rover / rover-free) | GPT re-implementation | GPT + measured blur | This work | This work, equal weights | This work, no robust mask |", "|---|---|---|---|---|---|"]
     for k, r in cf.items():
         a_, b_ = k.split("present_"); rows.append(f"| {a_} / {b_.replace('free', '')} | " + " | ".join(f"{r[m]['ghost']:.2f}" for m in ("gpt", "gpt+blur", "full", "full-equal", "full-nomask")) + " |")
     V["table_changed"] = "Ghost fraction of the parked rover in the restoration (0 = rover rejected, 1 = rover kept):\n\n" + "\n".join(rows)
