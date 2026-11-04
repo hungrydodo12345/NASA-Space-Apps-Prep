@@ -147,6 +147,7 @@ Ingenuity photographed the debris field from 8 m up (flight 26, sol 414) at abou
 - **At the same regularisation, this work is much closer to the truth** than the UCL re-implementation (at λ = 0.04: 0.206 against 0.333).
 - **Each tuned to its own minimum:** 1 m–50 cm +0.010 (95% CI +0.003 to +0.015); 50–25 cm +0.023 (95% CI -0.004 to +0.051) in correlation; both curves are U-shaped, so the minima are real.
 - **Out of sample** (settings chosen on one half of the disc, scored on the other): +0.009 at 50–25 cm. Most of the in-sample gain comes from tuning on the same data.
+- **Disc radius:** the 1 m–50 cm advantage is stable at 2.5, 4, 6 and 8 m (+0.007 to +0.010 in correlation, bootstrap interval above zero at 4, 6 and 8 m); the 25–50 cm advantage is not (it disappears at 8 m, where the patch includes the rock field the truth cannot resolve at that scale).
 - **Placement robustness:** ahead of UCL in 91% of 45 plausible placements at 50–25 cm.
 - **Limits:** one 1.5 m object, chosen after a 181 m² rock-field patch proved uninformative (the truth was taken at midday and HiRISE in the afternoon, so rocks look completely different); this cannot establish a general result.
 
