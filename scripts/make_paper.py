@@ -36,6 +36,7 @@ if A:
         if m in A: rows.append(f"| {NAMES[m]} | {mean(m, 'err_25cm'):.2f} | {mean(m, 'err_6cm'):.2f} | {mean(m, 'artefact'):.2f} | {mean(m, 'resolved_cm'):.0f} |")
     V["table_sim"] = "\n".join(rows)
     V["gpt_e25"], V["full_e25"] = f2(mean("gpt", "err_25cm")), f2(mean("full", "err_25cm"))
+    V["rel_abs"] = f"{100 * abs(mean('full', 'err_25cm') - mean('gpt', 'err_25cm')) / mean('gpt', 'err_25cm'):.0f}"
     V["rel_e25"] = f"{100 * (mean('full', 'err_25cm') - mean('gpt', 'err_25cm')) / mean('gpt', 'err_25cm'):+.0f}"
     V["gpt_art"], V["full_art"] = f2(mean("gpt", "artefact")), f2(mean("full", "artefact"))
     P = A.get("paired_vs_gpt", {})
@@ -154,6 +155,47 @@ if IT and IH and IR:
         rows.append(f"| {n_} | {e('50-25 cm', f):.3f} | {b['50-25 cm'][f][0]} | {1 - cv['50-25 cm'][f]['0.005']:.3f} | {1 - cv['50-25 cm'][f]['0.04']:.3f} |")
     rows.append(f"| raw HiRISE | {e('50-25 cm', 'raw'):.3f} | none | none | none |")
     V["table_truth"] = "Error = 1 - correlation with the truth in the 25-50 cm band, within 4 m of the backshell, with a +-0.25 m placement tolerance applied equally to all methods.\n\n" + "\n".join(rows)
+
+# ---------------- narrative values for the paper text (compact tables and inline numbers)
+if A:
+    for m, k in (("raw", "raw"), ("gpt", "gpt"), ("gpt+weights", "gptw"), ("gpt+blur", "gptb"), ("full", "full"), ("oracle", "oracle")):
+        if m in A: V[f"e25_{k}"], V[f"e6_{k}"] = f2(mean(m, "err_25cm")), f1(mean(m, "err_6cm"))
+    NM = {"raw": "Raw HiRISE, one pass", "gpt": "GPT (simplified re-implementation)", "gpt+weights": "GPT + noise weighting", "gpt+blur": "GPT + measured blur", "full": "**This work** (measured blur + noise weighting)", "oracle": "This work with exact motion (upper bound)"}
+    rows = ["| Method | Error at 25 cm (%) | Error at 6.25 cm (%) | Largest error at planted change (× std) |", "|---|---|---|---|"]
+    for m in NM:
+        if m in A: rows.append(f"| {NM[m]} | {mean(m, 'err_25cm'):.2f} | {mean(m, 'err_6cm'):.1f} | {mean(m, 'artefact'):.2f} |")
+    V["table_sim2"] = "\n".join(rows)
+if Bs and Cr:
+    NR = {"raw": "Raw HiRISE, one pass", "gpt": "GPT (simplified re-implementation)", "gpt+blur": "GPT + measured blur", "full": "**This work**"}
+    rows = ["| Method | Split-half coherence, 25–100 cm | Halves agree down to | Boulder edge σ (cm) | Ringing (% of step) | Largest undershoot (% of step) |", "|---|---|---|---|---|---|"]
+    for m in NR:
+        if m in Bs and m in Cr:
+            rc = Bs[m]["consistent_down_to_cm"]
+            rows.append(f"| {NR[m]} | {np.mean(Bs[m]['coherence_by_band'][1:8]):.3f} | {('%.0f cm' % rc) if rc else '–'} | {Cr[m]['edge_sigma_cm']:.1f} | {100 * Cr[m]['ringing_rms_of_amplitude']:.1f} | {100 * Cr[m]['max_undershoot_of_amplitude']:.1f} |")
+    V["table_real2"] = "\n".join(rows)
+    for m, k in (("gpt", "gpt"), ("full", "full"), ("gpt+blur", "gptb")):
+        V[f"coh_{k}"] = f"{np.mean(Bs[m]['coherence_by_band'][1:8]):.3f}"; V[f"edge_{k}"] = f1(Cr[m]["edge_sigma_cm"])
+        V[f"ring_{k}"] = f1(100 * Cr[m]["ringing_rms_of_amplitude"]); V[f"under_{k}"] = f"{100 * Cr[m]['max_undershoot_of_amplitude']:.0f}"
+if sig:
+    V["blur_min"], V["blur_max"] = f"{min(sig.values()):.2f}", f"{max(sig.values()):.2f}"
+BU = J("results", "bootstrap_uncertainty_simulation.json")
+if BU:
+    c = BU["scales"]["25 cm (native HiRISE pixel)"]["scene_B_heldout"]["coverage_calibrated"]; V["cov25_1"], V["cov25_2"] = f"{100 * c['1.0']:.0f}", f"{100 * c['2.0']:.0f}"
+_IT = J("benchmark", "results", "ingenuity_truth", "object_final.json"); _IH = J("benchmark", "results", "ingenuity_truth", "object_heldout.json"); _IR = J("benchmark", "results", "ingenuity_truth", "object_robust_placements.json")
+if _IT and _IH and _IR:
+    cv, bst, bs_ = _IT["curves"], _IT["best"], _IT["bootstrap"]
+    for b, k in (("50-25 cm", "50"), ("1 m-50 cm", "100")):
+        V[f"t04_gpt_{k}"], V[f"t04_full_{k}"] = f"{1 - cv[b]['gpt']['0.04']:.3f}", f"{1 - cv[b]['full']['0.04']:.3f}"
+        V[f"tb_gpt_{k}"], V[f"tb_full_{k}"] = f"{1 - bst[b]['gpt'][1]:.3f}", f"{1 - bst[b]['full'][1]:.3f}"
+        V[f"traw_{k}"] = f"{1 - cv[b]['raw']['0.0']:.3f}"
+        d = bs_[b]["full"]; V[f"tuned_{k}"] = f"{d['mean']:+.3f} (95% interval {d['ci95'][0]:+.3f} to {d['ci95'][1]:+.3f})"
+        V[f"held_{k}"] = f"{_IH[b]['full']['heldout'] - _IH[b]['gpt']['heldout']:+.3f}"
+        V[f"place_{k}"] = f"{100 * _IR['summary'][b]['vs_gpt']['full']['frac_better']:.0f}"
+    rows = ["| Method | Error, λ = 0.04 (50–25 cm) | Error at own best λ (50–25 cm) | Error, λ = 0.04 (1 m–50 cm) | Error at own best λ (1 m–50 cm) |", "|---|---|---|---|---|"]
+    for f, n_ in (("raw", "Raw HiRISE, one pass"), ("gpt", "GPT (simplified re-implementation)"), ("gpt+blur", "GPT + measured blur"), ("full", "**This work**")):
+        if f == "raw": rows.append(f"| {n_} | {1 - cv['50-25 cm']['raw']['0.0']:.3f} | – | {1 - cv['1 m-50 cm']['raw']['0.0']:.3f} | – |")
+        else: rows.append(f"| {n_} | {1 - cv['50-25 cm'][f]['0.04']:.3f} | {1 - bst['50-25 cm'][f][1]:.3f} (λ = {bst['50-25 cm'][f][0]}) | {1 - cv['1 m-50 cm'][f]['0.04']:.3f} | {1 - bst['1 m-50 cm'][f][1]:.3f} (λ = {bst['1 m-50 cm'][f][0]}) |")
+    V["table_truth2"] = "\n".join(rows)
 tpl = open(os.path.join(ROOT, "docs", "paper", "paper_template.md")).read()
 missing = sorted(set(re.findall(r"\{\{(\w+)\}\}", tpl)) - set(V))
 out = re.sub(r"\{\{(\w+)\}\}", lambda m: str(V.get(m.group(1), PEND)), tpl)

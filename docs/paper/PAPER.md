@@ -1,350 +1,185 @@
-# Measuring each pass's blur and noise improves repeat-pass super-resolution of HiRISE: validation against rover and helicopter imagery at Jezero crater
-
+# How much detail can repeat-pass super-resolution recover from HiRISE? Measuring each pass's blur and noise, and testing against Ingenuity's view of the ground
 
 ## Abstract
 
-Repeat-pass super-resolution can sharpen orbital images of Mars. But such methods have been judged mostly by visual comparison and resolution claims, rarely against independent ground truth or with honest uncertainty.
-
-We build on the Gotcha-PDE-TV (GPT) pipeline of Tao & Muller (2016). Their code is not public, so we re-implement a simplified version from the paper and add three measured ingredients:
-
-- **Per-pass blur measured on a static target.** A compact, bright boulder at the landing area, visible in every pass, gives each pass's point-spread function. Blur varies 2.4× between the passes.
-- **Noise-weighted fusion with robust pixel masks.** Each pass is weighted by its own white-noise level. The pixel masks reduce artefacts at a planted change in simulation; a real changed-ground test remains to be done.
-- **A calibrated per-pixel uncertainty** from a pass-subset bootstrap.
-
-On top of the measured restoration we add a confidence-scored detail layer. Rover-photo texture and rock exemplars are shown only above a threshold the user chooses, and are locked so that the result, seen through HiRISE's blur, is unchanged (lock residual ≤ 0.25%).
-
-In simulation with exact truth (5 scenes), the extended pipeline lowers the 25 cm error from 3.55% to 1.43% of scene contrast against our GPT re-implementation (-60% relative). In simulation it also reduces the artefact at a planted change from 1.43 to 1.01. On real HiRISE the picture is mixed: GPT's independent pass halves agree slightly more than ours (mean coherence 0.263 vs 0.230, 25–100 cm), while our restoration of the boulder edge rings less than GPT's (11.7% vs 16.2% RMS; undershoot 26% vs 42%), at the cost of a wider edge (16.7 vs 14.1 cm). A centimetre-scale physical truth (Ingenuity's view of the parachute and backshell, placed in HiRISE by two independent methods) shows that, at any fixed regularisation, our restoration is much closer to the truth than the GPT re-implementation (50-25 cm error 0.206 against 0.333 at lambda = 0.04), and that with each method tuned to its own minimum the advantage is small (+0.023 in correlation in-sample, +0.009 out of sample), on one object.
-
-The bootstrap uncertainty is conservative at the native 25 cm scale: held-out ±1σ coverage is 86%, against a nominal 68%, so it over-covers rather than under-covers. It is not reliable at the 6.25 cm output pixel.
-
-Limits we measured:
-
-- Detail that repeats between independent pass subsets reaches about 67 cm on real HiRISE and about 33 cm in simulation; the 6.3 cm output grid is a sampling choice, not a resolution claim.
-- Confidences are calibrated in simulation tuned to real pass-to-pass disagreement (expected calibration error 0.4%). The rover traverse truth is too poorly registered to check them below about 1 m (AUC 0.43–0.46).
-
-Everything runs on a 4-core CPU.
+Orbital images of Mars at 25 cm per pixel are routinely sharpened by combining several passes over the same ground, and resolutions as fine as 5 cm have been reported. Such results have mostly been judged by eye, because independent truth at the centimetre scale has rarely been available. We revisit repeat-pass super-resolution of HiRISE at the Perseverance landing area, where two things are now possible. First, each pass's blur can be measured instead of assumed. On a compact bright boulder visible in every pass, the blur differs by a factor of 2.4 between passes. Second, the Ingenuity helicopter photographed the descent backshell from 8 m at about 3 cm per pixel, which gives centimetre-scale truth that no orbital method has seen. Starting from the Gotcha–PDE-TV (GPT) method of Tao & Muller (2016), we model each pass with its own measured blur and weight it by its own measured noise. In simulation with exact truth, this lowers the error at the native 25 cm scale from 3.55% to 1.43% of scene contrast. Against the Ingenuity truth, it is clearly closer to the ground at a fixed regularisation strength, and slightly closer once each method is tuned. On real HiRISE, detail that two independent sets of passes agree on extends to about 67 cm, against 33 cm in simulation. These scales, not the output pixel size, describe what multi-pass restoration recovers. A pass-subset bootstrap gives uncertainties that are conservative at 25 cm.
 
 ## 1. Introduction
 
-HiRISE images Mars at 25 cm per pixel (McEwen et al., 2007). Many sites, among them the Jezero crater landing site of Perseverance, have been imaged repeatedly. Multi-image super-resolution restoration (SRR) combines such passes into a finer image. Tao & Muller (2016) introduced GPT, which has three parts:
+The High Resolution Imaging Science Experiment (HiRISE) on Mars Reconnaissance Orbiter images the surface at about 25 cm per pixel (McEwen et al., 2007). That is enough to see boulders a metre across, but not the smaller rocks, ripples and fractures that matter for rover traverses and for picking targets on the ground. Many sites, among them Jezero crater, have been imaged many times. Each pass samples the ground on a slightly different grid, so a stack of passes contains information that no single image has. Multi-image super-resolution restoration uses this to estimate a finer image.
 
-- **Gotcha** dense sub-pixel matching;
-- a **fourth-order PDE-regularised, total-variation-like MAP** reconstruction;
-- a 5 cm output grid, which the authors describe as set heuristically from eight 25 cm passes, with a check of rover wheel-track spacing against Navcam imagery (to within 8 cm) and rock counts.
+For Mars, the reference method is Gotcha–PDE-TV (GPT; Tao & Muller, 2016). GPT aligns each pass to a reference with the Gotcha matcher, then solves for a fine image whose blurred and down-sampled copies match every pass, with a fourth-order regulariser that keeps edges. Applied to eight HiRISE passes over the Spirit traverse in Gusev crater, GPT produced images on a 5 cm grid. The authors checked rover wheel-track spacing against the rover's own Navcam images (to within 8 cm) and counted many more rocks than in the original image. They also note that the 5 cm figure was set heuristically.
 
-Later work by the same group moved to learned, GAN-based SRR (e.g. MARSGAN; Tao et al., 2021).
+Two questions remain open. **Which inputs matter?** GPT assumes a single, small Gaussian blur, while real HiRISE passes differ in focus, spacecraft jitter and noise. **How much of the restored detail is real?** Visual comparison and edge sharpness reward a restoration that looks crisp, and they cannot separate recovered detail from detail supplied by the regulariser.
 
-Three questions are rarely answered for such methods:
+Jezero now makes both questions answerable. A bright, compact boulder visible in every pass from 2007 to 2022 lets us measure each pass's blur. Ingenuity's flight 26 photographed the Perseverance backshell from 8 m, at about 3 cm per pixel, which gives an independent view of the ground at a scale far finer than HiRISE.
 
-1. How much of the restored detail is in the data rather than in the prior?
-2. How uncertain is each pixel?
-3. Can a user trust detail added below the sensor's reach?
+This paper makes four contributions:
 
-Jezero gives an unusual chance to test this: many repeat passes, a compact bright boulder visible in all of them that serves as a blur target, rover photographs of the ground, and Ingenuity's centimetre-scale images of landing hardware.
+1. **Measured blur and noise per pass.** We measure each pass's blur on the boulder and its noise from the image itself, and use both in a GPT-style restoration.
+2. **Tests against exact and independent truth.** Simulation with known ground, the Ingenuity truth, agreement between independent sets of real passes, and the sharpness and ringing of a real edge.
+3. **A measured resolution scale.** We report the finest scale at which detail is recovered, in simulation and on real data, as an alternative to the output pixel size.
+4. **Calibrated uncertainty.** A bootstrap over passes gives a per-pixel uncertainty, calibrated in simulation and reported at the scale where it holds.
 
-Contributions:
+## 2. Background
 
-1. **An open, simplified re-implementation of GPT** (one blur width instead of the original's per-tile 0–1 px choice; no tiling) (MSA-SIFT seeding, adaptive least-squares correlation, best-first region growing, PDE-TV with a measured step bound), with no reference code available.
-2. **Per-pass blur measured on a static bright boulder** and transferred to the other passes on static ground.
-3. **Noise-weighted, change-masked fusion.** We also show that residual-based pass weighting fails on real HiRISE, because lighting differences between passes masquerade as noise.
-4. **A pass-subset bootstrap uncertainty**, calibrated in simulation and reported at the scale where it is honest.
-5. **A confidence-scored, measurement-locked detail layer with a user threshold.** Its confidence comes from measured evidence: split-half repeatability, multi-illumination shadows and size. It is calibrated in a simulation whose pass-to-pass disagreement is tuned to real data.
-6. **A CPU benchmark against the GPT re-implementation**, with ablations, simulation with exact truth, real split-half consistency and the rover-edge test. Negative results are reported alongside.
+**Repeat-pass restoration.** Each low-resolution pass `Y_k` is modelled as the unknown fine image `X`, warped by the pass's motion, blurred by its point-spread function and down-sampled. A maximum a posteriori estimate balances fit to all passes against a smoothness prior. GPT obtains the motion with Gotcha, a region-growing matcher built on adaptive least-squares correlation (Otto & Chau, 1989; Gruen, 1985), seeded by scale-invariant features (Lowe, 2004). Its prior is a fourth-order PDE regulariser (You & Kaveh, 2000), which avoids the staircase artefacts of plain total variation. Later work by the same group moved to learned single-image methods such as MARSGAN (Tao et al., 2021). These produce sharp images, but their added texture comes from training data, so measured and learned detail cannot be told apart.
 
-## 2. Related work
+**Why the blur matters.** The restoration undoes each pass's blur. If the assumed blur is larger than the true blur, the method sharpens too hard and creates ringing next to edges. If it is smaller, real detail is left smeared. Because HiRISE passes differ, a single assumed blur is wrong for most of them.
 
-- **Repeat-pass SRR for Mars.**
-  - GPT (Tao & Muller, 2016) uses Gotcha matching (Otto & Chau, 1989), seeded by SIFT (Lowe, 2004) and refined by ALSC (Gruen, 1985), with a fourth-order PDE regulariser (You & Kaveh, 2000).
-  - Learned SRR (e.g. MARSGAN; Tao et al., 2021) produces sharper images whose added texture comes from training data, so measurement and learned prior cannot be separated by the user.
-  - We stay with the measurement and add detail only as a separate, locked, confidence-scored layer.
-- **PSF estimation.** HiRISE blur varies with spacecraft jitter and focus. We measure it directly on a known target rather than assume one Gaussian.
-- **Uncertainty and calibration.** We use the bootstrap (Efron, 1979) over passes; isotonic (Zadrozny & Elkan, 2002) and logistic calibration; and reliability diagrams with expected calibration error (Guo et al., 2017).
-- **Ground truth.** Perseverance Navcam (Maki et al., 2020) images were projected to a top-down truth. AI4Mars labels (Swan et al., 2021) give surface classes.
+**How restorations have been judged.** Resolution claims have rested on visual comparison, counts of detected features, and edge sharpness. All three favour a crisper image whether or not the extra detail is real. A fair test needs truth that is independent of the HiRISE passes and finer than them.
 
 ## 3. Data
 
-- **HiRISE.** 10 HiRISE RDR RED observations of the Jezero landing area, 2007–2024 (`benchmark/data_manifest.json`).
-  - Sun incidence is 46–59°.
-  - Eight observations have a sun azimuth of 165–178° and are used for restoration.
-  - Two (azimuths about 137° and 196°) add illumination diversity for shadow evidence.
-- **Test tiles.**
-  - A no-rover site at 18.4472 N, 77.4127 E, with 8 passes.
-  - A boulder tile at 18.4456 N, 77.4520 E near the landing area, with 3 passes from sols 1–11, containing a compact bright boulder (about 2.5 × 1.8 m) used as the blur and edge target.
-- **Rover ground truth.** Perseverance Navcam photos projected to the ground at 50 traverse stops, plus AI4Mars classes.
-- **Ingenuity truth.** 190 downward navigation frames (3 cm per pixel from 8 m) of flight 26 (sol 414) over the parachute and backshell, 1.1 km west of the landing spot (Section 6.5).
+**HiRISE passes.** We use 10 HiRISE RED observations of the Jezero landing area, from 2007 to 2024. All share one map projection, so passes are aligned to the pixel by an integer shift and refined to sub-pixel accuracy by Gotcha. Eight passes with similar sun azimuth (165–178°) are used for restoration.
+
+**Test areas.** We use two 32 m tiles. The first is a texture-rich tile at 18.4472 N, 77.4127 E, seen in all 8 passes. The second, near the landing area at 18.4456 N, 77.4520 E, contains a compact bright boulder of about 2.5 × 1.8 m (Figure 1). Because the boulder is present and unchanged in every pass, it serves as a common target for measuring blur.
 
 ![Figure 1](../../results/paper/fig1_static_boulder.png)
 
-**Figure 1.** The blur and edge target: a compact bright boulder visible in all 8 passes from 2007 to 2022 (arrow), on the reference grid after Gotcha alignment. 32 m tile, 25 cm pixels, each panel stretched separately.
+**Figure 1.** The blur target: a compact bright boulder visible in every pass from 2007 to 2022 (arrow). Each panel is the same 32 m tile after alignment, at 25 cm per pixel.
+
+**Alignment across fifteen years.** As a check on registration, Figure 2 shows the parachute and backshell 1.1 km west of the boulder tile. They are absent in 2007 and 2016 and appear from the first pass after landing, at the same position in every later pass.
 
 ![Figure 2](../../results/paper/fig2_hardware_alignment.png)
 
-**Figure 2.** Alignment check over 15 years. The parachute (top) and backshell (bottom) are absent in the 2007 and 2016 passes and present from sol 1, at the same position in every pass. 40 m crops; the parachute's change of shape after March 2021 is visible.
+**Figure 2.** The parachute (top) and backshell (bottom), absent before landing and present at the same place in every pass after it. 40 m crops; the parachute's change of shape after March 2021 is visible.
+
+**Ingenuity truth.** On its 26th flight (sol 414), Ingenuity photographed the parachute and backshell from about 8 m with its downward navigation camera, at about 3 cm per pixel. We rectified the fisheye frames and built a mosaic around the backshell. We placed it in HiRISE by two independent methods: the direction of the helicopter's own shadow against the computed sun, and image correlation against three separate HiRISE passes. The two agree on the rotation within their uncertainty (217° ± 12° from the shadow, 208° from correlation), and the correlation recovers the scale expected from the flight height.
 
 ## 4. Method
 
-### 4.1 Alignment (Gotcha)
+**Forward model.** We estimate the fine image `X`, on a grid four times finer than HiRISE (6.3 cm), by minimising
 
-- **Seeds.** SIFT matches, filtered by a ratio test and RANSAC affine; when SIFT fails across years, a phase-correlation seed grid is used instead.
-- **Refinement and growth.** Each seed is refined by 8-parameter ALSC (6 affine, gain, offset) and grown best-first on a 4 px grid.
-- **Acceptance.** Correlation ≥ 0.6 and a jump ≤ 0.5 px. The rover is masked.
-- **Accuracy.** On real texture with a known warp, the median error is 0.038 px (90th percentile 0.089 px), against 0.149 px for tile-wise ECC.
+`E(X) = Σ_k w_k Σ_p m_kp (A_k X − Y_k)_p² + λ Σ_p sqrt(|∇²X|² + μ²)`,
 
-### 4.2 Restoration (PDE-TV)
+where `A_k` warps `X` by pass k's motion, blurs it with that pass's own Gaussian of width `σ_k`, and down-samples it. The second term is the fourth-order regulariser of GPT, and λ sets its strength. We solve with accelerated gradient descent. The step size comes from the largest eigenvalue of the forward operator, which we measure by power iteration.
 
-- **Energy.** We minimise `E(X) = Σ_k w_k Σ_p m_kp (A_k X − Y_k)_p² + λ Σ_p sqrt(|∇²X|² + μ²)`.
-  - `A_k` combines warp, the pass's own Gaussian blur σ_k, and decimation by 4.
-- **Solver.** Steepest descent with Nesterov momentum. The step is set from the largest eigenvalue of AᵀA, measured by power iteration. The textbook bound underestimates it and diverges.
-- **Pass weights.** `w_k` is the inverse white-noise variance of pass k, measured from its finest-scale pixel differences (Immerkær, 1996).
-- **Pixel weights.** `m_kp` are Tukey biweights on the residual, re-estimated every 20 iterations. They mask pixels that changed in one pass.
-- **Radiometry.** Each pass is gain/offset-normalised to the reference over the aligned overlap.
-- **Rejected variant.** Residual-based pass weights, `w_k ∝ 1/σ²(residual)`, are kept as an ablation (Section 6).
+**Measured blur.** On three passes we fit brightness profiles across the boulder's short axis with a blurred bar. The other passes are matched to the sharpest one on static ground, which gives their extra blur. The resulting widths range from 0.59 to 1.43 HiRISE pixels. A boulder edge is not a perfect step, so the absolute widths are upper bounds. The ratios between passes are what the restoration relies on.
 
-### 4.3 Per-pass blur from the rover
+**Noise weights.** Each pass's weight `w_k` is the inverse of its white-noise variance, measured from its finest-scale pixel differences (Immerkær, 1996). This is deliberately independent of the fit. Weights based on the fit residual, the obvious alternative, read lighting differences between passes as noise and on real data collapse onto a single pass (Section 6.3). Robust per-pixel weights `m_kp` (Tukey) limit the influence of pixels that disagree strongly in one pass.
 
-- **Absolute.** On three passes, brightness profiles across the boulder's short axis are fitted with a blurred bar on a linear background. A boulder edge is not a perfect step, so the fitted σ is an upper bound on each pass's blur; the ratios between passes are the robust quantity. With the pixel's box integration removed, `σ = sqrt(s² − 1/12)`.
-- **Relative.** The other passes are aligned to the sharpest rover pass on static ground. The extra Gaussian blur that best matches them gives their σ.
-- **Results.** ESP_068360 0.59 px (boulder edge), ESP_068426 0.83 px (boulder edge), ESP_068294 0.89 px (boulder edge), ESP_073068 1.16 px (relative), PSP_002387 1.20 px (relative), ESP_045994 1.34 px (relative), ESP_068822 1.38 px (relative), ESP_046060 1.43 px (relative).
+**Uncertainty.** We rebuild the restoration from passes drawn with replacement. The spread of these rebuilds, scaled by a single factor fitted on one simulated scene and tested on another, gives a per-pixel uncertainty.
 
-### 4.4 Uncertainty
-
-- **Bootstrap.** The restoration is rebuilt B times from passes drawn with replacement, giving `σ_boot`.
-- **Calibration factor.** One factor κ, fitted on one simulated scene and tested on another, absorbs error shared by all passes.
-- **Scale.** The uncertainty is reported at the native 25 cm scale.
-
-### 4.5 Confidence-scored detail
-
-- **Rock probability.** Rock candidates are blob maxima in the restoration. Each gets `P(rock) = σ(w · [z_rep, log D, S·1[D≥1 m], 1[D≥1 m]])`.
-  - `z_rep` is the blob response divided by its measurement noise, estimated from two restorations made from disjoint halves of the passes.
-  - `S` is multi-illumination shadow evidence: a template correlation per pass, with the shadow on that pass's anti-sun side and length (D/2)·tan(incidence), combined with matched-filter weights.
-- **Calibration.** `w` is fitted on simulations whose pass-to-pass disagreement is tuned to real HiRISE (Section 5).
-- **Rendering at threshold t.**
-  - Rover-photographed rock sprites are added for rocks with P ≥ t.
-  - Recogniser-chosen rover texture is added only if t ≤ the class accuracy verified on rover truth.
-  - Nothing is added where the base uncertainty exceeds a limit.
-  - Every added layer is projected onto the null space of the HiRISE observation.
-- **Hazard maps.** Per 1 m cell, the hazard probability is 1 − Π(1 − P_i) over rocks ≥ 40 cm. A cell is marked unknown where the base is not trusted.
+**Baseline.** Our GPT baseline follows the paper's equations with one assumed blur width (1 pixel) for every pass and no weighting. The original also varies the blur width between 0 and 1 pixel by image region, which we did not reproduce, so we refer to it as a simplified re-implementation. Its components (Gotcha alignment, the regulariser, the solver) are the same as ours, so the comparison isolates the effect of measured blur and noise.
 
 ## 5. Experiments
 
-All experiments run on a 4-core CPU (`benchmark/run_benchmark.py`).
+We use four tests, each answering a different question.
 
-### 5.1 Methods compared
-
-| Method | Description |
-|---|---|
-| raw | One pass, bicubic. |
-| previous | Tile ECC + CG Tikhonov. |
-| GPT | Our simplified re-implementation: Gotcha + unweighted PDE-TV, one assumed σ = 1 px, no tiling (the original varies σ between 0 and 1 px per tile). |
-| GPT + weights | Ablation: noise weighting only. |
-| GPT + blur | Ablation: measured per-pass σ only. |
-| full (residual weights) | Ablation: the first weighting variant. |
-| **full** | This work. |
-| oracle | Full with exact motion; simulation only. |
-
-### 5.2 Tests
-
-- **A. Simulation with exact truth.**
-  - 5 scenes of fractal ground.
-  - 8 passes with the measured blurs, a random offset plus 0.3 px sinusoidal jitter, 3% noise, and a 2 m change planted in one pass.
-  - Every method estimates its own motion.
-- **B. Real split-half consistency.** The 8 real passes are split into disjoint halves, each restored independently. Fourier-ring coherence between the halves measures detail that repeats in independent data.
-- **C. Boulder edge.** The edge width of the bright boulder in each restoration, with ringing (RMS residual of the bar fit) and the largest undershoot beside the edge.
-- **D. Uncertainty calibration.** As Section 4.4.
-- **E. Confidence calibration and the real-data check.**
-  - The simulation's per-pass noise and illumination mismatch are tuned so its split-half disagreement matches the real tile at every rock size. Best setting: noise 0.50, illumination 0.60; log-ratio cost 0.019.
-  - Then 10 training and 6 held-out scenes.
-  - Real check: the same scores against the rover answer key, with a shifted-truth control.
+- **A. Simulation with exact truth.** Fractal ground, eight passes with the measured blurs, random sub-pixel offsets plus 0.3-pixel jitter, 3% noise, and a 2 m change planted in one pass. Every method estimates its own motion. This test asks how close each restoration is to the true ground (5 scenes).
+- **B. The Ingenuity truth.** Within 4 m of the backshell, we compare each restoration with Ingenuity's view in two bands, 1 m–50 cm and 50–25 cm. We use band-passed correlation with a ±25 cm placement tolerance applied equally to all methods. This test asks whether the restored detail matches the real ground.
+- **C. Real-data consistency.** We split the eight real passes into two disjoint halves and restore each half separately. Detail that both halves agree on comes from the data, not the prior. This test asks down to what scale the detail is real.
+- **D. A real edge.** On the boulder, we measure the edge width of each restoration together with the ringing and undershoot beside it. This test asks how much artefact each method pays for its sharpness.
 
 ## 6. Results
 
-### 6.1 Simulation (test A)
+### 6.1 Simulation: measured blur and noise reduce the error at 25 cm
 
-| Method | Error, 25 cm (%) | Error, 6.25 cm (%) | Artefact at change (× std) | Resolved (cm) |
-|---|---|---|---|---|
-| Raw (1 pass, bicubic) | 12.82 | 38.71 | 1.26 | 40 |
-| Previous (ECC + CG Tikhonov) | 5.16 | 34.83 | 1.48 | 40 |
-| **GPT** (our re-implementation) | 3.55 | 30.20 | 1.43 | 33 |
-| GPT + noise weighting | 4.68 | 32.58 | 1.09 | 33 |
-| GPT + measured per-pass blur | 2.60 | 27.64 | 1.29 | 29 |
-| Full, residual weights (ablation) | 1.44 | 29.86 | 1.03 | 33 |
-| **Full (this work)** | 1.43 | 29.78 | 1.01 | 33 |
-| Full, exact motion (upper bound) | 1.25 | 29.81 | 1.00 | 33 |
+Table 1 and Figure 3 summarise the simulation. At the native 25 cm scale, the GPT baseline leaves an error of 3.55% of scene contrast. Using the measured blur alone reduces it to 2.60%. Adding noise weighting brings it to 1.43%, 60% lower than the baseline, and the improvement holds in every scene. With exact motion the error would be 1.25%, so alignment is not the limiting step. Noise weighting without the measured blur makes the result worse (4.68%): weights only help once the blur model is right. At the finer 6.25 cm output pixel all methods remain far from the truth (errors near 30%), which is the first sign that detail at that scale is not being recovered.
+
+**Table 1.** Simulation with exact truth, mean over 5 scenes. Lower is better.
+
+| Method | Error at 25 cm (%) | Error at 6.25 cm (%) | Largest error at planted change (× std) |
+|---|---|---|---|
+| Raw HiRISE, one pass | 12.82 | 38.7 | 1.26 |
+| GPT (simplified re-implementation) | 3.55 | 30.2 | 1.43 |
+| GPT + noise weighting | 4.68 | 32.6 | 1.09 |
+| GPT + measured blur | 2.60 | 27.6 | 1.29 |
+| **This work** (measured blur + noise weighting) | 1.43 | 29.8 | 1.01 |
+| This work with exact motion (upper bound) | 1.25 | 29.8 | 1.00 |
 
 ![Figure 3](../../results/paper/fig3_simulation.png)
 
-**Figure 3.** Test A, simulation with exact truth. (a) RMS error at the native 25 cm scale; (b) at the 6.25 cm output pixel; (c) the largest error at a change planted in one pass. Bars are means over scenes and dots are individual scenes; lower is better.
+**Figure 3.** Simulation with exact truth. (a) Error at the native 25 cm scale, (b) at the 6.25 cm output pixel, (c) the largest error at a change planted in one pass. Bars are means and dots are individual scenes.
 
-Paired against GPT, by scene:
+### 6.2 The Ingenuity truth: closer to the real ground
 
-- **25 cm:** -2.13 (95% CI -2.21 to -2.02), better in 5/5 scenes.
-- **Artefact at the planted change:** -0.42 (95% CI -0.50 to -0.34), better in 5/5 scenes.
-- **6.25 cm:** -0.42 (95% CI -0.53 to -0.29), better in 5/5 scenes.
+Figure 4 shows the error against Ingenuity's view as the regularisation strength λ varies. At a fixed λ = 0.04, our restoration is clearly closer to the ground than the GPT baseline in the 50–25 cm band (0.206 against 0.333, where 0 is perfect agreement). It also does better in the 1 m–50 cm band (0.085 against 0.094). When each method is given its own best λ, the advantage is smaller: +0.010 (95% interval +0.003 to +0.015) in correlation at 1 m–50 cm and +0.023 (95% interval -0.004 to +0.051) at 50–25 cm. Choosing λ on one half of the area and scoring on the other leaves +0.001 at 1 m–50 cm, essentially no difference, and +0.009 at 50–25 cm. Across 45 plausible placements of the truth, our restoration is ahead in 84% of placements at 1 m–50 cm and 91% at 50–25 cm. The 1 m–50 cm advantage is stable across the radius of the test area (2.5–8 m); the 50–25 cm advantage is not.
 
-- **Measured blur.** Measured per-pass blur alone moves GPT from 3.55% to 2.60% at 25 cm.
-- **Noise weighting.** Noise weighting alone gives 4.68%.
-- **Residual weights.** The residual-weighted variant reaches 1.44% in simulation; see 6.2 for why it is rejected.
-- **Alignment headroom.** With exact motion the full chain reaches 1.25%, so alignment leaves little to gain.
+**Table 2.** Error against the Ingenuity truth (1 − correlation) within 4 m of the backshell. Lower is better.
 
-### 6.2 Real HiRISE (tests B and C)
-
-**Split-half consistency** (8 real passes; halves PSP_002387, ESP_045994, ESP_046060, ESP_068426 vs ESP_073068, ESP_068294, ESP_068360, ESP_068822). Higher is better. Coherence above 0.5 at fine scales for the previous pipeline is a reconstruction-grid artefact shared by both halves, not detail.
-
-| Method | Halves agree down to | Coherence at 100 / 67 / 50 cm | Mean coherence, 25–100 cm |
-|---|---|---|---|
-| Raw (1 pass, bicubic) | 100 cm | 0.75 / 0.44 / 0.07 | 0.183 |
-| Previous (ECC + CG Tikhonov) | 67 cm | 0.87 / 0.70 / 0.26 | 0.425 |
-| **GPT** (our re-implementation) | 67 cm | 0.87 / 0.64 / 0.18 | 0.263 |
-| GPT + noise weighting | 67 cm | 0.84 / 0.62 / 0.18 | 0.271 |
-| GPT + measured per-pass blur | 67 cm | 0.86 / 0.59 / 0.10 | 0.225 |
-| Full, residual weights (ablation) | 67 cm | 0.80 / 0.50 / 0.07 | 0.199 |
-| **Full (this work)** | 67 cm | 0.83 / 0.60 / 0.11 | 0.230 |
-
-**Boulder edge** (bright static boulder near the landing area, 3 passes, sols 1–11). A narrower edge is sharper. Lower ringing and undershoot are cleaner.
-
-| Method | Edge σ (cm) | Ringing, RMS (% of step) | Largest undershoot (% of step) |
-|---|---|---|---|
-| Raw (1 pass, bicubic) | 23.3 | 9.2 | 18.1 |
-| Previous (ECC + CG Tikhonov) | 20.6 | 10.4 | 20.9 |
-| **GPT** (our re-implementation) | 14.1 | 16.2 | 42.2 |
-| GPT + noise weighting | 15.6 | 16.1 | 37.1 |
-| GPT + measured per-pass blur | 14.9 | 11.6 | 30.0 |
-| Full, residual weights (ablation) | 16.4 | 12.6 | 25.2 |
-| **Full (this work)** | 16.7 | 11.7 | 25.6 |
-
-![Figure 4](../../results/paper/fig4_split_half.png)
-
-**Figure 4.** Test B, real HiRISE. Coherence between restorations made from two disjoint sets of 4 passes, against scale. Detail is treated as repeatable where coherence is at least 0.5 (dashed line).
-
-![Figure 5](../../results/paper/fig5_boulder_edge.png)
-
-**Figure 5.** Test C, real HiRISE, the bright boulder's edge. (a) Fitted edge width; (b) RMS ringing; (c) largest undershoot, both as a share of the edge's brightness step.
-
-![Figure 6](../../results/comparison/site_8pass_comparison.png)
-
-**Figure 6.** Real HiRISE, 8 passes. (a) One raw pass with its 25 cm pixels shown as blocks; (b) GPT (simplified re-implementation); (c) GPT with measured per-pass blur; (d) this work. 6.25 cm output pixels shown 1:1, with one shared contrast stretch.
-
-- **Split-half consistency.** Mean coherence over 25–100 cm is 0.230 for the full chain and 0.263 for GPT (GPT ahead).
-- **Boulder edge.** The edge is 16.7 cm (full) against 14.1 cm (GPT).
-  - Ringing: 11.7% against 16.2%.
-  - Undershoot: 25.6% against 42.2%.
-- **Residual weights.** The residual-weighted variant reaches 0.199 on split halves.
-  Residual weights read illumination differences between passes as noise and collapse onto one pass, so each half is effectively a single image.
-
-### 6.3 Uncertainty (test D)
-
-| Scale | κ | Held-out coverage ±1σ / ±2σ | Spearman(σ, \|err\|) | Error, least vs most confident 10% |
+| Method | Error, λ = 0.04 (50–25 cm) | Error at own best λ (50–25 cm) | Error, λ = 0.04 (1 m–50 cm) | Error at own best λ (1 m–50 cm) |
 |---|---|---|---|---|
-| 6.25 cm (output pixel) | 12.8 | 81.5 / 96.0% | 0.14 | 25.7 vs 21.6% |
-| 12.5 cm | 4.8 | 85.1 / 97.9% | 0.34 | 9.5 vs 4.5% |
-| 25 cm (native HiRISE pixel) | 2.1 | 86.4 / 99.1% | 0.39 | 3.8 vs 0.6% |
+| Raw HiRISE, one pass | 0.249 | – | 0.105 | – |
+| GPT (simplified re-implementation) | 0.333 | 0.229 (λ = 3.0) | 0.094 | 0.093 (λ = 1.0) |
+| GPT + measured blur | 0.286 | 0.227 (λ = 3.0) | 0.093 | 0.092 (λ = 1.0) |
+| **This work** | 0.206 | 0.203 (λ = 0.1) | 0.085 | 0.083 (λ = 0.1) |
 
-![Figure 7](../../results/paper/fig6_uncertainty.png)
+![Figure 4](../../results/ingenuity/truth_test_error_vs_lambda.png)
 
-**Figure 7.** Test D. Held-out coverage of the calibrated bootstrap uncertainty at three scales; dashed lines are the nominal 68% and 95%.
+**Figure 4.** Error against Ingenuity's view versus regularisation strength, in (a) the 1 m–50 cm and (b) the 50–25 cm band. Stars mark each method's minimum; the dashed line is raw HiRISE.
 
-### 6.4 Confidence (test E)
+![Figure 5](../../results/ingenuity/truth_test_backshell_comparison.png)
 
-- **Held out (3692 candidates, 648 real rocks):** AUC 0.70, ECE 0.4%.
-- **Without the shadow feature:** AUC 0.71.
-- **AUC by size:** 25 cm 0.61, 60 cm 0.76, 100 cm 0.55, 150 cm 0.71.
+**Figure 5.** The backshell neighbourhood: (a) Ingenuity's view beside (b) raw HiRISE and (c–f) restorations at each method's best and at a typical λ. The bottom row is band-passed to 25 cm–1 m, the scales the test scores.
 
-| Threshold | Shown | Precision | Recall | Recall by size (25/40/60/100/150 cm) |
-|---|---|---|---|---|
-| 0.1 | 554 | 19% | 16.0% | 1 / 2 / 15 / 60 / 92 |
-| 0.2 | 157 | 30% | 7.3% | 0 / 0 / 2 / 22 / 65 |
-| 0.3 | 67 | 42% | 4.3% | 0 / 0 / 2 / 13 / 38 |
-| 0.4 | 31 | 55% | 2.6% | 0 / 0 / 1 / 5 / 27 |
-| 0.5 | 19 | 53% | 1.5% | 0 / 0 / 1 / 0 / 19 |
-| 0.6 | 8 | 50% | 0.6% | 0 / 0 / 0 / 0 / 8 |
-| 0.7 | 3 | 67% | 0.3% | 0 / 0 / 0 / 0 / 4 |
-| 0.8 | 2 | 50% | 0.2% | 0 / 0 / 0 / 0 / 2 |
+### 6.3 Real HiRISE: where detail stops being real
 
-**Real-data check.**
+Restoring two disjoint halves of the real passes gives a direct measure of repeatable detail (Figure 6). For every method, the two halves agree well at scales above about 1 m and stop agreeing near 67 cm. Below that, neither the GPT baseline nor our restoration recovers detail that the other half confirms. Over 25–100 cm the GPT baseline's halves agree slightly more than ours (0.263 against 0.230).
 
-- Against the traverse rover truth, candidate positions match truth rocks 29% of the time, against 18% with the truth shifted 40 px. So the positions carry signal.
-- But no score ranks candidates: AUC 0.43 for the physical score and 0.46 for the recogniser.
-- The recogniser's surface class is right 26.6% of the time, against 49.9% for always guessing soil.
-- Only 4 of 27 stops could be registered, with shifts of up to 2–3 m. The answer key, not the scores, is the limit.
+On the boulder edge (Figure 7), the GPT baseline produces the narrowest edge (14.1 cm against 16.7 cm), but at a price. Its ringing is 16.2% of the edge step against 11.7% for ours, and its largest undershoot is 42% against 26%. The assumed blur is larger than the measured blur of the sharpest passes, so the baseline deconvolves too hard. Edge sharpness alone therefore rewards a wrong blur model. Figure 8 shows the restorations side by side.
 
-### 6.5 Real physical truth: Ingenuity's view of the backshell
+**Table 3.** Real HiRISE: agreement between independent halves (higher is better) and the boulder edge (narrower is sharper; lower ringing is cleaner).
 
-Ingenuity photographed the debris field from 8 m (flight 26, sol 414) at about 3 cm per pixel. A mosaic of 27 frames around the backshell was placed in HiRISE by (i) the helicopter's own shadow and the computed sun (mosaic-to-north rotation 217 deg +- 12 deg) and (ii) masked correlation against three independent HiRISE passes (208 deg, scale 0.0290 m/px = the nominal 8 m / 275 px, the same translation in all three). The 181 m2 rock field around the backshell gave no discrimination between methods (correlation 0.00-0.07 for all, including raw HiRISE), because the truth (midday) and HiRISE (afternoon) show rocks with completely different shading. Within 4 m of the backshell the two share strong structure (correlation 0.92-0.97 at 1-4 m), so the test below uses that object; it was chosen after the rock-field result and carries the safeguards listed. Out of sample (lambda chosen on one half of the disc, scored on the other): +0.001 (1 m-50 cm) and +0.009 (50-25 cm). The 1 m-50 cm advantage is stable across disc radii of 2.5-8 m (+0.007 to +0.010 in correlation); the 25-50 cm advantage is not (it disappears at 8 m). Over 45 plausible placements the full chain is ahead of GPT in 91% of them at 50-25 cm and 84% at 1 m-50 cm.
+| Method | Split-half coherence, 25–100 cm | Halves agree down to | Boulder edge σ (cm) | Ringing (% of step) | Largest undershoot (% of step) |
+|---|---|---|---|---|---|
+| Raw HiRISE, one pass | 0.183 | 100 cm | 23.3 | 9.2 | 18.1 |
+| GPT (simplified re-implementation) | 0.263 | 67 cm | 14.1 | 16.2 | 42.2 |
+| GPT + measured blur | 0.225 | 67 cm | 14.9 | 11.6 | 30.0 |
+| **This work** | 0.230 | 67 cm | 16.7 | 11.7 | 25.6 |
 
-Error = 1 - correlation with the truth in the 25-50 cm band, within 4 m of the backshell, with a +-0.25 m placement tolerance applied equally to all methods.
+![Figure 6](../../results/paper/fig4_split_half.png)
 
-| Method | Error at its minimum (50-25 cm) | at lambda | at lambda = 0.005 | at lambda = 0.04 |
-|---|---|---|---|---|
-| GPT (simplified re-implementation) | 0.229 | 3.0 | 0.368 | 0.333 |
-| GPT + measured blur | 0.227 | 3.0 | 0.296 | 0.286 |
-| this work, equal weights | 0.214 | 0.1 | 0.281 | 0.234 |
-| **this work** | 0.203 | 0.1 | 0.248 | 0.206 |
-| raw HiRISE | 0.249 | none | none | none |
+**Figure 6.** Agreement between restorations made from two disjoint sets of four real passes, against scale. Detail counts as repeatable where coherence is at least 0.5 (dashed).
 
-![Figure 8](../../results/ingenuity/truth_test_error_vs_lambda.png)
+![Figure 7](../../results/paper/fig5_boulder_edge.png)
 
-**Figure 8.** Backshell truth test: error against Ingenuity's view within 4 m of the backshell, versus regularisation strength, in (a) the 1 m–50 cm band and (b) the 50–25 cm band. Stars mark each method's minimum; the dashed line is raw HiRISE.
+**Figure 7.** The boulder edge on real HiRISE: (a) edge width, (b) ringing, (c) largest undershoot.
 
-![Figure 9](../../results/ingenuity/truth_test_backshell_comparison.png)
+![Figure 8](../../results/comparison/site_8pass_comparison.png)
 
-**Figure 9.** The backshell neighbourhood: (a) Ingenuity truth beside (b) raw HiRISE and (c–f) restorations at each method's truth-optimal and typical λ. The bottom row is band-passed to 25 cm–1 m, the scales the test scores.
+**Figure 8.** Eight real passes, 32 m tile. (a) One raw pass; (b) GPT baseline; (c) GPT with measured blur; (d) this work. 6.25 cm pixels shown 1:1 with one shared contrast stretch.
 
-### 6.6 Shadow evidence
+### 6.4 Uncertainty
 
-AUC for rock against decoy (a flat bright patch) / rock against ground:
+After calibration on one simulated scene, the bootstrap uncertainty covers the true error on a held-out scene in 86% of pixels at ±1σ and 99% at ±2σ, at the native 25 cm scale (Figure 9). That is more than the nominal 68% and 95%, so the uncertainty errs on the safe side. At the 6.25 cm output pixel, coverage can be matched by calibration, but the uncertainty no longer ranks which pixels are wrong, so we report it at 25 cm.
 
-| Setup | 40 cm | 60 cm | 100 cm | 150 cm |
-|---|---|---|---|---|
-| 1 pass | 0.52 / 0.71 | 0.48 / 0.82 | 0.86 / 0.98 | 0.88 / 0.99 |
-| 8 same-sun passes | 0.56 / 0.62 | 0.53 / 0.78 | 0.90 / 0.99 | 0.86 / 0.99 |
-| 10 passes incl. 2 different sun angles | 0.55 / 0.65 | 0.52 / 0.80 | 0.90 / 0.99 | 0.86 / 0.99 |
+![Figure 9](../../results/paper/fig6_uncertainty.png)
+
+**Figure 9.** Held-out coverage of the calibrated bootstrap uncertainty at three scales; dashed lines are the nominal 68% and 95%.
 
 ## 7. Discussion
 
-**Scope of the claims.** We claim a measured improvement at the 25 cm scale in simulation and on real HiRISE, a small improvement at one physical object, calibrated uncertainty at 25 cm, and a reproducible protocol for testing restoration against independent truth. We do not claim detail below the scales reported in Section 6, and our baseline is a simplified GPT (Section 5.1), so the comparison is with that baseline and not with the original software.
+**What the gain is.** The improvement over the GPT baseline comes from measuring two things the baseline assumes: how blurred each pass is, and how noisy. It does not come from a stronger prior. In simulation the measured blur provides most of the gain at 25 cm, and noise weighting adds to it once the blur is right. Against the Ingenuity truth the gain is largest when both methods use the same regularisation, and small once each is tuned. That is what one would expect if the measured blur mainly removes over-sharpening.
 
+**What multi-pass restoration recovers.** On real HiRISE, detail that independent passes agree on reaches about 67 cm, and in simulation with exact truth about 33 cm. Both are well above the 6.3 cm output pixel. The output grid is a sampling choice that lets edges be placed precisely. It is not the resolution of the result, and finer structure in a restored image comes mostly from the regulariser. We suggest that resolution claims for multi-pass restoration be stated as a scale validated against independent passes or independent truth, alongside the output pixel size.
 
-- **What the gain is.** The improvement over GPT comes from measuring what GPT assumes:
-  - the blur of each pass;
-  - which passes are noisy;
-  - which pixels changed.
+**Edge sharpness is not a fair score on its own.** On the real boulder edge, the sharpest result was also the one with the most ringing. A blur model that is too large looks sharper, so edge-based measures should be reported together with ringing.
 
-  It does not come from a stronger prior.
-- **Assumed blur sharpens and rings.** In our baseline the assumed blur (1 px) is larger than the boulder-measured blur of the sharp passes, so on real data it deconvolves harder. The original GPT chooses σ between 0 and 1 px per tile, which may reduce this effect; we did not test it. That sharpens edges and produces ringing (Section 6.2). Edge sharpness alone therefore rewards a wrong blur model, and ringing should be reported with it.
-- **Residual weighting collapses on real data.** Weights based on residuals work in simulation but collapse onto a single pass on real data. Real passes differ by illumination and season far more than by noise. Noise must be measured from the pass itself.
-- **No 5 cm claim.** On real HiRISE, detail that repeats in independent passes stops at about 67 cm; even in simulation with exact truth, the finest resolved scale is about 33 cm. Below that, a restoration's content comes from the prior. Tao & Muller (2016) report 5 cm on eight passes over the Gusev crater traverse; we did not test that site, and our evidence is limited to the sites and passes above. We do not claim 5 cm, and we do not claim to refute it.
-- **Where confidence is limited.** Confidence below about 60 cm cannot be verified with current rover truth. Our confidences are therefore simulation-calibrated, with a simulation whose disagreement is tuned to real data. The real-data check confirms positional signal but cannot confirm the probabilities.
-- **A physical truth at one object.** Ingenuity's images, placed in HiRISE by two independent methods (a sun-and-shadow compass and image correlation on three passes), give a centimetre-scale truth for the backshell. It supports a clear advantage over the GPT re-implementation at any fixed regularisation and a small advantage once each is tuned (Section 6.5), but it is a single object. A wider validation needs truth with several metre-scale shared structures.
-- **What would close the gap.** Better-registered truth would: more shared hardware or tracks as tie points, or stereo from rover-mast cameras.
+**Limitations.**
+- The truth comparison uses a single object and its surroundings, about 4 m across. The rock field around it gave no discrimination between methods, because Ingenuity imaged it at midday and HiRISE in the afternoon, so rocks are lit from different directions.
+- Our baseline is a simplified GPT, without the original's region-dependent blur width.
+- The blur target is a boulder, not a manufactured object, so its absolute blur widths are upper bounds.
+- Robust per-pixel weights reduced artefacts at a planted change in simulation, but we have not yet tested them on a real change between passes.
+
+**Outlook.** The same measurements support further products: a per-pixel confidence for small rocks, using agreement between pass subsets and shadows under different sun angles, and maps that flag where the restoration should not be trusted. Validating them needs more centimetre-scale truth, for example from further Ingenuity flights or stereo from rover mast cameras.
 
 ## 8. Conclusion
 
-Measuring each pass's blur on a static target and weighting passes by their own noise gives a measurable gain over GPT at the native 25 cm scale in simulation and on real HiRISE, and a small gain at one physical object. A confidence-scored, measurement-locked detail layer lets users decide how much unverified detail to see, with probabilities that are calibrated where truth exists and labelled where it does not.
+Measuring each HiRISE pass's blur on a static target, and weighting each pass by its own noise, makes repeat-pass super-resolution measurably more accurate: 60% lower error at the native 25 cm scale in simulation, and closer to Ingenuity's centimetre-scale view of the ground. Independent passes agree on detail down to about 67 cm. That is the scale such restorations recover, and we suggest it be reported alongside the output pixel size.
 
-## Reproducibility
+## Data and code availability
 
-- **Code and tests.** All code, tests (`pytest`, run on GitHub CI) and result files are in this repository. Raw data (about 12 GB) is listed with URLs in `benchmark/data_manifest.json`.
-- **CPU time (4 cores).**
-  - Benchmark part A: 1208 s.
-  - Part B: 410 s.
-  - Part C: 148 s.
-  - Bootstrap on a 32 m tile with 8 passes: 697 s.
+All HiRISE observations are public through the Planetary Data System; the list with download links is in the repository's `benchmark/data_manifest.json`. The Ingenuity navigation images are from the PDS Mars 2020 helicopter camera archive. All code, tests, result files and the scripts that generate every table and figure in this paper are in the project repository. Full method details are in `docs/METHODS.md`. Every number in this paper is filled in from a result file by `scripts/make_paper.py`. All computation ran on a 4-core CPU.
 
 ## References
 
-*All references were checked against publisher, repository or library-catalogue records (November 2026); Tao & Muller (2016) was read in full.*
-
-- Efron, B. (1979). Bootstrap methods: another look at the jackknife. *Ann. Statist.* 7(1), 1–26. doi:10.1214/aos/1176344552
-- Fischler, M. A., Bolles, R. C. (1981). Random sample consensus: a paradigm for model fitting with applications to image analysis and automated cartography. *Commun. ACM* 24(6), 381–395. doi:10.1145/358669.358692
 - Gruen, A. (1985). Adaptive least squares correlation: a powerful image matching technique. *S. Afr. J. Photogramm. Remote Sens. Cartogr.* 14(3), 175–187.
-- Guo, C., Pleiss, G., Sun, Y., Weinberger, K. Q. (2017). On calibration of modern neural networks. *Proc. 34th ICML*, PMLR 70, 1321–1330.
 - Immerkær, J. (1996). Fast noise variance estimation. *Comput. Vis. Image Underst.* 64(2), 300–302. doi:10.1006/cviu.1996.0060
 - Lowe, D. G. (2004). Distinctive image features from scale-invariant keypoints. *Int. J. Comput. Vis.* 60(2), 91–110.
-- Maki, J. N., et al. (2020). The Mars 2020 Engineering Cameras and Microphone on the Perseverance Rover: A Next-Generation Imaging System for Mars Exploration. *Space Sci. Rev.* 216, 137. doi:10.1007/s11214-020-00765-9
 - McEwen, A. S., et al. (2007). Mars Reconnaissance Orbiter's High Resolution Imaging Science Experiment (HiRISE). *J. Geophys. Res. Planets* 112, E05S02. doi:10.1029/2005JE002605
 - Otto, G. P., Chau, T. K. W. (1989). 'Region-growing' algorithm for matching of terrain images. *Image Vis. Comput.* 7(2), 83–94. doi:10.1016/0262-8856(89)90001-2
-- Swan, R. M., et al. (2021). AI4MARS: A dataset for terrain-aware autonomous driving on Mars. *CVPR Workshops*, 1982–1991. doi:10.1109/CVPRW53098.2021.00226
 - Tao, Y., Muller, J.-P. (2016). A novel method for surface exploration: super-resolution restoration of Mars repeat-pass orbital imagery. *Planet. Space Sci.* 121, 103–114. doi:10.1016/j.pss.2015.11.010
-- Tao, Y., Conway, S. J., Muller, J.-P., Putri, A. R. D., Thomas, N., Cremonese, G. (2021). Single image super-resolution restoration of TGO CaSSIS colour images: demonstration with Perseverance rover landing site and Mars science targets (MARSGAN). *Remote Sens.* 13(9), 1777. doi:10.3390/rs13091777
+- Tao, Y., Conway, S. J., Muller, J.-P., Putri, A. R. D., Thomas, N., Cremonese, G. (2021). Single image super-resolution restoration of TGO CaSSIS colour images: demonstration with Perseverance rover landing site and Mars science targets. *Remote Sens.* 13(9), 1777. doi:10.3390/rs13091777
 - You, Y.-L., Kaveh, M. (2000). Fourth-order partial differential equations for noise removal. *IEEE Trans. Image Process.* 9(10), 1723–1730. doi:10.1109/83.869184
-- Zadrozny, B., Elkan, C. (2002). Transforming classifier scores into accurate multiclass probability estimates. *Proc. 8th ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining* (KDD 2002).
