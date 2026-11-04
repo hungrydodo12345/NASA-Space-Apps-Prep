@@ -1,0 +1,74 @@
+{
+ "mosaic": "V_MMMMA0076_RAS_0050001_ORRAS_HELINAVJ01 (PDS mars2020_helicam, sol 76, flights 4-5 downward camera, 1 cm/px, site frame 3)",
+ "site_frame_extent_m": {
+  "x_north": [
+   -130,
+   40
+  ],
+  "y_east": [
+   -10,
+   50
+  ]
+ },
+ "img_offset": 72000,
+ "lines": 17000,
+ "samples": 6000,
+ "lat_deg": 18.4446,
+ "nw_corner_global_ref": [
+  -4370850.488573114,
+  -23476237.742343694
+ ],
+ "reference_pass": "ESP_068294_1985",
+ "coarse_search": {
+  "resolution_m": 1.0,
+  "band_m": "1.5-8 px at 1 m",
+  "note": "post-landing passes 068294 and 073068 agree; pre-landing passes peak ~100 m away (no blast patches/tracks then)"
+ },
+ "refine": {
+  "ESP_073068_1985|(2, 8)": {
+   "peak": 0.5935680866241455,
+   "second": 0.1870766282081604,
+   "shift_lines": 3.7754067480564117,
+   "shift_samples": -5.002825578441843
+  },
+  "ESP_073068_1985|(1, 4)": {
+   "peak": 0.47941577434539795,
+   "second": 0.06635917723178864,
+   "shift_lines": 3.651973694562912,
+   "shift_samples": -4.411294788122177
+  },
+  "ESP_068822_1985|(2, 8)": {
+   "peak": 0.5821912288665771,
+   "second": 0.1909460425376892,
+   "shift_lines": 3.277578830718994,
+   "shift_samples": -2.2983743846416473
+  },
+  "ESP_068822_1985|(1, 4)": {
+   "peak": 0.49977922439575195,
+   "second": 0.07919344305992126,
+   "shift_lines": 3.3215416371822357,
+   "shift_samples": -2.210916832089424
+  },
+  "ESP_068294_1985|(2, 8)": {
+   "peak": 0.7544229030609131,
+   "second": 0.16256915032863617,
+   "shift_lines": 2.0473246797919273,
+   "shift_samples": 0.46724531054496765
+  },
+  "ESP_068294_1985|(1, 4)": {
+   "peak": 0.6914840936660767,
+   "second": 0.0777917355298996,
+   "shift_lines": 2.011426885612309,
+   "shift_samples": 0.5076563060283661
+  }
+ },
+ "site3_origin_global_ref": [
+  -4370689.988573114,
+  -23476195.752343696
+ ],
+ "hr_recentre_on_raw_pass": {
+  "dy_hr": -2,
+  "dx_hr": -5,
+  "corr_2_1m": 0.7198165959802593
+ }
+}
