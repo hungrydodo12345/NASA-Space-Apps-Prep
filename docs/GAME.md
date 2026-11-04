@@ -50,3 +50,13 @@ ln -s <world> web/game/data && cd web/game && python -m http.server     # open h
 - **Rover driving.** `Rover.update(dt)` is a kinematic placeholder that follows the terrain using height samples under and ahead of the rover. Suspension, wheel–terrain contact and slip can replace it without touching the rest of the game.
 - **Terrain queries.** `Terrain.heightAt(x, z)` gives the terrain height from the loaded tiles, for physics, placing objects and line-of-sight checks.
 - **Content.** Chapters and points of interest live in `story.json`, which `build_story.py` regenerates; new chapters only need a location and text.
+
+## Publish on GitHub Pages
+
+```
+sh scripts/deploy_pages.sh <world>            # builds a history-free gh-pages branch: index.html, game.js, data/ (the world tiles)
+cd <work_dir> && git push -u origin gh-pages
+```
+
+Then, once, in the GitHub repository: **Settings → Pages → Build and deployment → Source: Deploy from a branch → `gh-pages`, folder `/ (root)`**. The game is then at `https://<user>.github.io/<repository>/`. GitHub Pages sites are limited to 1 GB; the current world is about 0.8 GB. Pages on a private repository needs a paid GitHub plan; on a free plan the repository must be public.
+
