@@ -216,6 +216,14 @@ if MS and "A_simulation" in MS:
     P2 = A2.get("paired_vs_gpt", {})
     for m, k in (("full-b0.8", "b08"), ("full-b1.2", "b12")):
         d = P2.get(f"{m} - gpt, err_25cm"); V[f"better_{k}"] = f"{d['scenes_better']} of {d['scenes']}" if d else PEND
+_IT3 = J("benchmark", "results", "ingenuity_truth", "object_final.json")
+if _IT3:
+    for b, k in (("1 m-50 cm", "100"), ("50-25 cm", "50")):
+        for f, kk in (("full-b0.8", "b08"), ("full-b1.2", "b12")):
+            if f in _IT3["bootstrap"][b]: V[f"truth_{kk}_{k}"] = f"{_IT3['bootstrap'][b][f]['mean']:+.3f}"
+if sig:
+    sp = [v["sigma_spread_px"] / v["sigma_px"] for v in blur.values() if "sigma_spread_px" in v]
+    if sp: V["blur_spread"] = f"{100 * min(sp):.0f}–{100 * max(sp):.0f}"
 _IT2 = J("benchmark", "results", "ingenuity_truth", "object_final.json"); _IH2 = J("benchmark", "results", "ingenuity_truth", "object_heldout.json")
 if _IT2 and "best_gpt_any" in _IT2:
     for b, k in (("50-25 cm", "50"), ("1 m-50 cm", "100")):
