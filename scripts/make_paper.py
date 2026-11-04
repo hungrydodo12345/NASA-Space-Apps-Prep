@@ -198,6 +198,34 @@ if _IT and _IH and _IR:
         if f == "raw": rows.append(f"| {n_} | {1 - cv['50-25 cm']['raw']['0.0']:.3f} | – | {1 - cv['1 m-50 cm']['raw']['0.0']:.3f} | – |")
         else: rows.append(f"| {n_} | {1 - cv['50-25 cm'][f]['0.04']:.3f} | {1 - bst['50-25 cm'][f][1]:.3f} (λ = {bst['50-25 cm'][f][0]}) | {1 - cv['1 m-50 cm'][f]['0.04']:.3f} | {1 - bst['1 m-50 cm'][f][1]:.3f} (λ = {bst['1 m-50 cm'][f][0]}) |")
     V["table_truth2"] = "\n".join(rows)
+
+# ---------------- GPT blur sweep, blur mis-specification, resolved scales (added for the revision)
+if A:
+    for m, k in (("gpt-s0.5", "gpts05"), ("gpt-s0.75", "gpts075")):
+        if m in A: V[f"e25_{k}"] = f2(mean(m, "err_25cm"))
+    for m, k in (("full", "full"), ("gpt+blur", "gptb"), ("gpt", "gpt")):
+        if m in A: V[f"res_{k}"] = f"{mean(m, 'resolved_cm'):.0f}"
+MS = J("benchmark", "results", "sim_blur_misspec.json")
+if MS and "A_simulation" in MS:
+    A2 = MS["A_simulation"]; m2 = lambda m, k: float(np.mean(A2[m][k]["values"]))
+    for m, k in (("full-b0.8", "b08"), ("full-b1.2", "b12")):
+        if m in A2: V[f"e25_{k}"] = f"{m2(m, 'err_25cm'):.2f}"
+    rows = [f"| This work, blur assumed 20% too small | {m2('full-b0.8', 'err_25cm'):.2f} | {m2('full-b0.8', 'err_6cm'):.1f} | {m2('full-b0.8', 'artefact'):.2f} |",
+            f"| This work, blur assumed 20% too large | {m2('full-b1.2', 'err_25cm'):.2f} | {m2('full-b1.2', 'err_6cm'):.1f} | {m2('full-b1.2', 'artefact'):.2f} |"]
+    if "table_sim2" in V: V["table_sim2"] += "\n" + "\n".join(rows)
+    P2 = A2.get("paired_vs_gpt", {})
+    for m, k in (("full-b0.8", "b08"), ("full-b1.2", "b12")):
+        d = P2.get(f"{m} - gpt, err_25cm"); V[f"better_{k}"] = f"{d['scenes_better']} of {d['scenes']}" if d else PEND
+_IT2 = J("benchmark", "results", "ingenuity_truth", "object_final.json"); _IH2 = J("benchmark", "results", "ingenuity_truth", "object_heldout.json")
+if _IT2 and "best_gpt_any" in _IT2:
+    for b, k in (("50-25 cm", "50"), ("1 m-50 cm", "100")):
+        d = _IT2["bootstrap"][b].get("full_minus_gpt_any")
+        if d: V[f"tuned_any_{k}"] = f"{d['mean']:+.3f} (95% interval {d['ci95'][0]:+.3f} to {d['ci95'][1]:+.3f})"
+        V[f"t04_gpts05_{k}"] = f"{1 - _IT2['curves'][b]['gpt-s0.5']['0.04']:.3f}"
+        if _IH2:
+            gv = {f: _IH2[b][f]["heldout"] for f in ("gpt", "gpt-s0.5", "gpt-s0.75") if f in _IH2[b]}; fb = max(gv, key=gv.get)
+            V[f"held_full_{k}"], V[f"held_gptbest_{k}"] = f"{_IH2[b]['full']['heldout']:.3f}", f"{gv[fb]:.3f}"
+            V[f"held_gptbest_name_{k}"] = {"gpt": "1 px", "gpt-s0.5": "0.5 px", "gpt-s0.75": "0.75 px"}[fb]
 tpl = open(os.path.join(ROOT, "docs", "paper", "paper_template.md")).read()
 missing = sorted(set(re.findall(r"\{\{(\w+)\}\}", tpl)) - set(V))
 out = re.sub(r"\{\{(\w+)\}\}", lambda m: str(V.get(m.group(1), PEND)), tpl)

@@ -65,6 +65,7 @@ def restore(method, frames, flows, sig_lr, lam=None):
     if method == "gpt+weights": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=1.0 * SC, lam=lam, iters=ITERS, weighted=True, pass_weights="noise")[0]
     if method == "gpt+blur": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=lam, iters=ITERS, weighted=False)[0]
     if method == "full-resw": return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=lam, iters=ITERS, pass_weights="residual")[0]
+    if method.startswith("full-b"): k = float(method[6:]); return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * k * SC for s in sig_lr], lam=lam, iters=ITERS, pass_weights="noise")[0]   # blur mis-specified by factor k
     if method in ("full", "oracle"): return pde_tv.pde_tv(frames, flows, scale=SC, psf_sigma=[s * SC for s in sig_lr], lam=lam, iters=ITERS, pass_weights="noise")[0]
 
 
