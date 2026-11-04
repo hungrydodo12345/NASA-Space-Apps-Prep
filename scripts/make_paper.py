@@ -270,3 +270,47 @@ missing = sorted(set(re.findall(r"\{\{(\w+)\}\}", tpl)) - set(V))
 out = re.sub(r"\{\{(\w+)\}\}", lambda m: str(V.get(m.group(1), PEND)), tpl)
 open(os.path.join(ROOT, "docs", "paper", "PAPER.md"), "w").write(out)
 print("wrote docs/paper/PAPER.md;", out.count("[pending]"), "pending values", ("(" + ", ".join(missing) + ")") if missing else "")
+
+# ---------------- ESS Open Archive / AGU-format version: front matter (key points, 250-word abstract, plain language summary), the same body,
+# an Open Research statement and AGU-style references. Author fields are placeholders that must be filled before submission.
+FRONT = os.path.join(ROOT, "docs", "paper", "essoar_front_template.md")
+if os.path.exists(FRONT):
+    front = re.sub(r"\{\{(\w+)\}\}", lambda m: str(V.get(m.group(1), PEND)), open(FRONT).read())
+    body = out[out.index("## 1. Introduction"):out.index("## Data and code availability")].rstrip() + "\n\n"
+    open_research = """## Open Research
+
+The HiRISE observations used here (ESP_045994_1985, ESP_046060_1985, ESP_068294_1985, ESP_068360_1985, ESP_068426_1985, ESP_068822_1985, ESP_073068_1985, PSP_002387_1985) are Reduced Data Record products (data set MRO-M-HIRISE-3-RDR-V1.1) of the NASA Planetary Data System, available from the HiRISE PDS archive (https://hirise-pds.lpl.arizona.edu/PDS/). The Ingenuity downward-camera images and the JPL mosaics used as truth (V_MMMMA0076_RAS_0050001_ORRAS_HELINAVJ01, flights 4–5; flight 26 navigation frames, sol 414) are in the PDS bundle urn:nasa:pds:mars2020_helicam, available from the PDS Cartography and Imaging Sciences Node (https://pds-imaging.jpl.nasa.gov/data/mars2020/mars2020_helicam/). The software, the result files from which every number in this paper is generated, and the scripts that produce each table and figure are available at [repository URL], archived at [Zenodo DOI, to be added before submission].
+
+## Acknowledgments
+
+[Funding sources and acknowledgments.] We thank the HiRISE team and the Mars 2020 and Ingenuity teams for making their data publicly available.
+
+## Conflict of Interest
+
+The authors declare no conflicts of interest relevant to this study.
+
+"""
+    refs = """## References
+
+Gruen, A. (1985). Adaptive least squares correlation: A powerful image matching technique. *South African Journal of Photogrammetry, Remote Sensing and Cartography*, 14(3), 175–187.
+
+Immerkær, J. (1996). Fast noise variance estimation. *Computer Vision and Image Understanding*, 64(2), 300–302. https://doi.org/10.1006/cviu.1996.0060
+
+Lowe, D. G. (2004). Distinctive image features from scale-invariant keypoints. *International Journal of Computer Vision*, 60(2), 91–110.
+
+McEwen, A. S., Eliason, E. M., Bergstrom, J. W., Bridges, N. T., Hansen, C. J., Delamere, W. A., et al. (2007). Mars Reconnaissance Orbiter's High Resolution Imaging Science Experiment (HiRISE). *Journal of Geophysical Research: Planets*, 112, E05S02. https://doi.org/10.1029/2005JE002605
+
+Otto, G. P., & Chau, T. K. W. (1989). 'Region-growing' algorithm for matching of terrain images. *Image and Vision Computing*, 7(2), 83–94. https://doi.org/10.1016/0262-8856(89)90001-2
+
+Tao, Y., Conway, S. J., Muller, J.-P., Putri, A. R. D., Thomas, N., & Cremonese, G. (2021). Single image super-resolution restoration of TGO CaSSIS colour images: Demonstration with Perseverance rover landing site and Mars science targets. *Remote Sensing*, 13(9), 1777. https://doi.org/10.3390/rs13091777
+
+Tao, Y., & Muller, J.-P. (2016). A novel method for surface exploration: Super-resolution restoration of Mars repeat-pass orbital imagery. *Planetary and Space Science*, 121, 103–114. https://doi.org/10.1016/j.pss.2015.11.010
+
+You, Y.-L., & Kaveh, M. (2000). Fourth-order partial differential equations for noise removal. *IEEE Transactions on Image Processing*, 9(10), 1723–1730. https://doi.org/10.1109/83.869184
+"""
+    E = front + body + open_research + refs
+    E = E.replace("Tao & Muller (2016)", "Tao and Muller (2016)").replace("Tao & Muller", "Tao and Muller")       # AGU in-text style
+    open(os.path.join(ROOT, "docs", "paper", "ESSOAR.md"), "w").write(E)
+    wc = len(re.sub(r"\{\{\w+\}\}", "x", open(FRONT).read()).split("## Abstract")[1].split("## Plain")[0].split())
+    print("wrote docs/paper/ESSOAR.md (abstract", wc, "words)")
+
