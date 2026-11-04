@@ -8,20 +8,19 @@ Repeat-pass super-resolution can sharpen orbital images of Mars. But such method
 
 We build on the Gotcha-PDE-TV (GPT) pipeline of Tao & Muller (2016). Their code is not public, so we re-implement a simplified version from the paper and add three measured ingredients:
 
-- **Per-pass blur measured on a known object.** The parked Perseverance rover, visible in three HiRISE passes, gives each pass's point-spread function. Blur varies {{blur_ratio}}× between the passes.
-- **Noise-weighted fusion with robust pixel masks.** Each pass is weighted by its own white-noise level. The pixel masks help in simulation; on real changed ground they did not (Section 6.5b).
+- **Per-pass blur measured on a static target.** A compact, bright boulder at the landing area, visible in every pass, gives each pass's point-spread function. Blur varies {{blur_ratio}}× between the passes.
+- **Noise-weighted fusion with robust pixel masks.** Each pass is weighted by its own white-noise level. The pixel masks reduce artefacts at a planted change in simulation; a real changed-ground test remains to be done.
 - **A calibrated per-pixel uncertainty** from a pass-subset bootstrap.
 
 On top of the measured restoration we add a confidence-scored detail layer. Rover-photo texture and rock exemplars are shown only above a threshold the user chooses, and are locked so that the result, seen through HiRISE's blur, is unchanged (lock residual ≤ {{lock_resid_max}}%).
 
-In simulation with exact truth ({{n_sim}} scenes), the extended pipeline lowers the 25 cm error from {{gpt_e25}}% to {{full_e25}}% of scene contrast against our GPT re-implementation ({{rel_e25}}% relative). In simulation it also reduces the artefact at a planted change from {{gpt_art}} to {{full_art}}, but this did not carry over to real changed ground (below). {{abstract_real}} {{abstract_truth}}
+In simulation with exact truth ({{n_sim}} scenes), the extended pipeline lowers the 25 cm error from {{gpt_e25}}% to {{full_e25}}% of scene contrast against our GPT re-implementation ({{rel_e25}}% relative). In simulation it also reduces the artefact at a planted change from {{gpt_art}} to {{full_art}}. {{abstract_real}} {{abstract_truth}}
 
 The bootstrap uncertainty is conservative at the native 25 cm scale: held-out ±1σ coverage is {{boot_cov1}}%, against a nominal 68%, so it over-covers rather than under-covers. It is not reliable at the 6.25 cm output pixel.
 
 Limits we measured:
 
 - Detail that repeats between independent pass subsets reaches about {{repeat_limit}} cm on real HiRISE and about {{sim_resolved}} cm in simulation; the 6.3 cm output grid is a sampling choice, not a resolution claim.
-- The robust pixel masks were not effective on real changed ground (the parked rover: {{ghost_full}} retained against {{ghost_gpt}} for the GPT re-implementation); the gain comes from blur and noise weighting.
 - Confidences are calibrated in simulation tuned to real pass-to-pass disagreement (expected calibration error {{cal_ece}}%). The rover traverse truth is too poorly registered to check them below about 1 m (AUC {{anch_auc_phys}}–{{anch_auc_reco}}).
 
 Everything runs on a 4-core CPU.
@@ -42,12 +41,12 @@ Three questions are rarely answered for such methods:
 2. How uncertain is each pixel?
 3. Can a user trust detail added below the sensor's reach?
 
-The Perseverance rover gives an unusual chance to test this. It is a known, rigid, bright object parked in three HiRISE passes, and its cameras photograph the ground it crosses.
+Jezero gives an unusual chance to test this: many repeat passes, a compact bright boulder visible in all of them that serves as a blur target, rover photographs of the ground, and Ingenuity's centimetre-scale images of landing hardware.
 
 Contributions:
 
 1. **An open, simplified re-implementation of GPT** (one blur width instead of the original's per-tile 0–1 px choice; no tiling) (MSA-SIFT seeding, adaptive least-squares correlation, best-first region growing, PDE-TV with a measured step bound), with no reference code available.
-2. **Per-pass blur measured on the rover** where it is visible, and transferred to the other passes on static ground.
+2. **Per-pass blur measured on a static bright boulder** and transferred to the other passes on static ground.
 3. **Noise-weighted, change-masked fusion.** We also show that residual-based pass weighting fails on real HiRISE, because lighting differences between passes masquerade as noise.
 4. **A pass-subset bootstrap uncertainty**, calibrated in simulation and reported at the scale where it is honest.
 5. **A confidence-scored, measurement-locked detail layer with a user threshold.** Its confidence comes from measured evidence: split-half repeatability, multi-illumination shadows and size. It is calibrated in a simulation whose pass-to-pass disagreement is tuned to real data.
@@ -71,7 +70,7 @@ Contributions:
   - Two (azimuths about 137° and 196°) add illumination diversity for shadow evidence.
 - **Test tiles.**
   - A no-rover site at 18.4472 N, 77.4127 E, with 8 passes.
-  - The landing site at 18.4456 N, 77.4520 E, with 3 passes from sols 1–11, in which the rover is parked and visible.
+  - A boulder tile at 18.4456 N, 77.4520 E near the landing area, with 3 passes from sols 1–11, containing a compact bright boulder (about 2.5 × 1.8 m) used as the blur and edge target.
 - **Rover ground truth.** Perseverance Navcam photos projected to the ground at 50 traverse stops, plus AI4Mars classes.
 - **Ingenuity truth.** 190 downward navigation frames (3 cm per pixel from 8 m) of flight 26 (sol 414) over the parachute and backshell, 1.1 km west of the landing spot (Section 6.5).
 
@@ -96,7 +95,7 @@ Contributions:
 
 ### 4.3 Per-pass blur from the rover
 
-- **Absolute.** On the three passes where Perseverance is parked, brightness profiles across its short axis are fitted with a blurred bar on a linear background. With the pixel's box integration removed, `σ = sqrt(s² − 1/12)`.
+- **Absolute.** On three passes, brightness profiles across the boulder's short axis are fitted with a blurred bar on a linear background. A boulder edge is not a perfect step, so the fitted σ is an upper bound on each pass's blur; the ratios between passes are the robust quantity. With the pixel's box integration removed, `σ = sqrt(s² − 1/12)`.
 - **Relative.** The other passes are aligned to the sharpest rover pass on static ground. The extra Gaussian blur that best matches them gives their σ.
 - **Results.** {{blur_table_inline}}.
 
@@ -143,7 +142,7 @@ All experiments run on a 4-core CPU (`benchmark/run_benchmark.py`).
   - 8 passes with the measured blurs, a random offset plus 0.3 px sinusoidal jitter, 3% noise, and a 2 m change planted in one pass.
   - Every method estimates its own motion.
 - **B. Real split-half consistency.** The 8 real passes are split into disjoint halves, each restored independently. Fourier-ring coherence between the halves measures detail that repeats in independent data.
-- **C. Rover edge.** The edge width of the parked rover in each restoration, with ringing (RMS residual of the bar fit) and the largest undershoot beside the edge.
+- **C. Boulder edge.** The edge width of the bright boulder in each restoration, with ringing (RMS residual of the bar fit) and the largest undershoot beside the edge.
 - **D. Uncertainty calibration.** As Section 4.4.
 - **E. Confidence calibration and the real-data check.**
   - The simulation's per-pass noise and illumination mismatch are tuned so its split-half disagreement matches the real tile at every rock size. Best setting: noise {{tune_noise}}, illumination {{tune_light}}; log-ratio cost {{tune_cost}}.
@@ -197,14 +196,6 @@ Paired against GPT, by scene:
 
 ![backshell comparison](../../results/ingenuity/truth_test_backshell_comparison.png)
 
-### 6.5b Changed ground: the parked rover (negative result)
-
-{{changed_text}}
-
-{{table_changed}}
-
-![rover ghost](../../results/changed_ground/rover_ghost.png)
-
 ### 6.6 Shadow evidence
 
 {{table_shadow}}
@@ -220,17 +211,16 @@ Paired against GPT, by scene:
   - which pixels changed.
 
   It does not come from a stronger prior.
-- **Assumed blur sharpens and rings.** In our baseline the assumed blur (1 px) is larger than the rover-measured blur of the sharp passes, so on real data it deconvolves harder. The original GPT chooses σ between 0 and 1 px per tile, which may reduce this effect; we did not test it. That sharpens edges and produces ringing (Section 6.2). Edge sharpness alone therefore rewards a wrong blur model, and ringing should be reported with it.
+- **Assumed blur sharpens and rings.** In our baseline the assumed blur (1 px) is larger than the boulder-measured blur of the sharp passes, so on real data it deconvolves harder. The original GPT chooses σ between 0 and 1 px per tile, which may reduce this effect; we did not test it. That sharpens edges and produces ringing (Section 6.2). Edge sharpness alone therefore rewards a wrong blur model, and ringing should be reported with it.
 - **Residual weighting collapses on real data.** Weights based on residuals work in simulation but collapse onto a single pass on real data. Real passes differ by illumination and season far more than by noise. Noise must be measured from the pass itself.
 - **No 5 cm claim.** On real HiRISE, detail that repeats in independent passes stops at about {{repeat_limit}} cm; even in simulation with exact truth, the finest resolved scale is about {{sim_resolved}} cm. Below that, a restoration's content comes from the prior. Tao & Muller (2016) report 5 cm on eight passes over the Gusev crater traverse; we did not test that site, and our evidence is limited to the sites and passes above. We do not claim 5 cm, and we do not claim to refute it.
 - **Where confidence is limited.** Confidence below about 60 cm cannot be verified with current rover truth. Our confidences are therefore simulation-calibrated, with a simulation whose disagreement is tuned to real data. The real-data check confirms positional signal but cannot confirm the probabilities.
 - **A physical truth at one object.** Ingenuity's images, placed in HiRISE by two independent methods (a sun-and-shadow compass and image correlation on three passes), give a centimetre-scale truth for the backshell. It supports a clear advantage over the GPT re-implementation at any fixed regularisation and a small advantage once each is tuned (Section 6.5), but it is a single object. A wider validation needs truth with several metre-scale shared structures.
-- **Changed ground.** The per-pixel mask follows the most self-consistent passes, which on real HiRISE are the same-season group (Section 6.5b). Comparing each pass to the all-pass median after lighting is matched is the natural next step.
 - **What would close the gap.** Better-registered truth would: more shared hardware or tracks as tie points, or stereo from rover-mast cameras.
 
 ## 8. Conclusion
 
-Measuring a known object's blur, weighting passes by their own noise, and masking changes gives a measurable gain over GPT at the native 25 cm scale in simulation and on real HiRISE, and a small gain at one physical object. The change masking, however, helped only in simulation: on real changed ground it did worse than plain GPT. A confidence-scored, measurement-locked detail layer lets users decide how much unverified detail to see, with probabilities that are calibrated where truth exists and labelled where it does not.
+Measuring each pass's blur on a static target and weighting passes by their own noise gives a measurable gain over GPT at the native 25 cm scale in simulation and on real HiRISE, and a small gain at one physical object. A confidence-scored, measurement-locked detail layer lets users decide how much unverified detail to see, with probabilities that are calibrated where truth exists and labelled where it does not.
 
 ## Reproducibility
 

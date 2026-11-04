@@ -14,7 +14,7 @@ All tests run on CPU in this repository.
 
 1. **Gotcha alignment.** Sub-pixel motion of every HiRISE pass against a reference pass. The rover, which moves between passes, is masked out.
 2. **PDE-TV restoration.** Four-times upsampled MAP estimate from all passes. Passes are weighted by quality, and pixels that changed between passes are masked.
-3. **Per-pass blur.** Each pass's blur is measured on the parked rover where it is visible (Section 3).
+3. **Per-pass blur.** Each pass's blur is measured on a static bright boulder (Section 3; see 7d).
 4. **Uncertainty.** A per-pixel standard deviation of the restoration, from rebuilding it on subsets of the passes (Section 5).
 5. **Rover anchoring.** The rover's own top-down imagery is placed on the restored map using the rover's position in HiRISE (Section 7). This is the only step that uses rover data, and it comes after the restoration: the measurement and the prediction stay separate.
 6. **Confidence-scored fill.**
@@ -79,11 +79,11 @@ Re-implemented from the paper's text (Sec. 3.2, Eq. 10, MSA-SIFT steps i–vi); 
   - The weighted version gives the changed pixels of that pass weight 0.0, so the artefact returns to the single-pass level; the unweighted version adds it to the restoration.
 - **Not yet reproduced:** the paper's tiled segmentation by motion-vector spread (Eqs. 13–14) and its per-segment blur. Their thresholds are not given in the paper. Per-pass blur is handled by measurement instead (Section 3).
 
-## 3. Per-pass blur from the parked rover (`scripts/calibrate_pass_blur.py` → `data_products/pass_blur.json`)
+## 3. Per-pass blur from a static bright boulder (`scripts/calibrate_pass_blur.py` → `data_products/pass_blur.json`)
 
 HiRISE sharpness varies between passes: spacecraft jitter, viewing angle and focus all change. A single assumed point-spread function (GPT assumes a Gaussian with σ = 1) is replaced by one measured value per pass.
 
-- **Absolute: on the rover.** In ESP_068294, ESP_068360 and ESP_068426 (sols 1–11), Perseverance is parked at the landing site and visible as a bright, roughly 12-pixel object.
+- **Absolute: on a bright boulder.** In ESP_068294, ESP_068360 and ESP_068426 (sols 1–11), a compact bright boulder (first taken to be the parked rover; see 7d) is fitted. Because a boulder edge is not a perfect step, these sigmas are upper bounds.
   - Seven parallel brightness profiles are taken across its short axis, on native pixels with cubic interpolation at 0.1 px.
   - Each is fitted with a blurred bright bar on a linear background: `f(t) = b₀ + b₁t + a[Φ((t−t₁)/s) − Φ((t−t₂)/s)]`. The linear background absorbs the shadow.
   - The pixel's box integration is removed: `σ_psf = sqrt(s² − 1/12)`.
@@ -94,9 +94,9 @@ HiRISE sharpness varies between passes: spacecraft jitter, viewing angle and foc
 
   | Pass | Date | σ | Method | Note |
   |---|---|---|---|---|
-  | ESP_068360 | 2021, sol 6 | 0.59 ± 0.10 | rover edge | sharpest |
-  | ESP_068426 | 2021, sol 11 | 0.83 ± 0.11 | rover edge | |
-  | ESP_068294 | 2021, sol 1 | 0.89 ± 0.06 | rover edge | |
+  | ESP_068360 | 2021, sol 6 | 0.59 ± 0.10 | boulder edge | sharpest |
+  | ESP_068426 | 2021, sol 11 | 0.83 ± 0.11 | boulder edge | |
+  | ESP_068294 | 2021, sol 1 | 0.89 ± 0.06 | boulder edge | |
   | ESP_073068 | 2022 | 1.16 | relative | 32 matched points |
   | PSP_002387 | 2007 | 1.20 | relative | 18 matched points |
   | ESP_045994 | 2016 | 1.34 | relative | 16 matched points |
@@ -292,12 +292,11 @@ This took several rounds. The earlier rounds failed for reasons that are listed 
 - **Measuring the HiRISE blur shape against the truth: negative.** Fitting an isotropic, an anisotropic and a generalised Gaussian kernel per pass to the truth (with free gain, offset and translation; `scripts/ingenuity/fit_psf.py`) gives 2.0–2.5 native pixels for all five passes, three to four times the rover-edge values (0.6–0.9). The cause is the lighting mismatch (midday truth, afternoon HiRISE): shading differences are absorbed as blur. The kernel fit is therefore not used. The rover-edge calibration (Section 3) stays the blur measurement, because the object and the blur come from the same image.
 - **Registration summary:** `results/ingenuity/registration_attempt.json`. Placement files: `benchmark/results/ingenuity_truth/`.
 
-### 7d. Changed ground: the parked rover (`benchmark/changed_ground.py`, negative result)
+### 7d. Correction: the "parked rover" is a static boulder
 
-- **Setup.** Perseverance is in 3 HiRISE passes at the landing spot (sols 1, 7, 11) and absent from 5 (2016, 2021-04 onward). Background = per-pixel median of the aligned rover-free passes; footprint = 31 native pixels (2.0 m2); rover contrast is only 1.5x the pass noise. Ghost fraction = mean over the footprint of (result - background) / (rover-present mean - background); 0 = rejected, 1 = kept. Results: `benchmark/results/changed_ground.json`, figure `results/changed_ground/rover_ghost.png`.
-- **Result.** With 3 rover + 5 rover-free passes: GPT re-implementation 0.17, GPT + blur 0.15, this work 0.86 (equal weights 0.82, no robust mask 0.50, median-initialised 0.86). With only 1 rover-present pass: GPT -0.04, this work 0.70. Away from the rover, background RMS is 0.002-0.004 for all methods.
-- **Diagnosis.** Pass weights are not the cause (equal weights still 0.82), and neither is the start point. Switching the Tukey masks off drops the ghost from 0.86 to 0.50. Inside the footprint the masks give 0.82-0.92 weight to the three rover passes and 0.25-0.59 to the five rover-free passes (0.88-0.92 elsewhere): the rover-free passes differ from each other in season and lighting, so the mask trusts the group that is mutually consistent, not the majority.
-- **Honest status.** This contradicts the claim that change masking helps on real data. The simulated planted-change gain holds only for a change large against the noise in a single pass. Not tried: masks against the all-pass median after lighting matching. Note the GPT figure below the plain-average expectation (3/8 = 0.38) was not fully explained.
+- **Finding.** The bright, roughly 10 x 7 pixel object used throughout as "the parked Perseverance rover" (tile at 18.4456 N, 77.4520 E) is present in all 8 passes, including PSP_002387 (2007-01-29) and ESP_045994/046060 (2016-05). Image dates were checked in the labels, the passes are distinct images (fine-scale correlation 0.41-0.65 with the reference), and the surrounding terrain aligns. It is a static bright boulder, not the rover.
+- **Consequences.** (1) The changed-ground test (`benchmark/changed_ground.py`) had no change to detect; its earlier "ghost" numbers are invalid and are no longer reported. (2) The absolute blur fit (Section 3) and test C measure a boulder edge, which is not a perfect step: the absolute sigmas are upper bounds, the ratios between passes remain the useful quantity. (3) Simulation, split-half and Ingenuity results do not depend on this object.
+- **Search for the real rover.** No object brighter in all three sol 1-11 passes than in every rover-free pass was found within about 1 km of the tile (best candidate 1.4 sigma), nor at the published landing coordinates in the RDR map projection. Still open.
 
 ## 8. Hazard maps (`pipeline/hazard.py`, written by `scripts/confidence_fill.py`)
 
@@ -321,6 +320,6 @@ This took several rounds. The earlier rounds failed for reasons that are listed 
   - ablations: GPT + noise weighting, GPT + measured blur, full with residual weights;
   - full;
   - oracle motion (simulation only).
-- **Tests.** Simulation with exact truth (5 scenes), real split-half consistency (8 passes), and the real rover edge with ringing. Each part is saved on its own as it finishes and merged into `benchmark/results/benchmark_results.json`.
+- **Tests.** Simulation with exact truth (5 scenes), real split-half consistency (8 passes), and the real boulder edge with ringing. Each part is saved on its own as it finishes and merged into `benchmark/results/benchmark_results.json`.
 - **Results.** `python scripts/make_paper.py` fills `docs/paper/paper_template.md` from the result files, writing `docs/paper/PAPER.md`. `python benchmark/update_readme.py` refreshes the README table. Any missing result shows as **[pending]**.
 

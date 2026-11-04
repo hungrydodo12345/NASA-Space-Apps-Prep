@@ -106,7 +106,7 @@ UCL did not release code or products. "UCL pipeline" is our re-implementation fr
 | This work with residual-based pass weights (rejected first version) | 66.7 cm |
 | **This work** (Gotcha + noise-weighted, change-masked PDE-TV + measured per-pass blur) | 66.7 cm |
 
-**C. Real HiRISE, the parked rover's edge.** At the landing site, in 3 passes from sols 1–11, the table gives the width of Perseverance's edge in each restoration, together with the ringing that sharpening costs. Both ringing columns are a share of the rover's brightness step.
+**C. Real HiRISE, a bright boulder's edge.** Near the landing area, in 3 passes from sols 1–11, the table gives the width of a compact bright boulder's edge in each restoration, together with the ringing that sharpening costs. Both ringing columns are a share of the boulder's brightness step. (This boulder was first taken to be the parked rover; see METHODS 7d.)
 
 | Method | Edge width σ | Ringing (RMS) | Largest undershoot |
 |---|---|---|---|
@@ -120,7 +120,7 @@ UCL did not release code or products. "UCL pipeline" is our re-implementation fr
 
 **What this does and does not show.**
 
-- **Gain at 25 cm.** It comes from two measured inputs, per-pass blur calibrated on the parked rover and per-pass/per-pixel weighting, added to UCL's method.
+- **Gain at 25 cm.** It comes from two measured inputs, per-pass blur calibrated on a static bright boulder and per-pass/per-pixel weighting, added to UCL's method.
 - **No 5 cm claim.** On real HiRISE, detail that repeats between independent sets of passes stops at about 67 cm; in simulation with exact truth, at about 33 cm. We do not claim the 5 cm resolution reported by UCL.
 - **Unverified confidences.** The confidence-scored fill is calibrated in simulation. The rover answer key is misregistered by metres at most stops, so it cannot verify sub-metre confidences; see METHODS Section 7.
 
@@ -152,7 +152,6 @@ Ingenuity photographed the debris field from 8 m up (flight 26, sol 414) at abou
 - **Cleaner mosaic and eye check:** telemetry showed my frame chain is accurate near the backshell but mis-scaled late in the flight; rebuilding the truth from the accurate frames only reproduces the result (1 m–50 cm +0.009, 50–25 cm +0.013 in-sample and +0.021 out of sample, ahead in 87–93% of placements). Eye check: [`results/ingenuity/eye_check_placement.png`](results/ingenuity/eye_check_placement.png).
 - **Limits:** one 1.5 m object, chosen after a 181 m² rock-field patch proved uninformative (the truth was taken at midday and HiRISE in the afternoon, so rocks look completely different); this cannot establish a general result.
 
-**Changed ground (negative result).** On real HiRISE at the landing spot, the parked rover is in 3 passes and absent from 5. The GPT re-implementation leaves 17% of the rover in the fused image; this work leaves 86%, because its change masks trust the three mutually consistent same-season passes. Details: METHODS 7d, `benchmark/changed_ground.py`.
 
 <!-- TRUTH:END -->
 

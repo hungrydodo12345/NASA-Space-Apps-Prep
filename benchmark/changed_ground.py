@@ -1,4 +1,5 @@
-"""Changed-ground test on real HiRISE: Perseverance is parked at its landing spot in three passes (sols 1, 7, 11) and absent from the others (2016, 2021-04 onward). The background
+"""NOTE: on the tile used so far the bright object is a static boulder present in all passes (METHODS 7d); results from that tile are invalid (benchmark/results/invalid/).
+Changed-ground test on real HiRISE: Perseverance is parked at its landing spot in three passes (sols 1, 7, 11) and absent from the others (2016, 2021-04 onward). The background
 (the ground without a rover) is the per-pixel median of the aligned rover-free passes (LR grid). A method that fuses the passes should not leak the rover into the result.
 Ghost fraction = mean over the rover footprint of (result - background) / mean over the footprint of (rover-present mean - background), with the result averaged down to the 25 cm grid.
 0 = rover fully rejected, 1 = rover fully kept (a rover-present pass alone), ~ n_present / n_total for plain averaging. Also: RMS difference to the background outside the footprint

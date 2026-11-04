@@ -68,14 +68,14 @@ if B and "full" in B:
         if m in B and isinstance(B[m], dict): L.append(f"| {NAMES[m]} | {B[m]['consistent_down_to_cm']:.1f} cm |" if B[m]["consistent_down_to_cm"] else f"| {NAMES[m]} | n/a |")
     L.append("")
 if C and "full" in C:
-    L.append("**C. Real HiRISE, the parked rover's edge.** At the landing site, in 3 passes from sols 1–11, the table gives the width of Perseverance's edge in each restoration, together with the ringing that sharpening costs. Both ringing columns are a share of the rover's brightness step.\n")
+    L.append("**C. Real HiRISE, a bright boulder's edge.** Near the landing area, in 3 passes from sols 1–11, the table gives the width of a compact bright boulder's edge in each restoration, together with the ringing that sharpening costs. Both ringing columns are a share of the boulder's brightness step. (This boulder was first taken to be the parked rover; see METHODS 7d.)\n")
     L.append("| Method | Edge width σ | Ringing (RMS) | Largest undershoot |"); L.append("|---|---|---|---|")
     for m in ORDER:
         if m in C and isinstance(C[m], dict) and C[m].get("edge_sigma_cm"):
             L.append(f"| {NAMES[m]} | {C[m]['edge_sigma_cm']:.1f} cm | {100 * C[m]['ringing_rms_of_amplitude']:.1f}% | {100 * C[m]['max_undershoot_of_amplitude']:.1f}% |")
     L.append("")
 L.append("**What this does and does not show.**\n")
-L.append("- **Gain at 25 cm.** It comes from two measured inputs, per-pass blur calibrated on the parked rover and per-pass/per-pixel weighting, added to UCL's method.")
+L.append("- **Gain at 25 cm.** It comes from two measured inputs, per-pass blur calibrated on a static bright boulder and per-pass/per-pixel weighting, added to UCL's method.")
 L.append("- **No 5 cm claim.** On real HiRISE, detail that repeats between independent sets of passes stops at about 67 cm; in simulation with exact truth, at about 33 cm. We do not claim the 5 cm resolution reported by UCL.")
 L.append("- **Unverified confidences.** The confidence-scored fill is calibrated in simulation. The rover answer key is misregistered by metres at most stops, so it cannot verify sub-metre confidences; see METHODS Section 7.\n")
 block = "<!-- BENCHMARK:START -->\n" + "\n".join(L) + "\n<!-- BENCHMARK:END -->"

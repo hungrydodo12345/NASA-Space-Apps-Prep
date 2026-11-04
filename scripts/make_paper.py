@@ -19,7 +19,7 @@ inc = [r["incidence_deg"] for r in man]; V["inc_min"], V["inc_max"] = (f"{min(in
 blur = J("data_products", "pass_blur.json") or {}
 sig = {k: v["sigma_px"] for k, v in blur.items() if v.get("sigma_px") == v.get("sigma_px")}
 V["blur_ratio"] = f"{max(sig.values()) / min(sig.values()):.1f}" if sig else PEND
-V["blur_table_inline"] = ", ".join(f"{k.replace('_1985', '')} {v:.2f} px ({'rover' if 'rover' in blur[k]['method'] else 'relative'})" for k, v in sorted(sig.items(), key=lambda kv: kv[1])) or PEND
+V["blur_table_inline"] = ", ".join(f"{k.replace('_1985', '')} {v:.2f} px ({'boulder edge' if 'rover' in blur[k]['method'] else 'relative'})" for k, v in sorted(sig.items(), key=lambda kv: kv[1])) or PEND
 V.update(gotcha_med="0.038", gotcha_p90="0.089", ecc_med="0.149")          # docs/METHODS.md Section 1 (validation run)
 
 # ---------------- benchmark
@@ -72,8 +72,8 @@ if Cr:
     for m in ORDER:
         if m in Cr and isinstance(Cr[m], dict) and Cr[m].get("edge_sigma_cm"):
             rows.append(f"| {NAMES[m]} | {Cr[m]['edge_sigma_cm']:.1f} | {100 * Cr[m]['ringing_rms_of_amplitude']:.1f} | {100 * Cr[m]['max_undershoot_of_amplitude']:.1f} |")
-    V["table_rover"] = "**Rover edge** (landing site, 3 passes, sols 1–11). A narrower edge is sharper. Lower ringing and undershoot are cleaner.\n\n" + "\n".join(rows)
-else: V["table_rover"] = "**Rover edge:** " + PEND
+    V["table_rover"] = "**Boulder edge** (bright static boulder near the landing area, 3 passes, sols 1–11). A narrower edge is sharper. Lower ringing and undershoot are cleaner.\n\n" + "\n".join(rows)
+else: V["table_rover"] = "**Boulder edge:** " + PEND
 
 
 def realtext():
@@ -82,7 +82,7 @@ def realtext():
     rf, rg = Cr["full"], Cr["gpt"]
     s = []
     s.append(f"- **Split-half consistency.** Mean coherence over 25–100 cm is {cf:.3f} for the full chain and {cg:.3f} for GPT ({'full ahead' if cf > cg else 'GPT ahead'}).")
-    s.append(f"- **Rover edge.** The edge is {rf['edge_sigma_cm']:.1f} cm (full) against {rg['edge_sigma_cm']:.1f} cm (GPT).")
+    s.append(f"- **Boulder edge.** The edge is {rf['edge_sigma_cm']:.1f} cm (full) against {rg['edge_sigma_cm']:.1f} cm (GPT).")
     s.append(f"  - Ringing: {100 * rf['ringing_rms_of_amplitude']:.1f}% against {100 * rg['ringing_rms_of_amplitude']:.1f}%.")
     s.append(f"  - Undershoot: {100 * rf['max_undershoot_of_amplitude']:.1f}% against {100 * rg['max_undershoot_of_amplitude']:.1f}%.")
     if "full-resw" in Bs:
@@ -90,10 +90,10 @@ def realtext():
         s.append("  Residual weights read illumination differences between passes as noise and collapse onto one pass, so each half is effectively a single image.")
     split = (f"the full chain's independent pass halves agree slightly more than GPT's" if cf > cg else
              f"GPT's independent pass halves agree slightly more than ours (mean coherence {cg:.3f} vs {cf:.3f}, 25–100 cm)")
-    edge = (f"our restoration of the parked rover rings less than GPT's ({100 * rf['ringing_rms_of_amplitude']:.1f}% vs {100 * rg['ringing_rms_of_amplitude']:.1f}% RMS; "
+    edge = (f"our restoration of the boulder edge rings less than GPT's ({100 * rf['ringing_rms_of_amplitude']:.1f}% vs {100 * rg['ringing_rms_of_amplitude']:.1f}% RMS; "
             f"undershoot {100 * rf['max_undershoot_of_amplitude']:.0f}% vs {100 * rg['max_undershoot_of_amplitude']:.0f}%), at the cost of a wider edge "
             f"({rf['edge_sigma_cm']:.1f} vs {rg['edge_sigma_cm']:.1f} cm)") if rf["ringing_rms_of_amplitude"] < rg["ringing_rms_of_amplitude"] else \
-           f"GPT's rover edge rings less than ours ({100 * rg['ringing_rms_of_amplitude']:.1f}% vs {100 * rf['ringing_rms_of_amplitude']:.1f}%)"
+           f"GPT's boulder edge rings less than ours ({100 * rg['ringing_rms_of_amplitude']:.1f}% vs {100 * rf['ringing_rms_of_amplitude']:.1f}%)"
     ab = f"On real HiRISE the picture is mixed: {split}, while {edge}."
     return "\n".join(s), ab
 
@@ -154,20 +154,6 @@ if IT and IH and IR:
         rows.append(f"| {n_} | {e('50-25 cm', f):.3f} | {b['50-25 cm'][f][0]} | {1 - cv['50-25 cm'][f]['0.005']:.3f} | {1 - cv['50-25 cm'][f]['0.04']:.3f} |")
     rows.append(f"| raw HiRISE | {e('50-25 cm', 'raw'):.3f} | none | none | none |")
     V["table_truth"] = "Error = 1 - correlation with the truth in the 25-50 cm band, within 4 m of the backshell, with a +-0.25 m placement tolerance applied equally to all methods.\n\n" + "\n".join(rows)
-CG = J("benchmark", "results", "changed_ground.json")
-if CG:
-    cf = CG["configs"]; g = lambda k, m: cf[k][m]["ghost"]
-    V["changed_text"] = (f"At the landing spot Perseverance is parked in three HiRISE passes (sols 1, 7, 11) and absent from five (2016, 2021-04 onward). The background is the per-pixel median of the five aligned rover-free passes; the rover footprint is {CG['footprint_m2']:.1f} m2 "
-                         f"(31 native pixels) and its contrast is only {CG['rover_contrast_over_noise']:.1f} times the pass noise. Ghost fraction = how much of the rover survives in the restoration (0 = rejected, 1 = kept; a single rover-present pass gives {CG['raw_rover_pass_ghost']:.2f}). "
-                         f"With all three rover passes and five rover-free passes, the GPT re-implementation leaves {g('3present_5free', 'gpt'):.2f} and this work leaves {g('3present_5free', 'full'):.2f}. This is the opposite of the simulation result, where change masking helps. "
-                         f"Diagnosis: with equal pass weights the ghost is still {g('3present_5free', 'full-equal'):.2f}; with the robust masks switched off it is {g('3present_5free', 'full-nomask'):.2f}; starting from the median of the passes instead of the reference pass changes nothing ({g('3present_5free', 'full-median'):.2f}). "
-                         "The robust masks therefore cause the leak. Inside the footprint they give weight 0.82-0.92 to the three same-season rover passes but only 0.25-0.59 to the five rover-free passes (0.88-0.92 everywhere else): the five rover-free passes differ from each other in season and lighting, so the mask trusts the three that agree with each other. "
-                         "The change mask measures self-consistency, not the majority. This test does not support the claim that our masking handles changed ground on real HiRISE; the simulated planted-change result stands only for a change that is large compared with the noise and visible in a single pass.")
-    V["ghost_full"] = f"{100 * g('3present_5free', 'full'):.0f}%"; V["ghost_gpt"] = f"{100 * g('3present_5free', 'gpt'):.0f}%"
-    rows = ["| Passes (rover / rover-free) | GPT re-implementation | GPT + measured blur | This work | This work, equal weights | This work, no robust mask |", "|---|---|---|---|---|---|"]
-    for k, r in cf.items():
-        a_, b_ = k.split("present_"); rows.append(f"| {a_} / {b_.replace('free', '')} | " + " | ".join(f"{r[m]['ghost']:.2f}" for m in ("gpt", "gpt+blur", "full", "full-equal", "full-nomask")) + " |")
-    V["table_changed"] = "Ghost fraction of the parked rover in the restoration (0 = rover rejected, 1 = rover kept):\n\n" + "\n".join(rows)
 tpl = open(os.path.join(ROOT, "docs", "paper", "paper_template.md")).read()
 missing = sorted(set(re.findall(r"\{\{(\w+)\}\}", tpl)) - set(V))
 out = re.sub(r"\{\{(\w+)\}\}", lambda m: str(V.get(m.group(1), PEND)), tpl)
