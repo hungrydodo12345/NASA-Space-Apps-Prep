@@ -43,8 +43,42 @@
    "method": "photogrammetry from the 10 colour frames (scripts/ingenuity/rte_camera.py)",
    "result": "camera model built from the metadata (f = 1780 px, strong radial term R1 = 0.47, round-trip error up to 0.013 normalised units after damped inversion); structure from motion not yet run",
    "verdict": "not completed"
+  },
+  {
+   "method": "colour-frame photogrammetry: SIFT + essential matrix + incremental SfM + BA (scripts/ingenuity/sfm_rte.py); then orthorectification onto a nominal ground plane (rte_ortho.py)",
+   "result": "only 1 of 45 image pairs verified (30 inliers) in raw frames; after orthorectification consecutive pairs gave 4-14 similarity inliers. Low-contrast ground, grazing views and large yaw/baseline changes defeat feature matching. No multi-view reconstruction.",
+   "verdict": "not achieved"
+  },
+  {
+   "method": "sun-derived heading for the backshell stretch (frames 133-154): helicopter shadow with a computed sun (azimuth 170, elevation 58) and rock-shadow direction",
+   "result": {
+    "helicopter_shadow": "rotation of the mosaic to north-up -28.6 deg (clockwise-positive), i.e. 28.6 deg counter-clockwise in OpenCV terms; per-frame MAD 16 deg",
+    "rock_shadows": "direction toward the sun -16.5 deg in the mosaic frame (MAD 33 deg) -> 264 deg counter-clockwise",
+    "length_check": "helicopter shadow offset 150-160 px vs 172 px expected from the sun elevation: consistent"
+   },
+   "verdict": "noisy; the two physical headings disagree with each other by about 50 deg"
+  },
+  {
+   "method": "local registration of the backshell neighbourhood (+-5 m and +-8 m patches), translation pinned to the backshell, rotation 0-359 and scale scanned (scripts/ingenuity/register_local.py)",
+   "result": {
+    "5m": {
+     "best_theta_ccw_deg": 214,
+     "ncc": 0.804,
+     "best_rotation_more_than_20deg_away": "82 deg, 0.734",
+     "median": 0.619,
+     "ncc_at_32deg": 0.619
+    },
+    "8m": {
+     "best_theta_ccw_deg": 210,
+     "ncc": 0.705,
+     "second_mode": "270 deg, 0.649",
+     "median": 0.519,
+     "ncc_at_32deg": 0.502
+    }
+   },
+   "verdict": "a coherent peak at 210-214 deg (neighbours 208-218 all high), consistent between two patch sizes, but only 0.06-0.07 above the second mode, it is the backshell blob that anchors it, and it contradicts the helicopter-shadow compass by exactly 180 deg and the rock-shadow compass by 50 deg. Visual overlay inconclusive. Not validated."
   }
  ],
- "conclusion": "Still no validated placement; the mosaic is not used as truth and no parameter search was run against it.",
+ "conclusion": "No validated placement of the Ingenuity truth in HiRISE at the accuracy needed to rank restorations at 25 cm; none of the independent cues (image correlation, helicopter shadow, rock shadows) agree. The mosaic is not used as truth and no parameter search was run against it.",
  "what_would_fix_it": "Ground-plane motion from visual odometry with static-feature masking, or the 10 colour frames (oblique, both objects) with a photogrammetric solution, or a larger shared structure than the backshell and one piece."
 }

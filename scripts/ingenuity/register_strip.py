@@ -38,13 +38,17 @@ def trial(scale, theta, flip):
     r = mncc(T, vr.astype(np.float32))
     if r is None: return None
     y, x = np.unravel_index(np.argmax(r), r.shape); return float(r[y, x]), x + T.shape[1] / 2, y + T.shape[0] / 2, Rm, (W2, H2)
+def rng_(spec):
+    a, b, c = (float(x) for x in spec.split(":")); return list(np.arange(a, b + 1e-9, c))
+THETAS = rng_(os.environ.get("THETAS", "0:356:4")); SCALES = [float(x) for x in os.environ.get("SCALES", "0.90,0.95,1.0,1.05,1.10").split(",")]; FLIPS = [int(x) for x in os.environ.get("FLIPS", "0,1").split(",")]
 res = []
-for flip in (0, 1):
-    for scale in (0.90, 0.95, 1.0, 1.05, 1.10):
-        for theta in range(0, 360, 4):
+for flip in FLIPS:
+    for scale in SCALES:
+        for theta in THETAS:
             t = trial(scale, theta, flip)
             if t is not None: res.append(dict(flip=flip, scale=scale, theta=theta, ncc=t[0], cx=t[1], cy=t[2]))
     print("flip", flip, "done, best so far", round(max(r["ncc"] for r in res), 3), flush=True)
+MOSBS = os.environ.get("MOSAIC_BACKSHELL")
 res.sort(key=lambda r: -r["ncc"]); nc = np.array([r["ncc"] for r in res])
 print("top placements:"); [print("  ", {k: (round(v, 3) if isinstance(v, float) else v) for k, v in r.items()}) for r in res[:6]]
 print("score distribution over all placements: median %.3f, 99th pct %.3f, best %.3f, best minus 2nd-best distinct rotation %.3f" % (np.median(nc), np.percentile(nc, 99), nc.max(), nc.max() - max(r["ncc"] for r in res if abs(((r["theta"] - res[0]["theta"] + 180) % 360) - 180) > 12 or r["flip"] != res[0]["flip"])))

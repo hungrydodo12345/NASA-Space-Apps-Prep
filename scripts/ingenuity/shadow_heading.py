@@ -18,12 +18,12 @@ for i in range(A0, A1 + 1):
     a = cv2.imread(f"{S}/ingenuity/{order[i]}.png", cv2.IMREAD_GRAYSCALE).astype(np.float32); fr[i] = rectify(a / (cv2.GaussianBlur(a, (0, 0), 45) + 1e-3))
 valid = cv2.erode((rectify(np.ones((480, 640), np.float32)) > 0.99).astype(np.uint8), np.ones((41, 41), np.uint8)) > 0
 # darkness of a small cross-shaped blob: local mean (sigma 14) minus local mean (sigma 3), strongest negative
-dark = {i: cv2.GaussianBlur(fr[i], (0, 0), 14) - cv2.GaussianBlur(fr[i], (0, 0), 3.0) for i in fr}
-stack = np.stack([np.where(valid, dark[i], 0) for i in fr]); mean_dark = stack.mean(0)
-y0, x0 = np.unravel_index(np.argmax(mean_dark), mean_dark.shape); print("mean shadow darkness peaks at rectified px (x=%d, y=%d), i.e. offset from the principal point (%+d, %+d) px" % (x0, y0, x0 - cx, y0 - cy), flush=True)
+yy_, xx_ = np.mgrid[0:OUT_H, 0:OUT_W]; rr_ = np.hypot(xx_ - cx, yy_ - cy); ring = (rr_ > 120) & (rr_ < 190) & valid          # the shadow sits ~4.3 m (~150 px) from the nadir point, any direction (the helicopter yaws)
+# a small cross: darker than its surroundings at two scales (blade width ~4 px, span ~28 px)
+cross = {i: (cv2.GaussianBlur(fr[i], (0, 0), 10) - cv2.GaussianBlur(fr[i], (0, 0), 2.0)) for i in fr}
 pos = {}
 for i in fr:
-    m = np.zeros_like(valid); m[max(y0 - 70, 0):y0 + 70, max(x0 - 90, 0):x0 + 90] = True; m &= valid; r = np.where(m, dark[i], -1e9); y, x = np.unravel_index(np.argmax(r), r.shape); pos[i] = (x, y, float(r[y, x]))
+    r = np.where(ring, cross[i], -1e9); y, x = np.unravel_index(np.argmax(r), r.shape); pos[i] = (x, y, float(r[y, x]))
 V = {i: (pos[i][0] - cx, pos[i][1] - cy) for i in pos}
 use = [i for i in range(A0, A1 + 1) if i - idx0 >= 0 and grp[i - idx0] == grp[ref - idx0]]
 ang_img = {i: np.degrees(np.arctan2(V[i][1], V[i][0])) for i in use}                               # image angle, clockwise from +x (y down)
