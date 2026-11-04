@@ -2,10 +2,49 @@
  "what": "Place the Ingenuity flight-26 nadir mosaic (40 frames, ~17 m across, backshell + debris + rock field) in HiRISE ESP_068294 and use it as centimetre-scale truth.",
  "mosaic": "40 downward frames chained by SIFT+RANSAC homographies (38 of 39 pairs with >=20 inliers). Scale from the nominal 8 m / 294 px = 0.027 m per pixel.",
  "attempts": [
-  {"method": "pixel correlation, backshell anchored, rotation 0-359 deg, scale 0.022-0.033, both chiralities", "best_corr": 0.341, "best_scale_mpp": 0.020, "best_theta": 120, "next_best_wrong_alternative_corr": 0.277, "verdict": "rejected: best scale at the edge of the search range, margin over the alternative only 0.064"},
-  {"method": "two shared objects: backshell + a debris piece 4.2 m NW in HiRISE / 156 px in the mosaic", "implied_scale_mpp": 0.0269, "implied_theta_deg": -70.6, "independent_check_matches_of_other_objects": "0 of 20 (chance: mean 0.9, 95th percentile 2, best of 360 rotations 4)", "pixel_corr_at_this_pose": 0.080, "rank_among_240_placements": 108, "verdict": "not validated: the other mosaic objects are mostly rocks < 0.5 m, invisible at 25 cm per pixel, so the check has little power; the pixel correlation gives it no support"},
-  {"method": "long frame chain (101 frames, t = 59-139 s) to link the parachute to the backshell", "verdict": "invalid: across featureless dune stretches the matcher locks onto fixed camera features (helicopter shadow, lens marks) and returns zero motion, so the mosaic does not grow"}
+  {
+   "method": "pixel correlation, backshell anchored, rotation 0-359 deg, scale 0.022-0.033, both chiralities",
+   "best_corr": 0.341,
+   "best_scale_mpp": 0.02,
+   "best_theta": 120,
+   "next_best_wrong_alternative_corr": 0.277,
+   "verdict": "rejected: best scale at the edge of the search range, margin over the alternative only 0.064"
+  },
+  {
+   "method": "two shared objects: backshell + a debris piece 4.2 m NW in HiRISE / 156 px in the mosaic",
+   "implied_scale_mpp": 0.0269,
+   "implied_theta_deg": -70.6,
+   "independent_check_matches_of_other_objects": "0 of 20 (chance: mean 0.9, 95th percentile 2, best of 360 rotations 4)",
+   "pixel_corr_at_this_pose": 0.08,
+   "rank_among_240_placements": 108,
+   "verdict": "not validated: the other mosaic objects are mostly rocks < 0.5 m, invisible at 25 cm per pixel, so the check has little power; the pixel correlation gives it no support"
+  },
+  {
+   "method": "long frame chain (101 frames, t = 59-139 s) to link the parachute to the backshell",
+   "verdict": "invalid: across featureless dune stretches the matcher locks onto fixed camera features (helicopter shadow, lens marks) and returns zero motion, so the mosaic does not grow"
+  },
+  {
+   "method": "motion-tracking fix: rectify the equidistant fisheye to a pinhole, remove the camera-fixed pattern, homography pose graph (scripts/ingenuity/track_flight_h.py)",
+   "result": "frames chained into one consistent group: 97 (idx 64-160), up from 38; 379 pairwise measurements, 282 kept, median residual 0.23 px; mosaic of the whole stretch about 75 x 60 m (results/ingenuity/strip_mosaic_97_frames.png)",
+   "root_cause_found": "the camera is an equidistant fisheye (CAHVORE type 3, linearity 0, f = 275 px, 133 deg field of view); treating it as a pinhole broke plane homographies at wide angles, and fixed lens/shadow features made featureless-ground pairs look static",
+   "unresolved": "per-step in-plane rotation bias of about -1.5 deg plus real yaw jumps of 25-29 deg: the absolute heading of the strip is not reliable"
+  },
+  {
+   "method": "register the 97-frame strip to HiRISE: masked NCC over rotation/scale/mirror, no location prior, fine and coarse band",
+   "result": "no distinct peak: coarse band best 0.392 vs 99th percentile 0.377 of all placements, second distinct mode 0.389; every top placement puts the mosaic's backshell ~35 m from the real one",
+   "verdict": "rejected"
+  },
+  {
+   "method": "heading from the helicopter's shadow and a computed sun position (Ls 212, elevation 58 deg, azimuth 170 deg)",
+   "result": "predicted shadow offset at 8 m: 5.0 m; measured median 4.3 m (consistent). The per-frame direction check was inconclusive because the detector was confined to the mean shadow position while the helicopter yaws.",
+   "verdict": "geometry consistent, heading not obtained"
+  },
+  {
+   "method": "photogrammetry from the 10 colour frames (scripts/ingenuity/rte_camera.py)",
+   "result": "camera model built from the metadata (f = 1780 px, strong radial term R1 = 0.47, round-trip error up to 0.013 normalised units after damped inversion); structure from motion not yet run",
+   "verdict": "not completed"
+  }
  ],
- "conclusion": "No validated placement. The Ingenuity mosaic is NOT used as truth and no parameter search was run against it.",
+ "conclusion": "Still no validated placement; the mosaic is not used as truth and no parameter search was run against it.",
  "what_would_fix_it": "Ground-plane motion from visual odometry with static-feature masking, or the 10 colour frames (oblique, both objects) with a photogrammetric solution, or a larger shared structure than the backshell and one piece."
 }
