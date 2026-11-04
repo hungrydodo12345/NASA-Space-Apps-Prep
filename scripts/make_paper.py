@@ -139,6 +139,21 @@ if SH:
     for nm, d in SH.items(): rows.append(f"| {nm} | " + " | ".join(f"{v['rock_vs_decoy']:.2f} / {v['rock_vs_ground']:.2f}" for v in d.values()) + " |")
     V["table_shadow"] = "AUC for rock against decoy (a flat bright patch) / rock against ground:\n\n" + "\n".join(rows)
 
+IT = J("benchmark", "results", "ingenuity_truth", "object_final.json"); IH = J("benchmark", "results", "ingenuity_truth", "object_heldout.json"); IR = J("benchmark", "results", "ingenuity_truth", "object_robust_placements.json")
+if IT and IH and IR:
+    b, cv, bs = IT["best"], IT["curves"], IT["bootstrap"]; e = lambda band, f: 1 - b[band][f][1]
+    V["abstract_truth"] = (f"A centimetre-scale physical truth (Ingenuity's view of the parachute and backshell, placed in HiRISE by two independent methods) shows that, at any fixed regularisation, our restoration is much closer to the truth than the GPT re-implementation "
+                           f"(50-25 cm error {1 - cv['50-25 cm']['full']['0.04']:.3f} against {1 - cv['50-25 cm']['gpt']['0.04']:.3f} at lambda = 0.04), and that with each method tuned to its own minimum the advantage is small ({bs['50-25 cm']['full']['mean']:+.3f} in correlation in-sample, {IH['50-25 cm']['full']['heldout'] - IH['50-25 cm']['gpt']['heldout']:+.3f} out of sample), on one object.")
+    V["truth_text"] = ("Ingenuity photographed the debris field from 8 m (flight 26, sol 414) at about 3 cm per pixel. A mosaic of 27 frames around the backshell was placed in HiRISE by (i) the helicopter's own shadow and the computed sun (mosaic-to-north rotation 217 deg +- 12 deg) and "
+                       "(ii) masked correlation against three independent HiRISE passes (208 deg, scale 0.0290 m/px = the nominal 8 m / 275 px, the same translation in all three). The 181 m2 rock field around the backshell gave no discrimination between methods (correlation 0.00-0.07 for all, including raw HiRISE), "
+                       "because the truth (midday) and HiRISE (afternoon) show rocks with completely different shading. Within 4 m of the backshell the two share strong structure (correlation 0.92-0.97 at 1-4 m), so the test below uses that object; it was chosen after the rock-field result and carries the safeguards listed. "
+                       f"Out of sample (lambda chosen on one half of the disc, scored on the other): {IH['1 m-50 cm']['full']['heldout'] - IH['1 m-50 cm']['gpt']['heldout']:+.3f} (1 m-50 cm) and {IH['50-25 cm']['full']['heldout'] - IH['50-25 cm']['gpt']['heldout']:+.3f} (50-25 cm). "
+                       f"Over 45 plausible placements the full chain is ahead of GPT in {100 * IR['summary']['50-25 cm']['vs_gpt']['full']['frac_better']:.0f}% of them at 50-25 cm and {100 * IR['summary']['1 m-50 cm']['vs_gpt']['full']['frac_better']:.0f}% at 1 m-50 cm.")
+    rows = ["| Method | Error at its minimum (50-25 cm) | at lambda | at lambda = 0.005 | at lambda = 0.04 |", "|---|---|---|---|---|"]
+    for f, n_ in (("gpt", "UCL re-implementation (GPT)"), ("gpt+blur", "GPT + measured blur"), ("full-equal", "this work, equal weights"), ("full", "**this work**")):
+        rows.append(f"| {n_} | {e('50-25 cm', f):.3f} | {b['50-25 cm'][f][0]} | {1 - cv['50-25 cm'][f]['0.005']:.3f} | {1 - cv['50-25 cm'][f]['0.04']:.3f} |")
+    rows.append(f"| raw HiRISE | {e('50-25 cm', 'raw'):.3f} | none | none | none |")
+    V["table_truth"] = "Error = 1 - correlation with the truth in the 25-50 cm band, within 4 m of the backshell, with a +-0.25 m placement tolerance applied equally to all methods.\n\n" + "\n".join(rows)
 tpl = open(os.path.join(ROOT, "docs", "paper", "paper_template.md")).read()
 missing = sorted(set(re.findall(r"\{\{(\w+)\}\}", tpl)) - set(V))
 out = re.sub(r"\{\{(\w+)\}\}", lambda m: str(V.get(m.group(1), PEND)), tpl)

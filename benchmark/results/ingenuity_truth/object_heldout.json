@@ -1,0 +1,143 @@
+{
+ "2-1 m": {
+  "raw": {
+   "heldout": 0.9767632950941132,
+   "chosen": [
+    "raw",
+    "raw",
+    "raw",
+    "raw"
+   ]
+  },
+  "gpt": {
+   "heldout": 0.9783562191152074,
+   "chosen": [
+    "gpt__1.0",
+    "gpt__1.0",
+    "gpt__30.0",
+    "gpt__1.0"
+   ]
+  },
+  "gpt+blur": {
+   "heldout": 0.9783365508308213,
+   "chosen": [
+    "gpt+blur__1.0",
+    "gpt+blur__1.0",
+    "gpt+blur__30.0",
+    "gpt+blur__1.0"
+   ]
+  },
+  "full-equal": {
+   "heldout": 0.9786451190350618,
+   "chosen": [
+    "full-equal__0.015",
+    "full-equal__0.002",
+    "full-equal__1.0",
+    "full-equal__0.015"
+   ]
+  },
+  "full": {
+   "heldout": 0.9790543495121333,
+   "chosen": [
+    "full__0.002",
+    "full__0.002",
+    "full__3.0",
+    "full__0.005"
+   ]
+  }
+ },
+ "1 m-50 cm": {
+  "raw": {
+   "heldout": 0.9338613508341418,
+   "chosen": [
+    "raw",
+    "raw",
+    "raw",
+    "raw"
+   ]
+  },
+  "gpt": {
+   "heldout": 0.9418494848598493,
+   "chosen": [
+    "gpt__1.0",
+    "gpt__1.0",
+    "gpt__0.2",
+    "gpt__3.0"
+   ]
+  },
+  "gpt+blur": {
+   "heldout": 0.9424189793704635,
+   "chosen": [
+    "gpt+blur__1.0",
+    "gpt+blur__1.0",
+    "gpt+blur__0.2",
+    "gpt+blur__3.0"
+   ]
+  },
+  "full-equal": {
+   "heldout": 0.9402040025366167,
+   "chosen": [
+    "full-equal__0.005",
+    "full-equal__0.1",
+    "full-equal__0.005",
+    "full-equal__0.4"
+   ]
+  },
+  "full": {
+   "heldout": 0.9425239120245423,
+   "chosen": [
+    "full__0.005",
+    "full__0.2",
+    "full__0.015",
+    "full__0.005"
+   ]
+  }
+ },
+ "50-25 cm": {
+  "raw": {
+   "heldout": 0.7980444025969837,
+   "chosen": [
+    "raw",
+    "raw",
+    "raw",
+    "raw"
+   ]
+  },
+  "gpt": {
+   "heldout": 0.8152759428686582,
+   "chosen": [
+    "gpt__3.0",
+    "gpt__1.0",
+    "gpt__1.0",
+    "gpt__1.0"
+   ]
+  },
+  "gpt+blur": {
+   "heldout": 0.8189186551569767,
+   "chosen": [
+    "gpt+blur__3.0",
+    "gpt+blur__1.0",
+    "gpt+blur__1.0",
+    "gpt+blur__1.0"
+   ]
+  },
+  "full-equal": {
+   "heldout": 0.8205353914397923,
+   "chosen": [
+    "full-equal__0.2",
+    "full-equal__0.2",
+    "full-equal__0.015",
+    "full-equal__0.2"
+   ]
+  },
+  "full": {
+   "heldout": 0.8240486586359901,
+   "chosen": [
+    "full__0.1",
+    "full__0.1",
+    "full__0.015",
+    "full__0.1"
+   ]
+  }
+ }
+}

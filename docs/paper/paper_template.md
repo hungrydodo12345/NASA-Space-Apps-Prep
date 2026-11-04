@@ -14,7 +14,7 @@ We re-implement the Gotcha-PDE-TV (GPT) pipeline of Tao & Muller (2016) and exte
 
 On top of the measured restoration we add a confidence-scored detail layer. Rover-photo texture and rock exemplars are shown only above a threshold the user chooses, and are locked so that the result, seen through HiRISE's blur, is unchanged (lock residual ≤ {{lock_resid_max}}%).
 
-In simulation with exact truth ({{n_sim}} scenes), the extended pipeline lowers the 25 cm error from {{gpt_e25}}% to {{full_e25}}% of scene contrast against our GPT re-implementation ({{rel_e25}}% relative). It also reduces artefacts at changed ground from {{gpt_art}} to {{full_art}}. {{abstract_real}}
+In simulation with exact truth ({{n_sim}} scenes), the extended pipeline lowers the 25 cm error from {{gpt_e25}}% to {{full_e25}}% of scene contrast against our GPT re-implementation ({{rel_e25}}% relative). It also reduces artefacts at changed ground from {{gpt_art}} to {{full_art}}. {{abstract_real}} {{abstract_truth}}
 
 The bootstrap uncertainty is honest at the native 25 cm scale: held-out ±1σ coverage is {{boot_cov1}}%, against a target of 68%. It is not honest at the 6.25 cm output pixel.
 
@@ -73,6 +73,7 @@ Contributions:
   - A no-rover site at 18.4472 N, 77.4127 E, with 8 passes.
   - The landing site at 18.4456 N, 77.4520 E, with 3 passes from sols 1–11, in which the rover is parked and visible.
 - **Rover ground truth.** Perseverance Navcam photos projected to the ground at 50 traverse stops, plus AI4Mars classes.
+- **Ingenuity truth.** 190 downward navigation frames (3 cm per pixel from 8 m) of flight 26 (sol 414) over the parachute and backshell, 1.1 km west of the landing spot (Section 6.5).
 
 ## 4. Method
 
@@ -188,7 +189,15 @@ Paired against GPT, by scene:
 - The recogniser's surface class is right {{cls_acc}}% of the time, against {{cls_base}}% for always guessing soil.
 - Only 4 of 27 stops could be registered, with shifts of up to 2–3 m. The answer key, not the scores, is the limit.
 
-### 6.5 Shadow evidence
+### 6.5 Real physical truth: Ingenuity's view of the backshell
+
+{{truth_text}}
+
+{{table_truth}}
+
+![backshell comparison](../../results/ingenuity/truth_test_backshell_comparison.png)
+
+### 6.6 Shadow evidence
 
 {{table_shadow}}
 
@@ -204,7 +213,8 @@ Paired against GPT, by scene:
 - **Residual weighting collapses on real data.** Weights based on residuals work in simulation but collapse onto a single pass on real data. Real passes differ by illumination and season far more than by noise. Noise must be measured from the pass itself.
 - **No 5 cm claim.** On real HiRISE, detail that repeats in independent passes stops at about {{repeat_limit}} cm; even in simulation with exact truth, the finest resolved scale is about {{sim_resolved}} cm. Below that, a restoration's content comes from the prior. We do not claim the 5 cm resolution reported for GPT.
 - **Where confidence is limited.** Confidence below about 60 cm cannot be verified with current rover truth. Our confidences are therefore simulation-calibrated, with a simulation whose disagreement is tuned to real data. The real-data check confirms positional signal but cannot confirm the probabilities.
-- **What would close the gap.** Better-registered truth would: rover hardware and tracks as tie points, or stereo from rover-mast cameras.
+- **A physical truth at one object.** Ingenuity's images, placed in HiRISE by two independent methods (a sun-and-shadow compass and image correlation on three passes), give a centimetre-scale truth for the backshell. It supports a clear advantage over the GPT re-implementation at any fixed regularisation and a small advantage once each is tuned (Section 6.5), but it is a single object. A wider validation needs truth with several metre-scale shared structures.
+- **What would close the gap.** Better-registered truth would: more shared hardware or tracks as tie points, or stereo from rover-mast cameras.
 
 ## 8. Conclusion
 

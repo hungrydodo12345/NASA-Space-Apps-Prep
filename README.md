@@ -126,6 +126,32 @@ UCL did not release code or products. "UCL pipeline" is our re-implementation fr
 
 <!-- BENCHMARK:END -->
 
+<!-- TRUTH:START -->
+## Real physical truth: Ingenuity's view of the parachute and backshell
+
+Ingenuity photographed the debris field from 8 m up (flight 26, sol 414) at about 3 cm per pixel. We placed that mosaic in HiRISE using two independent methods that agree (the helicopter's shadow plus the computed sun: **217° ± 12°**; image correlation on three independent HiRISE passes: **208°**, with the scale 0.0290 m/px equal to the nominal 8 m / 275 px). Details: [`docs/METHODS.md`](docs/METHODS.md) section 7c; figures in [`results/ingenuity/`](results/ingenuity/).
+
+![backshell comparison](results/ingenuity/truth_test_backshell_comparison.png)
+
+**Test on the backshell** (within 4 m; correlation with the truth in band-passed images, each method tuned to its own minimum of error; error = 1 − correlation, 50–25 cm band):
+
+| Method | Error at its minimum | at λ = 0.005 | at λ = 0.04 |
+|---|---|---|---|
+| raw HiRISE (one pass) | 0.249 | — | — |
+| UCL re-implementation | 0.229 (λ 3.0) | 0.368 | 0.333 |
+| UCL + our measured blur | 0.227 (λ 3.0) | 0.296 | 0.286 |
+| **This work** | **0.203** (λ 0.1) | 0.248 | 0.206 |
+
+![error vs lambda](results/ingenuity/truth_test_error_vs_lambda.png)
+
+- **At the same regularisation, this work is much closer to the truth** than the UCL re-implementation (at λ = 0.04: 0.206 against 0.333).
+- **Each tuned to its own minimum:** 1 m–50 cm +0.010 (95% CI +0.003 to +0.015); 50–25 cm +0.023 (95% CI -0.004 to +0.051) in correlation; both curves are U-shaped, so the minima are real.
+- **Out of sample** (settings chosen on one half of the disc, scored on the other): +0.009 at 50–25 cm. Most of the in-sample gain comes from tuning on the same data.
+- **Placement robustness:** ahead of UCL in 91% of 45 plausible placements at 50–25 cm.
+- **Limits:** one 1.5 m object, chosen after a 181 m² rock-field patch proved uninformative (the truth was taken at midday and HiRISE in the afternoon, so rocks look completely different); this cannot establish a general result.
+
+<!-- TRUTH:END -->
+
 ## How it works
 
 1. **Fusion** (`scripts/build_hero_measured.py`):

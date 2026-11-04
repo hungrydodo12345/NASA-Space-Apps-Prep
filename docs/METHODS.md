@@ -213,7 +213,7 @@ HiRISE sharpness varies between passes: spacecraft jitter, viewing angle and foc
   - At the landing site, the JPL mosaic's fine-scale alignment correlation is only 0.14, and its orientation is unresolved.
 
   A rock-sized misregistration turns every label into noise.
-- **Consequence.** Confidences are calibrated in simulation (7b). The real-data numbers above are reported as the limit of what can currently be verified.
+- **Consequence.** Confidences are calibrated in simulation (7b). The real-data numbers above are the limit of what the traverse truth can verify; Section 7c adds a physical truth at one object near the landing area.
 
 ### 7b. Simulation calibration (`experiments/exp7_confidence_calibration.py` → `data_products/confidence_calibrator.json`)
 
@@ -242,31 +242,43 @@ HiRISE sharpness varies between passes: spacecraft jitter, viewing angle and foc
   - Shadows add almost nothing over blob strength once the restoration is good. This matches Section 4: clutter, not noise, is the limit.
 - **Limits.** The calibration is only as good as the simulation's realism: fractal ground, idealised rock photometry, Gaussian blur. The real-data positional check (7a) is consistent with it but cannot confirm it.
 
-### 7c. Attempt to use Ingenuity's downward images as centimetre-scale truth (negative result)
+### 7c. Ingenuity's downward images as centimetre-scale truth
 
-- **Data.** Ingenuity flight 26 (Perseverance sol 414, 2022-04-20): 190 downward navigation frames (640 × 480, published camera model) and 10 colour frames. The parachute and backshell are in both HiRISE (post-landing passes) and these images, so they are shared physical artifacts. `scripts/ingenuity/`.
-- **HiRISE side.** The objects were found by differencing the 2016 and 2021 passes: a tight cluster of four new bright objects about 1.1 km west and 0.2 km north of the landing spot. A native-resolution crop shows the parachute (a crumpled patch about 13 × 15 m) and the backshell (two bright halves about 3.4 m apart). The alignment chain on that tile with the 5 post-landing passes matched 40–90% of grid points at correlations of 0.87–0.91.
-- **Mosaic.** 40 downward frames chained by SIFT and RANSAC homographies give a metric mosaic about 17 m across: the backshell, debris pieces and a rock field.
-- **Placement: not achieved.**
-  - Pixel correlation against the raw HiRISE pass gave a best score of 0.34 at a scale (0.020 m per pixel) at the edge of the search range, with a margin of only 0.064 over the best wrong alternative. Rejected.
-  - Two shared objects (the backshell and a piece 4.2 m from it) imply a scale of 0.0269 m per pixel, consistent with the 8 m flight height, and a rotation of −71°. But 0 of 20 other mosaic objects land on HiRISE bright objects (chance: 0.9 on average, up to 4 over all rotations), and the pixel correlation at this pose is 0.08, ranked 108 of 240 placements. Not validated.
-  - A 101-frame chain to link the parachute to the backshell failed: over featureless dunes the matcher locks onto camera-fixed features and returns zero motion.
-- **Second round: motion-tracking fix.**
-  - **Root cause.** The camera is an equidistant fisheye (CAHVORE type 3, linearity 0, f = 275 px, 133° field of view). Treating it as a pinhole broke the ground-plane homographies at wide angles. Camera-fixed features (the helicopter's shadow, lens marks) also made 61 of 189 pairs look static on featureless ground.
-  - **Fix** (`rectify.py`, `track_flight_h.py`). Rectify every frame to a pinhole, subtract the fixed pattern (temporal median), measure homographies between frames up to 3 apart, and solve all poses in one robust pose graph (residuals in each frame's own pixels; the first version collapsed to zero scale, which is why).
-  - **Result.** One connected group of 97 frames (idx 64–160) instead of 38. 379 pairwise measurements, 282 kept, median residual 0.23 px. The mosaic of that stretch is a 75 × 60 m strip containing the backshell and several rock fields (`results/ingenuity/strip_mosaic_97_frames.png`).
-  - **Unresolved.** There is a per-step in-plane rotation bias of about −1.5°, on top of real yaw jumps of 25–29° in single steps. The strip's absolute heading is therefore unreliable.
-- **Registration of the strip: failed.** Masked NCC over rotation, scale and mirror, with no location prior, gave no distinct peak (coarse band 0.392 against a 99th percentile of 0.377 over all placements). Every top placement puts the mosaic's backshell about 35 m from the real one.
-- **Heading from the sun: geometry consistent, heading not obtained.** For sol 414, 11:38 local time, a low-order Mars ephemeris gives Ls 212°, solar elevation 58° and azimuth 170°. That predicts a 5.0 m shadow offset at 8 m height; the measured median is 4.3 m. The per-frame direction check was inconclusive: the detector searched only around the mean shadow position, but the helicopter yaws.
-- **Photogrammetry (colour frames): not completed.** The camera model is built from the metadata (f ≈ 1780 px, strong radial term R1 = 0.47; round-trip error up to 0.013 normalised units), but structure from motion has not been run.
-- **Third round: photogrammetry, sun compasses, local registration.**
-  - **Colour-frame photogrammetry failed.** Raw frames: 1 of 45 pairs verified (30 inliers). After orthorectification onto a nominal ground plane (8 m, 22° pitch): 4–14 similarity inliers between consecutive frames. The ground is low-contrast, the views are grazing, and the helicopter yaws and moves several metres between frames.
-  - **Helicopter shadow as compass.** Clearly visible as a black cross about 150 px (4.3 m) from the nadir point, and it rotates through the frames as the helicopter yaws (about 90° over frames 136–144). Its length is consistent with the computed sun (offset 150–160 px against 172 px expected). Over the backshell stretch (frames 133–154) it implies a mosaic-to-north rotation of −28.6° (clockwise-positive), with a per-frame MAD of 16°.
-  - **Rock shadows as a second compass** (rock to adjacent dark pixels, averaged): direction toward the sun −16.5° in the mosaic frame (MAD 33°), which implies a rotation of 264° counter-clockwise.
-  - **Local registration of the backshell patch** (translation pinned to the backshell, ±5 m and ±8 m patches). There is a coherent peak at 210–214° counter-clockwise (neighbours 208–218° all high; NCC 0.80 against a median of 0.62, second mode 0.73; 0.70 against 0.52 and 0.65 for the 8 m patch).
-  - **They disagree.** The helicopter-shadow compass puts the answer 180° from the correlation peak, and the rock-shadow compass 50° away; at the helicopter-shadow rotation the correlation is at the median (0.62). The backshell blob anchors the correlation, and the visual overlay does not separate the two.
-  - **Conclusion.** The placement is not validated, so the mosaic is still not used as truth. Together with Section 7a this says that centimetre-scale truth cannot currently be tied to 25 cm HiRISE at the accuracy needed to rank restorations at the HiRISE pixel scale.
-- **Consequence.** The mosaic is not used as truth, and no parameter search was run against it. A search against an unvalidated registration would tune the pipeline to the registration error. Details: `results/ingenuity/registration_attempt.json`.
+This took several rounds. The earlier rounds failed for reasons that are listed because they are instructive; the last one succeeded, and the placement was validated by two independent methods.
+
+- **Data.** Ingenuity flight 26 (Perseverance sol 414, 2022-04-20): 190 downward navigation frames (640 × 480) and 10 colour frames. The parachute and backshell are in both HiRISE (post-landing passes) and these images. Code: `scripts/ingenuity/`.
+- **HiRISE side.** Found by differencing the 2016 and 2021 passes: a cluster of new bright objects about 1.1 km west and 0.2 km north of the landing spot. The parachute is a crumpled patch about 13 × 15 m; the backshell is two bright halves about 3.4 m apart. The alignment chain on that 32 m tile with the 5 post-landing passes matched 40–90% of grid points at correlations of 0.87–0.91.
+- **Why the first rounds failed (and what fixed it).**
+  - **Camera model.** The downward camera is an equidistant fisheye (CAHVORE type 3, linearity 0, f = 275 px, 133° field of view), not a pinhole. Treating it as one broke every ground-plane homography at wide angles. Camera-fixed features (the helicopter's shadow, lens marks) also made 61 of 189 pairs look static on featureless ground. The fix (`rectify.py`, `track_flight_h.py`): rectify to a pinhole, subtract the fixed pattern, and solve all poses in one robust pose graph. This chained 97 frames into one group (38 before).
+  - **Residual weakness.** A per-step in-plane rotation bias of about −1.5° and real yaw jumps of 25–29° mean the absolute heading of a long strip is unreliable. Only the stretch around the backshell (frames 132–158, 27 frames) is used.
+  - **A wrong compass.** My first helicopter-shadow detector locked onto the shadows of rocks, giving an answer exactly 180° off the image evidence and making the placement look contradictory for a whole round. Reading the shadow positions off the frames showed the true shadow (a thin black cross about 150 px, 4.3 m, from the nadir point) and gave a consistent direction.
+  - **Photogrammetry of the colour frames failed.** Raw frames: 1 of 45 pairs verified. After orthorectification: 4–14 inliers between consecutive frames. Not used.
+- **Placement (validated by two independent methods).**
+  - **Sun and shadow.** The computed sun at 11:38 local time on sol 414 (Ls 212°) has elevation 58° and azimuth 170°, so the helicopter's shadow points to azimuth 350°, and its length is consistent (150–160 px measured against 172 px expected). The six hand-read shadow positions (frames 136–154) are consistent in the mosaic frame (circular sd 12°). They give a mosaic-to-north rotation of **217° counter-clockwise ± 12°**.
+  - **Image correlation.** A masked correlation of the backshell patch (translation pinned to the backshell) against three independent HiRISE passes (068294, 068360, 068426: different noise and different alignment locks) peaks at **208°**, with neighbouring rotations high, at scale **0.0290 m per pixel**, and with the same translation in all three passes. This scale equals the nominal 8 m / 275 px, which the search was not told.
+  - **They agree to within 9° of each other** (217° and 208°), and the combined estimate used is 211°. A small refinement (±0.4 m, ±3% scale) is covered by the robustness test below.
+- **Test 1, the rock field (not informative).** The 181 m² truth patch with the backshell excluded: correlation with the truth at 0.5–2 m is 0.00–0.07 for every method, including raw HiRISE (−0.03). The differences between methods are inside the noise (best variant +0.038 over UCL, 95% CI −0.015 to +0.100). The truth was taken at midday and HiRISE in the afternoon, so rock faces and shadows look completely different, and little that is comparable remains (`rock_field_patch_scores.json`).
+- **Test 2, the backshell object (the informative one).** Within 4 m of the backshell the truth and HiRISE share strong structure (correlation 0.92–0.97 for all methods at 1–4 m scales). This test was chosen *after* seeing Test 1, which is why it carries the safeguards below. Each method is tuned to its own minimum of error against the truth.
+  - **Settings searched.** UCL re-implementation, UCL + measured blur, this work with equal or with noise-based pass weights, and measured blur × 0.8 and × 1.2. Each uses λ from 0.002 to 1 (up to 30 for UCL, whose optimum lies beyond 1).
+  - **Error versus λ** (1 − correlation, 50–25 cm band). Both curves are U-shaped.
+
+    | Method | Error at its minimum | at λ | at λ = 0.005 | at λ = 0.04 |
+    |---|---|---|---|---|
+    | raw HiRISE | 0.249 | none | none | none |
+    | UCL re-implementation | 0.229 | 3.0 | 0.368 | 0.333 |
+    | UCL + measured blur | 0.227 | 3.0 | 0.296 | 0.286 |
+    | this work, equal weights | 0.214 | 0.1 | 0.281 | 0.234 |
+    | **this work** | **0.203** | 0.1 | 0.248 | 0.206 |
+
+  - **Tuned, in-sample.** Differences against UCL tuned to its own minimum, with block-bootstrap intervals: 1 m–50 cm **+0.010** (95% CI +0.003 to +0.015); 50–25 cm **+0.023** (95% CI -0.004 to +0.051, positive in 95% of resamples); 2–1 m +0.003, a tie.
+  - **At the same λ the gap is large.** At λ = 0.04 and 50–25 cm, the error is 0.206 for this work against 0.333 for UCL (38% lower); at λ = 0.005, 0.248 against 0.368.
+  - **Out of sample** (λ chosen on one half of the disc, scored on the other, four splits): this work minus UCL is +0.001 at 1 m–50 cm and +0.009 at 50–25 cm. Most of the in-sample gain comes from tuning on the same data.
+  - **Placement robustness.** Re-rendering the truth for 45 placements (rotation ±8°, scale ±3%, translation ±0.4 m): this work is ahead of UCL in 91% of placements at 50–25 cm (mean +0.034) and 84% at 1 m–50 cm (mean +0.010); 2–1 m is a tie.
+- **What this does and does not show.**
+  - **One object.** A single 1.5 m object, a post-hoc choice after Test 1 was uninformative, with a truth taken at a different time of day. It cannot establish a general result.
+  - **Supports.** At any fixed regularisation, this work reproduces the object better than the UCL re-implementation, by a wide margin. The measured blur and the noise weighting each contribute (UCL → UCL + blur → this work). That agrees with the simulation ablation.
+  - **Does not support.** A large advantage once each method is tuned to the truth: out of sample the gap is about 0.01 in correlation, and the interval at 50–25 cm includes zero.
+- **Registration summary:** `results/ingenuity/registration_attempt.json`. Placement files: `benchmark/results/ingenuity_truth/`.
 
 ## 8. Hazard maps (`pipeline/hazard.py`, written by `scripts/confidence_fill.py`)
 

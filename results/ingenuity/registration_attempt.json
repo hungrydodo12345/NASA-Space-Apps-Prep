@@ -77,8 +77,17 @@
     }
    },
    "verdict": "a coherent peak at 210-214 deg (neighbours 208-218 all high), consistent between two patch sizes, but only 0.06-0.07 above the second mode, it is the backshell blob that anchors it, and it contradicts the helicopter-shadow compass by exactly 180 deg and the rock-shadow compass by 50 deg. Visual overlay inconclusive. Not validated."
+  },
+  {
+   "method": "final: hand-read helicopter shadow positions (frames 136-154) -> shadow compass; fine registration on three independent HiRISE passes",
+   "result": {
+    "shadow_compass": "mosaic-to-north rotation 217 deg counter-clockwise, circular sd 12 deg, 6 frames",
+    "image_correlation": "208 deg, scale 0.0290 m/px, same translation (-0.4, +1.1) m in all three passes (068294, 068360, 068426)",
+    "earlier_contradiction": "caused by an automatic shadow detector that locked onto rock shadows (180 deg off)"
+   },
+   "verdict": "VALIDATED: two independent methods agree within 9 deg; scale equals the nominal 8 m / 275 px"
   }
  ],
- "conclusion": "No validated placement of the Ingenuity truth in HiRISE at the accuracy needed to rank restorations at 25 cm; none of the independent cues (image correlation, helicopter shadow, rock shadows) agree. The mosaic is not used as truth and no parameter search was run against it.",
+ "conclusion": "Placement validated for the backshell neighbourhood (rotation 211 deg ccw, scale 0.0290 m/px, translation (-0.4, +1.1) m). Used as truth in benchmark/object_final.py: see docs/METHODS.md 7c.",
  "what_would_fix_it": "Ground-plane motion from visual odometry with static-feature masking, or the 10 colour frames (oblique, both objects) with a photogrammetric solution, or a larger shared structure than the backshell and one piece."
 }
