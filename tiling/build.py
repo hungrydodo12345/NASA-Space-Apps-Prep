@@ -41,11 +41,11 @@ def grid_mesh(frame, lat, lon, h, skirt_m):
 
 
 class TileBuilder:
-    def __init__(self, dtm, layers, root_bounds, out_dir, frame=None, grid=65, tex=256, base_level=3, refine=None, skirt_factor=2.0):
+    def __init__(self, dtm, layers, root_bounds, out_dir, frame=None, grid=65, tex=256, base_level=3, refine=None, skirt_factor=2.0, jpeg_quality=None, coarse_grid=None, coarse_below=0):
         """dtm: DtmSource. layers: list of texture Layers (bottom to top). root_bounds: (lat_min, lat_max, lon_min, lon_max).
         refine: list of (lat_min, lat_max, lon_min, lon_max, max_level) regions refined beyond base_level."""
         self.dtm, self.layers, self.root, self.out, self.grid, self.tex, self.base_level = dtm, layers, root_bounds, out_dir, grid, tex, base_level
-        self.refine = refine or []; self.skirt_factor = skirt_factor
+        self.refine = refine or []; self.skirt_factor = skirt_factor; self.jpeg = jpeg_quality; self.coarse_grid, self.coarse_below = coarse_grid, coarse_below
         a0, a1, o0, o1 = root_bounds; lat0, lon0 = (a0 + a1) / 2, (o0 + o1) / 2
         h0 = float(dtm.sample(np.array([lat0]), np.array([lon0]))[0][0])
         self.frame = frame or EnuFrame(lat0, lon0, h0)
@@ -62,7 +62,7 @@ class TileBuilder:
         return m
 
     def build_tile(self, level, x, y):
-        b = tile_bounds(self.root, level, x, y); a0, a1, o0, o1 = b; n = self.grid
+        b = tile_bounds(self.root, level, x, y); a0, a1, o0, o1 = b; n = self.coarse_grid if (self.coarse_grid and level < self.coarse_below) else self.grid
         lat = np.linspace(a1, a0, n)[:, None] * np.ones((1, n)); lon = np.ones((n, 1)) * np.linspace(o0, o1, n)[None, :]
         h, hv = self.dtm.sample(lat, lon)
         hm, wm = self.size_m(b); spacing = max(hm, wm) / (n - 1)
@@ -72,9 +72,11 @@ class TileBuilder:
         en = self.frame.from_latlon(TL, TO, np.zeros_like(TL))
         rgb, prov, info = composite(self.layers, TL, TO, en[..., 0], en[..., 1], texel)
         d = os.path.join(self.out, "tiles", str(level), str(x)); os.makedirs(d, exist_ok=True)
-        buf = io.BytesIO(); Image.fromarray(rgb).save(buf, format="PNG", optimize=True)
+        buf = io.BytesIO()
+        if self.jpeg: Image.fromarray(rgb).save(buf, format="JPEG", quality=self.jpeg, optimize=True); mime = "image/jpeg"
+        else: Image.fromarray(rgb).save(buf, format="PNG", optimize=True); mime = "image/png"
         cg = [float(c[0]), float(c[2]), float(-c[1])]
-        write_glb(os.path.join(d, f"{y}.glb"), P, N, UV, T, buf.getvalue(), translation=cg, name=f"L{level}_{x}_{y}",
+        write_glb(os.path.join(d, f"{y}.glb"), P, N, UV, T, buf.getvalue(), translation=cg, name=f"L{level}_{x}_{y}", mime=mime,
                   extras=dict(level=level, x=x, y=y, bounds_deg=list(b), texel_m=texel, vertex_spacing_m=spacing, dtm_valid_frac=float(hv.mean()), **info))
         Image.fromarray(prov).save(os.path.join(d, f"{y}_prov.png"), optimize=True)
         half = (mx - mn) / 2 + np.array([0, 0, self.skirt_factor * spacing / 2]); ctr = (mx + mn) / 2
@@ -97,6 +99,34 @@ class TileBuilder:
             return r
         rec(0, 0, 0); self.write_index()
 
+    def has_data(self, b, n=7):
+        a0, a1, o0, o1 = b; la, lo = np.meshgrid(np.linspace(a0, a1, n), np.linspace(o0, o1, n), indexing="ij")
+        return bool(self.dtm.sample(la, lo)[1].any())
+
+    def plan(self):
+        """The tile tree, decided from bounds and data coverage only (no rendering): a refined tile gets all four children that contain data."""
+        todo, out = [(0, 0, 0)], []
+        while todo:
+            level, x, y = todo.pop(); b = tile_bounds(self.root, level, x, y)
+            if not self.has_data(b): continue
+            out.append((level, x, y))
+            if level < self.max_level_for(b): todo += [(level + 1, 2 * x + dx, 2 * y + dy) for dy in (0, 1) for dx in (0, 1)]
+        return sorted(out)
+
+    def build_parallel(self, workers=4, verbose=True):
+        """Build the planned tiles in parallel (fork: workers inherit the sources) and write the indexes."""
+        import multiprocessing as mp, time
+        keys = self.plan(); t0 = time.time(); global _TB; _TB = self
+        if verbose: print(f"planned {len(keys)} tiles; levels " + ", ".join(f"L{l}: {sum(1 for k in keys if k[0] == l)}" for l in sorted({k[0] for k in keys})), flush=True)
+        with mp.get_context("fork").Pool(workers) as pool:
+            for i, r in enumerate(pool.imap_unordered(_build_one, keys, chunksize=4)):
+                self.records[(r["level"], r["x"], r["y"])] = r
+                if verbose and (i + 1) % 100 == 0: print(f"  {i + 1}/{len(keys)} tiles, {time.time() - t0:.0f} s", flush=True)
+        ks = set(self.records)
+        for (l, x, y), r in self.records.items():
+            r["children"] = [f"tiles/{l + 1}/{2 * x + dx}/{2 * y + dy}.glb" for dy in (0, 1) for dx in (0, 1) if (l + 1, 2 * x + dx, 2 * y + dy) in ks]
+        self.write_index()
+
     def write_index(self):
         R = self.records
         def node(k):
@@ -115,3 +145,8 @@ class TileBuilder:
                      provenance_texture="R = measured weight, G = simulated weight (0-255)",
                      tiles=sorted(R.values(), key=lambda r: (r["level"], r["x"], r["y"])))
         json.dump(scene, open(os.path.join(self.out, "scene.json"), "w"), indent=1)
+
+
+_TB = None
+def _build_one(k):
+    return _TB.build_tile(*k)

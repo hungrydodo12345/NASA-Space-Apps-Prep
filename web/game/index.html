@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jezero Explorer</title>
+<style>
+  :root { --bg: #120e0b; --panel: rgba(18, 14, 11, 0.84); --ink: #f3ece3; --ink2: #bdb2a5; --accent: #e8934a; --line: rgba(255, 255, 255, 0.14); }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, Segoe UI, sans-serif; overflow: hidden; }
+  canvas#gl { display: block; }
+  .panel { position: absolute; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  #menu { inset: 0; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 30%, rgba(80, 45, 25, 0.6), rgba(10, 8, 6, 0.95)); z-index: 10; }
+  #menu .card { max-width: min(520px, calc(100vw - 48px)); text-align: center; }
+  #menu h1 { font-size: 30px; margin: 0 0 4px; letter-spacing: 0.5px; }
+  #menu p { color: var(--ink2); margin: 6px 0 18px; }
+  button { font: inherit; color: var(--ink); background: #2a2119; border: 1px solid #5b4632; border-radius: 8px; padding: 10px 18px; margin: 6px; cursor: pointer; min-width: 180px; }
+  button:hover, button:focus-visible { border-color: var(--accent); outline: none; }
+  #hud { top: 12px; left: 12px; max-width: min(380px, calc(100vw - 48px)); display: none; }
+  #hud .mode { color: var(--accent); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  #hud .obj { font-weight: 600; margin-top: 4px; }
+  #hud .sub { color: var(--ink2); font-size: 12.5px; }
+  #mini { right: 12px; top: 12px; padding: 6px; display: none; }
+  #mini canvas { display: block; width: min(220px, 34vw); height: min(220px, 34vw); border-radius: 6px; }
+  #help { left: 12px; bottom: 12px; font-size: 12px; color: var(--ink2); display: none; }
+  kbd { background: #2b2520; border-radius: 3px; padding: 0 4px; color: var(--ink); }
+  #story { left: 50%; bottom: 24px; transform: translateX(-50%); width: min(560px, calc(100vw - 48px)); display: none; z-index: 5; }
+  #story h2 { margin: 0 0 6px; font-size: 18px; }
+  #story .sol { color: var(--accent); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  #story p { margin: 6px 0 10px; }
+  #arrow { position: absolute; left: 50%; top: 64px; transform: translateX(-50%); font-size: 26px; color: var(--accent); display: none; text-shadow: 0 1px 4px #000; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="menu" class="panel"><div class="card">
+  <h1>Jezero Explorer</h1>
+  <p>Drive Perseverance across 14 × 7 km of real Jezero crater terrain, built from HiRISE orbital images, the HiRISE stereo elevation model and Ingenuity's photographs. Simulated detail is labelled.</p>
+  <button id="btnStory">Story mode</button><button id="btnOpen">Open world</button>
+  <p id="loadmsg" style="margin-top:14px">Loading terrain…</p>
+</div></div>
+<div id="hud" class="panel"><div class="mode" id="hudMode"></div><div class="obj" id="hudObj"></div><div class="sub" id="hudSub"></div></div>
+<div id="arrow">▲</div>
+<div id="mini" class="panel"><canvas id="miniCanvas" width="440" height="440"></canvas></div>
+<div id="story" class="panel"><div class="sol" id="storySol"></div><h2 id="storyTitle"></h2><p id="storyText"></p><p class="sub" id="storyTask" style="color:var(--ink2)"></p><button id="btnContinue">Continue (Enter)</button></div>
+<div id="help" class="panel"><kbd>W</kbd><kbd>S</kbd> drive, <kbd>A</kbd><kbd>D</kbd> steer, <kbd>Shift</kbd> fast, <kbd>C</kbd> camera, <kbd>P</kbd> provenance, <kbd>M</kbd> menu</div>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+               "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+<script type="module" src="./game.js"></script>
+</body>
+</html>

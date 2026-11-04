@@ -15,7 +15,7 @@ import os, sys, json, argparse, math
 import numpy as np
 from scipy import ndimage as ndi
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."); sys.path.insert(0, ROOT)
-from tiling.mars import Equirect, R_HIRISE
+from tiling.mars import Equirect, EnuFrame, R_HIRISE
 from tiling.sources import DtmSource, Jp2Source, ArraySource, chain_restoration_source
 from tiling.texture import Layer, match_overlay
 from tiling.build import TileBuilder
@@ -24,6 +24,9 @@ ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("--dtm",
 ap.add_argument("--rdr-lbl", required=True); ap.add_argument("--center-global", nargs=2, type=float, default=None, help="scene centre in the reference RDR grid (global line, sample)")
 ap.add_argument("--size-m", type=float, default=2000); ap.add_argument("--base-level", type=int, default=3); ap.add_argument("--grid", type=int, default=65); ap.add_argument("--tex", type=int, default=256)
 ap.add_argument("--chain"); ap.add_argument("--site-summary", help="summary.json with pass locks (reference RDR -> the orthoimage's observation)"); ap.add_argument("--chain-key", default="restored"); ap.add_argument("--ingenuity"); ap.add_argument("--placement"); ap.add_argument("--detail-png")
+ap.add_argument("--region-dtm", action="store_true", help="root tile = square covering the whole DTM; the scene origin stays at --center-global")
+ap.add_argument("--traverse", help="rover waypoints GeoJSON (MMGIS): refine a corridor along the traverse"); ap.add_argument("--corridor-m", type=float, default=80); ap.add_argument("--corridor-level", type=int, default=8)
+ap.add_argument("--workers", type=int, default=4); ap.add_argument("--jpeg", type=int, default=None); ap.add_argument("--coarse-grid", type=int, default=None); ap.add_argument("--coarse-below", type=int, default=0)
 ap.add_argument("--focus-m", type=float, default=240); ap.add_argument("--focus-level", type=int, default=6); ap.add_argument("--overlay-level", type=int, default=7)
 a = ap.parse_args(); os.makedirs(a.out, exist_ok=True)
 rdr = Equirect.from_file(a.rdr_lbl); dtm = DtmSource(a.dtm)
@@ -60,10 +63,16 @@ if cl is not None:                                                              
 lat0, lon0 = rdr.pix_to_latlon(rdr.loff + cl + SH[0], rdr.soff + cs + SH[1]) if cl is not None else ((dtm.proj.pix_to_latlon(dtm.lines / 2, dtm.samples / 2)))
 lat0, lon0 = float(lat0), float(lon0)
 dlat = math.degrees(a.size_m / 2 / R); dlon = math.degrees(a.size_m / 2 / (R * math.cos(math.radians(lat0))))
-root = (lat0 - dlat, lat0 + dlat, lon0 - dlon, lon0 + dlon); print("scene centre", lat0, lon0, "root", root)
+root = (lat0 - dlat, lat0 + dlat, lon0 - dlon, lon0 + dlon)
+if a.region_dtm:                                                                          # square root covering the DTM; tiles without DTM data are skipped
+    (la_a, lo_a), (la_b, lo_b) = [tuple(float(v) for v in dtm.proj.pix_to_latlon(l, s_)) for l, s_ in ((0, 0), (dtm.lines - 1, dtm.samples - 1))]
+    cla, clo = (la_a + la_b) / 2, (lo_a + lo_b) / 2; half_m = max(abs(math.radians(la_a - la_b)) * R, abs(math.radians(lo_a - lo_b)) * R * math.cos(math.radians(cla))) / 2 * 1.001
+    root = (cla - math.degrees(half_m / R), cla + math.degrees(half_m / R), clo - math.degrees(half_m / (R * math.cos(math.radians(cla)))), clo + math.degrees(half_m / (R * math.cos(math.radians(cla)))))
+    a.size_m = 2 * half_m
+print("scene origin", lat0, lon0, "root", root, "root size %.0f m" % a.size_m)
 def bbox_m(lat, lon, half):
     return (lat - math.degrees(half / R), lat + math.degrees(half / R), lon - math.degrees(half / (R * math.cos(math.radians(lat)))), lon + math.degrees(half / (R * math.cos(math.radians(lat)))))
-g = np.linspace(-1, 1, 64); GL, GO = np.meshgrid(lat0 + g * dlat, lon0 + g * dlon, indexing="ij")
+g = np.linspace(-1, 1, 64); GL, GO = np.meshgrid((root[0] + root[1]) / 2 + g * (root[1] - root[0]) / 2, (root[2] + root[3]) / 2 + g * (root[3] - root[2]) / 2, indexing="ij")
 base = Layer("hirise_ortho_25cm", ortho, provenance="measured", native_res_m=ortho.proj.scale, extras=dict(product=os.path.basename(a.ortho))).set_range_from(GL, GO, a.size_m / 64)
 layers = [base]; refine = [(*bbox_m(lat0, lon0, a.focus_m / 2), a.focus_level)]
 
@@ -96,6 +105,36 @@ if a.detail_png:
     layers.append(Layer("detail_regolith", kind="tiled", provenance="simulated", image=img, repeat_m=1.5, amplitude=0.12, only_below_res_m=0.2, native_res_m=0.01,
                         extras=dict(note="repeating texture, applied only where no measured layer finer than 0.2 m exists; flagged as simulated")))
 
-tb = TileBuilder(dtm, layers, root, a.out, grid=a.grid, tex=a.tex, base_level=a.base_level, refine=refine)
-tb.build(); json.dump(dict(registration=reg, refine_regions=refine), open(os.path.join(a.out, "build_info.json"), "w"), indent=1)
+traverse = None
+if a.traverse:                                                                            # waypoints are in the rover team's map frame: shift them onto the DTM by the
+    w = json.load(open(a.traverse))["features"]                                           # landing-spot offset (site 3, drive 0 = our registered site-3 origin)
+    land = next(f["properties"] for f in w if f["properties"]["site"] == 3 and f["properties"]["drive"] == 0)
+    dla, dlo = lat0 - land["lat"], lon0 - land["lon"]
+    traverse = [dict(sol=f["properties"]["sol"], site=f["properties"]["site"], drive=f["properties"]["drive"], lat=f["properties"]["lat"] + dla, lon=f["properties"]["lon"] + dlo)
+                for f in w if root[0] < f["properties"]["lat"] + dla < root[1] and root[2] < f["properties"]["lon"] + dlo < root[3]]
+    traverse = [t for t in traverse if dtm.sample(np.array([t["lat"]]), np.array([t["lon"]]))[1][0]]
+    for p0, p1 in zip(traverse[:-1], traverse[1:]):
+        b0 = bbox_m(p0["lat"], p0["lon"], a.corridor_m); b1 = bbox_m(p1["lat"], p1["lon"], a.corridor_m)
+        refine.append((min(b0[0], b1[0]), max(b0[1], b1[1]), min(b0[2], b1[2]), max(b0[3], b1[3]), a.corridor_level))
+    reg["traverse_offset_deg"] = dict(dlat=dla, dlon=dlo, note="waypoint frame -> DTM frame, from the landing spot")
+    print(f"traverse: {len(traverse)} waypoints inside the DTM, sols {traverse[0]['sol']}-{traverse[-1]['sol']}")
+tb = TileBuilder(dtm, layers, root, a.out, frame=EnuFrame(lat0, lon0, float(dtm.sample(np.array([lat0]), np.array([lon0]))[0][0])), grid=a.grid, tex=a.tex,
+                 base_level=a.base_level, refine=refine, jpeg_quality=a.jpeg, coarse_grid=a.coarse_grid, coarse_below=a.coarse_below)
+tb.build_parallel(a.workers)
+# minimap: the orthoimage over the root square at ~1/1024 of its size, plus the traverse in scene coordinates
+n_ov = 1024; oa = np.linspace(root[1], root[0], n_ov); oo = np.linspace(root[2], root[3], n_ov); OA, OO = np.meshgrid(oa, oo, indexing="ij")
+vv, mm = ortho.sample(OA, OO, a.size_m / n_ov); ov = np.where(mm, np.clip((vv - base.lo) / (base.hi - base.lo), 0, 1), 0)
+from PIL import Image
+Image.fromarray((ov * 255).astype(np.uint8)).save(os.path.join(a.out, "overview.jpg"), quality=85)
+sc = json.load(open(os.path.join(a.out, "scene.json"))); f = tb.frame
+corners = f.from_latlon(np.array([root[1], root[0]]), np.array([root[2], root[3]]), np.zeros(2))
+sc["overview"] = dict(uri="overview.jpg", bounds_deg=list(root), enu_west_north=[float(corners[0, 0]), float(corners[0, 1])], enu_east_south=[float(corners[1, 0]), float(corners[1, 1])])
+if traverse:
+    hh = dtm.sample(np.array([t["lat"] for t in traverse]), np.array([t["lon"] for t in traverse]))[0]
+    e = f.from_latlon(np.array([t["lat"] for t in traverse]), np.array([t["lon"] for t in traverse]), hh)
+    for t, p in zip(traverse, e): t["enu"] = [round(float(v), 2) for v in p]
+    json.dump(dict(source=os.path.basename(a.traverse), frame="scene ENU (m), see scene.json", offset=reg["traverse_offset_deg"], points=traverse), open(os.path.join(a.out, "traverse.json"), "w"), indent=1)
+    sc["traverse_uri"] = "traverse.json"
+json.dump(sc, open(os.path.join(a.out, "scene.json"), "w"), indent=1)
+json.dump(dict(registration=reg, refine_regions=refine), open(os.path.join(a.out, "build_info.json"), "w"), indent=1)
 print("tiles:", len(tb.records), "->", a.out)
