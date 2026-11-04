@@ -1,0 +1,402 @@
+{
+ "frame": "scene ENU (m): [east, north]; heights come from the terrain",
+ "start": {
+  "pos": [
+   0.0,
+   0.0
+  ],
+  "heading_deg": 0
+ },
+ "chapters": [
+  {
+   "id": "touchdown",
+   "title": "Touchdown",
+   "target": [
+    0.0,
+    0.0
+   ],
+   "radius": 25,
+   "sol": 0,
+   "text": "Perseverance landed in Jezero crater on 18 February 2021. The landing spot was later named Octavia E. Butler Landing. The rover stayed parked here for its first two weeks, testing its instruments.",
+   "task": "Look around, then drive to the end of the rover's first drive."
+  },
+  {
+   "id": "first_drive",
+   "title": "First drive",
+   "target": [
+    3.43,
+    -4.96
+   ],
+   "radius": 12,
+   "sol": 14,
+   "text": "On sol 14 (4 March 2021) Perseverance made its first drive, a few metres forward, a turn, and back. Its tracks were the first rover tracks in Jezero.",
+   "task": "Follow the traverse to where the rover released the Ingenuity helicopter."
+  },
+  {
+   "id": "ingenuity_dropoff",
+   "title": "Helicopter drop-off",
+   "target": [
+    7.57,
+    18.7
+   ],
+   "radius": 15,
+   "sol": 43,
+   "text": "Here the rover lowered the Ingenuity helicopter onto the ground and drove away from it. On 19 April 2021 (sol 58) Ingenuity made the first powered, controlled flight on another planet.",
+   "task": "Drive south to the ground Ingenuity photographed on its fourth and fifth flights."
+  },
+  {
+   "id": "helicopter_view",
+   "title": "The helicopter's view",
+   "target": [
+    24.06,
+    -58.0
+   ],
+   "radius": 20,
+   "sol": 76,
+   "text": "Ingenuity's downward camera photographed this ground at about 1 cm per pixel. Compare it with HiRISE, which sees the same ground from orbit at 25 cm per pixel. In the provenance view, this is one of the few places where the textures are measured at centimetre scale.",
+   "task": "Head south along the traverse toward the crater floor."
+  },
+  {
+   "id": "south",
+   "title": "Onto the crater floor",
+   "target": [
+    -69.76,
+    -262.16
+   ],
+   "radius": 20,
+   "sol": 110,
+   "text": "In the following months Perseverance drove south across the fractured crater floor to begin its first science campaign.",
+   "task": "Find the site of the first sampling attempt."
+  },
+  {
+   "id": "roubion",
+   "title": "An empty tube",
+   "target": [
+    42.92,
+    -1002.51
+   ],
+   "radius": 20,
+   "sol": 164,
+   "text": "On sol 164 (6 August 2021) Perseverance tried to core its first sample, from a rock nicknamed Roubion. The rock crumbled and the tube came back empty of rock.",
+   "task": "Drive on to where the first rock cores were collected."
+  },
+  {
+   "id": "montdenier",
+   "title": "First rock samples",
+   "target": [
+    -366.23,
+    -822.23
+   ],
+   "radius": 25,
+   "sol": 190,
+   "text": "On 1 September 2021 (sol 190) Perseverance collected its first rock core, Montdenier, and a few days later a second one from the same rock. These are among the samples intended for return to Earth.",
+   "task": "Travel west to the parachute and backshell, 1 km from the landing spot."
+  },
+  {
+   "id": "debris",
+   "title": "The debris field",
+   "target": [
+    -1072.17,
+    423.81
+   ],
+   "radius": 25,
+   "sol": 414,
+   "text": "The backshell and parachute protected the rover and slowed it on the way down. Ingenuity flew over them on its 26th flight in April 2022, and those images are one of the two centimetre-scale answer keys used to test the HiRISE restorations in this project.",
+   "task": "Story complete. Keep exploring the open world."
+  }
+ ],
+ "pois": [
+  {
+   "id": "touchdown",
+   "title": "Touchdown",
+   "pos": [
+    0.0,
+    0.0
+   ],
+   "kind": "story"
+  },
+  {
+   "id": "first_drive",
+   "title": "First drive",
+   "pos": [
+    3.43,
+    -4.96
+   ],
+   "kind": "story"
+  },
+  {
+   "id": "ingenuity_dropoff",
+   "title": "Helicopter drop-off",
+   "pos": [
+    7.57,
+    18.7
+   ],
+   "kind": "story"
+  },
+  {
+   "id": "helicopter_view",
+   "title": "The helicopter's view",
+   "pos": [
+    24.06,
+    -58.0
+   ],
+   "kind": "story"
+  },
+  {
+   "id": "south",
+   "title": "Onto the crater floor",
+   "pos": [
+    -69.76,
+    -262.16
+   ],
+   "kind": "story"
+  },
+  {
+   "id": "roubion",
+   "title": "An empty tube",
+   "pos": [
+    42.92,
+    -1002.51
+   ],
+   "kind": "story"
+  },
+  {
+   "id": "montdenier",
+   "title": "First rock samples",
+   "pos": [
+    -366.23,
+    -822.23
+   ],
+   "kind": "story"
+  },
+  {
+   "id": "debris",
+   "title": "The debris field",
+   "pos": [
+    -1072.17,
+    423.81
+   ],
+   "kind": "story"
+  },
+  {
+   "id": "parachute",
+   "title": "Parachute",
+   "pos": [
+    -1049.58,
+    456.8
+   ],
+   "kind": "hardware"
+  },
+  {
+   "id": "boulder",
+   "title": "Bright boulder (HiRISE blur target)",
+   "pos": [
+    2.7,
+    250.25
+   ],
+   "kind": "science"
+  },
+  {
+   "id": "sol13",
+   "title": "Rover on sol 13",
+   "pos": [
+    0.0,
+    0.0
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol44",
+   "title": "Rover on sol 44",
+   "pos": [
+    7.57,
+    18.7
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol99",
+   "title": "Rover on sol 99",
+   "pos": [
+    71.66,
+    -51.18
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol123",
+   "title": "Rover on sol 123",
+   "pos": [
+    -70.25,
+    -365.2
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol153",
+   "title": "Rover on sol 153",
+   "pos": [
+    64.21,
+    -962.38
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol199",
+   "title": "Rover on sol 199",
+   "pos": [
+    -424.74,
+    -793.17
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol280",
+   "title": "Rover on sol 280",
+   "pos": [
+    -474.66,
+    -636.58
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol341",
+   "title": "Rover on sol 341",
+   "pos": [
+    -302.29,
+    -843.35
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol354",
+   "title": "Rover on sol 354",
+   "pos": [
+    50.0,
+    -515.13
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol383",
+   "title": "Rover on sol 383",
+   "pos": [
+    616.31,
+    535.49
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol399",
+   "title": "Rover on sol 399",
+   "pos": [
+    -663.36,
+    1150.46
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol413",
+   "title": "Rover on sol 413",
+   "pos": [
+    -2372.32,
+    533.89
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol427",
+   "title": "Rover on sol 427",
+   "pos": [
+    -2605.3,
+    318.36
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol437",
+   "title": "Rover on sol 437",
+   "pos": [
+    -2366.65,
+    738.85
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol455",
+   "title": "Rover on sol 455",
+   "pos": [
+    -2505.31,
+    785.58
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol501",
+   "title": "Rover on sol 501",
+   "pos": [
+    -2523.57,
+    833.23
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol551",
+   "title": "Rover on sol 551",
+   "pos": [
+    -2590.34,
+    323.82
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol629",
+   "title": "Rover on sol 629",
+   "pos": [
+    -2903.66,
+    491.8
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol647",
+   "title": "Rover on sol 647",
+   "pos": [
+    -2570.17,
+    389.08
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol667",
+   "title": "Rover on sol 667",
+   "pos": [
+    -2397.37,
+    479.65
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol686",
+   "title": "Rover on sol 686",
+   "pos": [
+    -2383.51,
+    518.02
+   ],
+   "kind": "traverse"
+  },
+  {
+   "id": "sol707",
+   "title": "Rover on sol 707",
+   "pos": [
+    -2382.87,
+    830.03
+   ],
+   "kind": "traverse"
+  }
+ ],
+ "sources": {
+  "rover_positions": "rover waypoints (traverse.json), last localization on or before each sol",
+  "hardware": "HiRISE placements of this project (parachute/backshell crops; site-2 truth tile)"
+ }
+}
