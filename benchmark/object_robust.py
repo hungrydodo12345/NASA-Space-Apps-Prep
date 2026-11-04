@@ -3,7 +3,7 @@ the truth is re-rendered for a grid of perturbed placements and the band correla
 the whole plausible placement range. Usage: python benchmark/object_robust.py <variants_npz[,variants_hi_npz]> <mosaic_npz> <out_json> <radius_m>"""
 import sys, json, itertools, numpy as np, cv2
 from scipy import ndimage as ndi
-VARS, MOS, OUT, RAD = sys.argv[1].split(","), sys.argv[2], sys.argv[3], float(sys.argv[4]); HR = 0.2524 / 4; N = 512; BX, BY = 151, 330
+VARS, MOS, OUT, RAD = sys.argv[1].split(","), sys.argv[2], sys.argv[3], float(sys.argv[4]); HR = 0.2524 / 4; N = 512; BX, BY = (int(__import__("os").environ.get("BX", 151)), int(__import__("os").environ.get("BY", 330)))
 V = {}; [V.update({k: np.load(p)[k] for k in np.load(p).files}) for p in VARS]
 m = np.load(MOS); M = np.nan_to_num(m["mosaic"], nan=1.0).astype(np.float32); Vd = np.isfinite(m["mosaic"])
 def render(TH, SC, DX, DY):

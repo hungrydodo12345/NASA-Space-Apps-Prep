@@ -1,0 +1,143 @@
+{
+ "2-1 m": {
+  "raw": {
+   "heldout": 0.979817940415409,
+   "chosen": [
+    "raw",
+    "raw",
+    "raw",
+    "raw"
+   ]
+  },
+  "gpt": {
+   "heldout": 0.9817743717448839,
+   "chosen": [
+    "gpt__1.0",
+    "gpt__1.0",
+    "gpt__30.0",
+    "gpt__1.0"
+   ]
+  },
+  "gpt+blur": {
+   "heldout": 0.9817573168240941,
+   "chosen": [
+    "gpt+blur__1.0",
+    "gpt+blur__1.0",
+    "gpt+blur__30.0",
+    "gpt+blur__1.0"
+   ]
+  },
+  "full-equal": {
+   "heldout": 0.9818698734308466,
+   "chosen": [
+    "full-equal__0.015",
+    "full-equal__0.002",
+    "full-equal__1.0",
+    "full-equal__0.015"
+   ]
+  },
+  "full": {
+   "heldout": 0.9823595602826615,
+   "chosen": [
+    "full__0.002",
+    "full__0.005",
+    "full__3.0",
+    "full__0.005"
+   ]
+  }
+ },
+ "1 m-50 cm": {
+  "raw": {
+   "heldout": 0.9384714457566351,
+   "chosen": [
+    "raw",
+    "raw",
+    "raw",
+    "raw"
+   ]
+  },
+  "gpt": {
+   "heldout": 0.9480132045318415,
+   "chosen": [
+    "gpt__1.0",
+    "gpt__1.0",
+    "gpt__1.0",
+    "gpt__3.0"
+   ]
+  },
+  "gpt+blur": {
+   "heldout": 0.9491309171632549,
+   "chosen": [
+    "gpt+blur__1.0",
+    "gpt+blur__1.0",
+    "gpt+blur__1.0",
+    "gpt+blur__1.0"
+   ]
+  },
+  "full-equal": {
+   "heldout": 0.9450046288998052,
+   "chosen": [
+    "full-equal__0.005",
+    "full-equal__0.1",
+    "full-equal__0.005",
+    "full-equal__0.4"
+   ]
+  },
+  "full": {
+   "heldout": 0.9492628442571983,
+   "chosen": [
+    "full__0.005",
+    "full__0.015",
+    "full__0.005",
+    "full__0.005"
+   ]
+  }
+ },
+ "50-25 cm": {
+  "raw": {
+   "heldout": 0.7919302724548429,
+   "chosen": [
+    "raw",
+    "raw",
+    "raw",
+    "raw"
+   ]
+  },
+  "gpt": {
+   "heldout": 0.8111062115565364,
+   "chosen": [
+    "gpt__3.0",
+    "gpt__1.0",
+    "gpt__1.0",
+    "gpt__1.0"
+   ]
+  },
+  "gpt+blur": {
+   "heldout": 0.8146638681509585,
+   "chosen": [
+    "gpt+blur__3.0",
+    "gpt+blur__1.0",
+    "gpt+blur__1.0",
+    "gpt+blur__1.0"
+   ]
+  },
+  "full-equal": {
+   "heldout": 0.8267263955382806,
+   "chosen": [
+    "full-equal__0.2",
+    "full-equal__0.2",
+    "full-equal__0.1",
+    "full-equal__0.2"
+   ]
+  },
+  "full": {
+   "heldout": 0.8319592366091622,
+   "chosen": [
+    "full__0.1",
+    "full__0.1",
+    "full__0.04",
+    "full__0.1"
+   ]
+  }
+ }
+}
