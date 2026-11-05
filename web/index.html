@@ -3,60 +3,245 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>Jezero Ground Truth Explorer</title>
+<title>NASA Mars Explorer — Rover Mechanics & Free-Roam Simulation</title>
 <style>
   :root{
-    --bg:#0e0a08; --panel:rgba(18,13,10,0.86); --line:rgba(224,114,63,0.35);
-    --text:#e8d2b8; --accent:#e0723f; --good:#5ec27a; --warn:#e05a4f; --muted:#a8937c;
+    --bg:#0b0807; --panel:rgba(18,13,10,0.88); --panel-glow:rgba(224,114,63,0.18);
+    --line:rgba(224,114,63,0.38); --text:#e8d2b8; --accent:#e0723f; --accent-bright:#ff8c42;
+    --good:#5ec27a; --warn:#e05a4f; --muted:#a8937c; --cyan:#4fc3f7;
     --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:12px}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:12px;user-select:none}
   #view{position:fixed;inset:0;touch-action:none}
-  .panel{position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;z-index:5}
-  #hud{top:calc(8px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));max-width:min(360px,calc(58vw - 12px));line-height:1.45}
-  #hud b{color:var(--accent)}
-  #prov{top:calc(8px + env(safe-area-inset-top,0px));right:calc(8px + env(safe-area-inset-right,0px));text-align:right;line-height:1.45;max-width:calc(42vw - 12px)}
+  .panel{position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;z-index:5;backdrop-filter:blur(6px);box-shadow:0 4px 16px rgba(0,0,0,0.6)}
+  
+  /* Telemetry Top Bar */
+  #topBar{top:calc(8px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));right:calc(8px + env(safe-area-inset-right,0px));display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;line-height:1.4}
+  #topBar b{color:var(--accent)}
+  .telemetry-item{display:inline-flex;gap:4px;align-items:center}
+  .val{color:#fff;font-weight:bold}
+  
+  /* Mission Objective Card */
+  #campaignCard{top:calc(56px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));max-width:340px;line-height:1.45}
+  #campaignCard .title{color:var(--accent-bright);font-weight:bold;font-size:13px;display:flex;align-items:center;justify-content:space-between}
+  #campaignCard .obj{margin:4px 0;color:#fff}
+  #campaignCard .target-dist{color:var(--good);font-weight:bold}
+  .progress-dots{display:inline-flex;gap:4px;font-size:11px}
+  
+  /* Reticle & Provenance */
+  #reticle{position:fixed;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border:1.5px solid rgba(255,255,255,0.75);border-radius:50%;z-index:4;pointer-events:none}
+  #reticle::after{content:'';position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;background:var(--accent);border-radius:50%}
+  #prov{top:calc(56px + env(safe-area-inset-top,0px));right:calc(8px + env(safe-area-inset-right,0px));text-align:right;line-height:1.45;max-width:240px}
   .m{color:var(--good)} .s{color:var(--warn)} .n{color:var(--muted)}
-  #reticle{position:fixed;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border:1.5px solid rgba(255,255,255,0.75);border-radius:50%;z-index:4;pointer-events:none}
-  #toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);z-index:9;display:none;max-width:86vw;text-align:center}
-  #controls{bottom:calc(8px + env(safe-area-inset-bottom,0px));left:calc(8px + env(safe-area-inset-left,0px));right:calc(8px + env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px}
-  button{font-family:var(--mono);font-size:12px;color:var(--text);background:rgba(255,255,255,0.06);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:44px;min-height:40px}
-  button.on{background:rgba(224,114,63,0.28);border-color:var(--accent)}
-  #pad{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(118px + env(safe-area-inset-bottom,0px));z-index:6;display:grid;grid-template-columns:repeat(3,48px);gap:4px}
-  #pad button{min-height:48px}
-  #scores{top:auto;bottom:118px;left:8px;max-width:min(380px,calc(100vw - 190px));display:none;line-height:1.5}
+  
+  /* Floating Toast & Alerts */
+  #toast{position:fixed;left:50%;bottom:128px;transform:translateX(-50%);z-index:15;display:none;max-width:86vw;text-align:center;background:rgba(20,15,12,0.95);border-color:var(--accent-bright);font-size:13px;padding:10px 18px}
+  
+  /* Instrument & Flight Controls Toolbar */
+  #controls{bottom:calc(8px + env(safe-area-inset-bottom,0px));left:calc(8px + env(safe-area-inset-left,0px));right:calc(8px + env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;padding:8px}
+  button{font-family:var(--mono);font-size:11px;color:var(--text);background:rgba(255,255,255,0.07);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-height:36px;cursor:pointer;transition:all 0.15s ease}
+  button:hover{background:rgba(224,114,63,0.2);border-color:var(--accent-bright);color:#fff}
+  button.on{background:rgba(224,114,63,0.36);border-color:var(--accent);color:#fff;font-weight:bold}
+  button.active-action{background:rgba(94,194,122,0.3);border-color:var(--good);color:#fff}
+  
+  /* D-Pad for Mobile Touch */
+  #pad{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(126px + env(safe-area-inset-bottom,0px));z-index:6;display:grid;grid-template-columns:repeat(3,46px);gap:4px}
+  #pad button{min-height:46px;font-size:14px}
+  
+  /* Scores Panel */
+  #scores{bottom:126px;left:8px;max-width:min(380px,calc(100vw - 190px));display:none;line-height:1.5}
   #scores table{border-collapse:collapse} #scores td{padding:1px 6px 1px 0}
-  #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:20;background:var(--bg);color:var(--accent);font-size:14px}
+  
+  /* Modal Overlay (Character Selection & Component Inspector) */
+  .modal-overlay{position:fixed;inset:0;background:rgba(8,5,4,0.85);backdrop-filter:blur(8px);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+  .modal-box{background:var(--panel);border:1.5px solid var(--accent);border-radius:10px;max-width:760px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,0.8)}
+  .modal-box h2{margin:0 0 10px 0;color:var(--accent-bright);font-size:18px;display:flex;align-items:center;justify-content:space-between}
+  .modal-box p{line-height:1.5;color:var(--text)}
+  .rover-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:16px 0}
+  .rover-card{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:8px;padding:14px;cursor:pointer;transition:all 0.2s ease}
+  .rover-card:hover,.rover-card.selected{background:rgba(224,114,63,0.18);border-color:var(--accent-bright);transform:translateY(-2px)}
+  .rover-card h3{margin:0 0 6px 0;font-size:14px;color:#fff}
+  .rover-card .spec-badge{font-size:10px;color:var(--muted);margin-bottom:8px}
+  .rover-card .highlight{font-size:11px;color:var(--text);line-height:1.4}
+  
+  /* Component Inspector Dialog */
+  .comp-list{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+  .comp-card{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+  .comp-card b{color:var(--accent-bright)}
+  .comp-card .role{color:var(--cyan);font-size:11px;margin-bottom:4px}
+  
+  /* Celebration Banner */
+  #celebration{display:none}
+  .celebration-box{text-align:center;padding:30px}
+  .celebration-box h1{color:var(--good);margin-top:0}
+  
+  #loading{position:fixed;inset:0;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;z-index:100;background:var(--bg);color:var(--accent-bright);font-size:15px}
+  .spinner{width:36px;height:36px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  
   label{display:flex;gap:6px;align-items:center}
-  input[type=range]{width:90px}
-  select{font-family:var(--mono);font-size:12px;color:var(--text);background:rgba(255,255,255,0.06);border:1px solid var(--line);border-radius:6px;min-height:40px;padding:0 6px}
-  button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  @media (max-width:520px){ #prov{font-size:11px} #hud{font-size:11px} }
+  input[type=range]{width:80px;accent-color:var(--accent)}
+  select{font-family:var(--mono);font-size:11px;color:var(--text);background:rgba(255,255,255,0.08);border:1px solid var(--line);border-radius:6px;min-height:36px;padding:0 6px}
+  
+  @media (max-width:640px){
+    #topBar{font-size:10px}
+    #campaignCard{max-width:calc(100vw - 16px);font-size:11px}
+    #prov{display:none}
+    button{padding:5px 8px;font-size:10px;min-height:32px}
+  }
 </style>
 </head>
 <body>
-<div id="loading">Loading Jezero data…</div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div id="loadStatus">Initializing NASA Mars Simulation…</div>
+</div>
+
 <canvas id="view"></canvas>
 <div id="reticle"></div>
-<div id="hud" class="panel"><b>JEZERO · Octavia E. Butler landing area</b><div id="hudtxt"></div></div>
+
+<!-- Top Telemetry Bar -->
+<div id="topBar" class="panel">
+  <div class="telemetry-item">
+    <span>CRAFT:</span> <b id="craftName">Perseverance</b>
+  </div>
+  <div class="telemetry-item">
+    <span>TIME:</span> <span id="solClock" class="val">11:30 LST</span>
+  </div>
+  <div class="telemetry-item">
+    <span>VEL:</span> <span id="speedVal" class="val">0.0 m/s</span>
+  </div>
+  <div class="telemetry-item">
+    <span>PITCH/ROLL:</span> <span id="pitchRollVal" class="val">0° / 0°</span>
+  </div>
+  <div class="telemetry-item">
+    <span>CAM:</span> <span id="camName" class="val">Chase</span>
+  </div>
+  <div class="telemetry-item">
+    <span id="freeRoamBadge" style="display:none;color:var(--good);font-weight:bold;">★ FREE-ROAM UNLOCKED</span>
+  </div>
+</div>
+
+<!-- Campaign Mission Card -->
+<div id="campaignCard" class="panel">
+  <div class="title">
+    <span id="milestoneTitle">MISSION MILESTONE</span>
+    <span id="progressDots" class="progress-dots">● ○ ○ ○</span>
+  </div>
+  <div id="milestoneObj" class="obj">Initializing mission objectives...</div>
+  <div class="telemetry-item" style="justify-content:space-between;width:100%">
+    <span>WAYPOINT: <span id="waypointDist" class="target-dist">Calculating...</span></span>
+    <button id="bAction" class="active-action" style="min-height:28px;padding:2px 8px;display:none">EXECUTE</button>
+  </div>
+</div>
+
+<!-- Provenance Layer Card -->
 <div id="prov" class="panel"><div id="provtxt"></div></div>
 <div id="scores" class="panel"></div>
 <div id="toast" class="panel"></div>
+
+<!-- Mobile Touch Pad -->
 <div id="pad">
   <span></span><button data-k="f">▲</button><span></span>
   <button data-k="l">◀</button><button data-k="b">▼</button><button data-k="r">▶</button>
 </div>
+
+<!-- Instrument & Action Controls Toolbar -->
 <div id="controls" class="panel">
-  <button id="bCam">Chase</button>
+  <button id="bSelectRover" title="Switch Rover / Helicopter">🛸 Select Craft</button>
+  <button id="bCam">Chase View</button>
+  
+  <!-- Mastcam Zoom (shown when in Mastcam mode) -->
+  <span id="zoomWrap" style="display:none;align-items:center;gap:4px">
+    <span>Zoom:</span>
+    <button id="bZoomOut">-</button>
+    <span id="zoomVal" style="min-width:32px;text-align:center">1.0x</span>
+    <button id="bZoomIn">+</button>
+  </span>
+
+  <!-- Robotic Arm Controls -->
+  <div id="armControls" style="display:inline-flex;gap:4px">
+    <button id="bArmStow">Stow Arm</button>
+    <button id="bArmInspect">Inspect Bedrock</button>
+    <button id="bArmDrill" style="border-color:var(--accent)">Drill Sample</button>
+  </div>
+
+  <!-- Helicopter Flight Controls -->
+  <div id="heliControls" style="display:none;gap:4px">
+    <button id="bHeliTakeoff" class="active-action">Takeoff / Land</button>
+    <button id="bHeliUp">Climb ▲</button>
+    <button id="bHeliDown">Descend ▼</button>
+  </div>
+
+  <button id="bLights">💡 Lights: Off</button>
+  <button id="bInspectComp">🔍 Inspect Parts</button>
+  <button id="bAudio">🔊 Audio: Off</button>
   <button id="bProv">Provenance</button>
-  <select id="tagLabel" aria-label="Feature to tag"><option>boulder</option><option>ripple</option><option>outcrop</option><option>sand patch</option><option>rover track</option></select>
-  <button id="bTag">Tag</button>
-  <button id="bGyro">Gyro</button>
   <button id="bScores">Scores</button>
-  <label>Dust τ <input id="tau" type="range" min="0.3" max="4" step="0.1" value="0.6"></label>
+  
+  <label title="Time of Day (Martian Solar Time)">
+    Sol Hr: <input id="solSlider" type="range" min="5.5" max="20" step="0.25" value="11.5">
+  </label>
+  <label title="Atmospheric Dust Optical Depth">
+    Dust τ: <input id="tau" type="range" min="0.3" max="4" step="0.1" value="0.6">
+  </label>
 </div>
+
+<!-- Character Selection Modal -->
+<div id="charSelectModal" class="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <h2>
+      <span>NASA MARS ROVER & CRAFT SELECTION</span>
+      <button id="bCloseChar" style="min-height:28px">✕</button>
+    </h2>
+    <p>Select your exploration craft. Each rover features its authentic historic landing site, instruments, kinematic mechanics, and chronological campaign traverse.</p>
+    
+    <div class="rover-grid" id="roverGrid">
+      <!-- Injected by JavaScript -->
+    </div>
+    
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+      <button id="bLaunchMission" class="on" style="min-height:44px;padding:0 24px;font-size:13px">🚀 DEPLOY TO MARS</button>
+    </div>
+  </div>
+</div>
+
+<!-- Component Inspector Modal -->
+<div id="compInspectModal" class="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <h2>
+      <span>ISOLATED COMPONENT BREAKDOWN & MECHANICS</span>
+      <button id="bCloseComp" style="min-height:28px">✕</button>
+    </h2>
+    <p>Detailed study of isolated rover components, kinematics, and how they operate on Mars:</p>
+    <div class="comp-list" id="compList">
+      <!-- Injected by JavaScript -->
+    </div>
+  </div>
+</div>
+
+<!-- Campaign Accomplished & Free-Roam Celebration Modal -->
+<div id="celebrationModal" class="modal-overlay" style="display:none">
+  <div class="modal-box celebration-box">
+    <h1>🎉 HISTORIC TRAVERSE COMPLETED!</h1>
+    <h3 style="color:var(--accent-bright)">MARS FREE-ROAM UNLOCKED</h3>
+    <p style="font-size:13px;line-height:1.6">Congratulations! You have completed the official NASA mission campaign. The survey boundary restrictions have been lifted. You can now freely explore the vast HiRISE Jezero Crater terrain, switch between all 4 NASA rovers and Ingenuity, drill anywhere, and fly unrestrained across Mars!</p>
+    <button id="bStartFreeRoam" class="on" style="min-height:44px;padding:0 28px;font-size:14px;margin-top:14px">ENTER FREE ROAM WORLD ➔</button>
+  </div>
+</div>
+
+<!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="app.js"></script>
+<script src="js/loaders/GLTFLoader.js"></script>
+<script src="js/loaders/OrbitControls.js"></script>
+<script src="js/audio.js?v=4"></script>
+<script src="js/rover_models.js?v=4"></script>
+<script src="js/mechanics.js?v=4"></script>
+<script src="js/lighting.js?v=4"></script>
+<script src="js/cameras.js?v=4"></script>
+<script src="js/campaign.js?v=4"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
